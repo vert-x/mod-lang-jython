@@ -35,7 +35,7 @@ repositories {
 }
 
 dependencies {
-  compile "org.jruby:jruby:$jrubyVersion"
+  compile "org.python:jython-standalone:$jythonVersion"
 
   provided "org.vert-x:vertx-core:$vertxVersion"
   provided "org.vert-x:vertx-platform:$vertxVersion"
@@ -52,7 +52,7 @@ sourceSets {
   }
   test {
     resources {
-      srcDirs "src/test/ruby_scripts", "src/test/resources"
+      srcDirs "src/test/python_scripts", "src/test/resources"
     }
   }
 }
@@ -62,8 +62,14 @@ task copyMod( type:Copy, dependsOn: 'classes' ) {
   from 'build/classes/main'
   from 'src/main/conf'
   from 'src/main/api_shim'
-  into( 'lib' ) {
-    from configurations.compile
+//  into( 'lib' ) {
+//    from configurations.compile
+//  }
+  //NOTE! That we copy the patched jython jar from extralibs, we
+  //DO NOT use the version from Maven
+  //See the README in there for reasons why
+  into('lib') {
+    from 'extralibs'
   }
 }
 
@@ -90,11 +96,11 @@ task cleanTestMod(type: Delete) {
 test() {
 
   // Remove any classpath entries for the classes or resources of the jruby verticle and also remove the
-  // jruby jar from the classpath
+  // jython jar from the classpath
   // If we don't do this then the system classloader will load them which can cause issues with loading resources
   // from inside JS verticles
   classpath = files( classpath.findAll {
-    (!( it.toString() ==~ /.+build\/(classes|resources)\/main$/ )) && !(it.toString().contains("org.jruby"))
+    (!( it.toString() ==~ /.+build\/(classes|resources)\/main$/ )) && !(it.toString().contains("org.python"))
   } )
 
 //  classpath.each {
@@ -129,16 +135,15 @@ task collectDeps(type: Copy) {
   }
 }
 
-task yardoc(type:Exec) {
-  commandLine = [ "yardoc",
-      "--title", "Ruby API Doc",
-      "--no-private",
-      "--quiet",
-      "--markup-provider", "kramdown",
-      "--readme", "$rootDir/README.md",
-      "--output-dir","${project.buildDir}/docs/ruby/api",
-      "src/main/ruby/**/*.rb", "src/main/ruby_scripts/**/*.rb",
-      "-", "$rootDir/LICENSE.txt" ]
+task pydoc(type: Exec) {
+  ignoreExitValue true
+  workingDir = project.projectDir
+
+  commandLine = [ System.getenv()['JYTHON_HOME'] + "/jython",
+      "-Dproj.base=${project.projectDir}",
+      "-Dpython.path=${project.projectDir}/src/build_tools/doclib" + System.properties['path.separator'] + "src/main/python_scripts",
+      "-Dproj.base=$project.projectDir.path",
+      "${project.projectDir}/src/build_tools/pydocx.py" ]
 
   if( System.properties['os.name'].toLowerCase().contains('windows') ) {
     commandLine = ['cmd', '/c'] + commandLine

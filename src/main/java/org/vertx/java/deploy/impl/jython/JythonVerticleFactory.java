@@ -48,6 +48,7 @@ public class JythonVerticleFactory implements VerticleFactory {
     this.mgr = mgr;
     this.mcl = mcl;
     System.setProperty("python.options.internalTablesImpl","weak");
+    Thread.currentThread().setContextClassLoader(mcl);
     Options.includeJavaStackInExceptions = false;
     this.py = new PythonInterpreter(null, new PySystemState());
   }
@@ -80,7 +81,6 @@ public class JythonVerticleFactory implements VerticleFactory {
         if (is == null) {
           throw new IllegalArgumentException("Cannot find verticle: " + scriptName);
         }
-
         // We wrap the python verticle in a function so different instances don't see each others top level vars
         String genName = "__VertxInternalVert__" + seq.incrementAndGet();
         funcName = "f" + genName;
@@ -104,6 +104,7 @@ public class JythonVerticleFactory implements VerticleFactory {
         sWrap.append("def ").append(stopFuncName).append("():\n");
         sWrap.append("\tif ").append(stopFuncVar).append(" is not None:\n");
         sWrap.append("\t\t").append(stopFuncVar).append("()\n");
+
         py.exec(sWrap.toString());
       }
     }
