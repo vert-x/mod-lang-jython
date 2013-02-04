@@ -16,7 +16,7 @@
 This module provides the entry point to the vert.x platform 
 """
 
-import org.vertx.java.deploy.impl.VertxLocator
+import org.vertx.java.platform.impl.JythonVerticleFactory
 import org.vertx.java.core.json.JsonObject
 
 from core.http import HttpServer, HttpClient
@@ -51,7 +51,7 @@ def create_sockjs_server(http_server):
 
 def get_logger():
     """ Get the logger for the verticle """
-    return org.vertx.java.deploy.impl.VertxLocator.container.getLogger()
+    return org.vertx.java.platform.impl.JythonVerticleFactory.container.getLogger()
 
 def deploy_verticle(main, config=None, instances=1, handler=None):
     """Deploy a verticle. The actual deploy happens asynchronously
@@ -66,7 +66,7 @@ def deploy_verticle(main, config=None, instances=1, handler=None):
     if config != None:
         config = org.vertx.java.core.json.JsonObject(map_to_java(config))
 
-    org.vertx.java.deploy.impl.VertxLocator.container.deployVerticle(main, config, instances, DoneHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployVerticle(main, config, instances, DoneHandler(handler))
 
 def deploy_worker_verticle(main, config=None, instances=1, handler=None):
     """Deploy a worker verticle. The actual deploy happens asynchronously
@@ -79,7 +79,7 @@ def deploy_worker_verticle(main, config=None, instances=1, handler=None):
     """
     if config != None:
         config = org.vertx.java.core.json.JsonObject(map_to_java(config))
-    org.vertx.java.deploy.impl.VertxLocator.container.deployWorkerVerticle(main, config, instances, DoneHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployWorkerVerticle(main, config, instances, DoneHandler(handler))
 
 
 def deploy_module(module_name, config=None, instances=1, handler=None):
@@ -93,7 +93,7 @@ def deploy_module(module_name, config=None, instances=1, handler=None):
     """
     if config != None:
         config = org.vertx.java.core.json.JsonObject(map_to_java(config))
-    org.vertx.java.deploy.impl.VertxLocator.container.deployModule(module_name, config, instances, DoneHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployModule(module_name, config, instances, DoneHandler(handler))
 
 def undeploy_verticle(id, handler=None):
     """Undeploy a verticle
@@ -102,7 +102,7 @@ def undeploy_verticle(id, handler=None):
     @param id: the unique id of the deployment
     @param handler: an handler that will be called when undeploy has completed
     """
-    org.vertx.java.deploy.impl.VertxLocator.container.undeployVerticle(id, NullDoneHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.undeployVerticle(id, NullDoneHandler(handler))
 
 def undeploy_module(id, handler=None):
     """Undeploy a module
@@ -111,16 +111,16 @@ def undeploy_module(id, handler=None):
     @param id: the unique id of the module
     @param handler: an handler that will be called when undeploy has completed
     """
-    org.vertx.java.deploy.impl.VertxLocator.container.undeployModule(id, NullDoneHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.undeployModule(id, NullDoneHandler(handler))
 
 def config():
     """Get config for the verticle
     @return: dict config for the verticle
     """
-    return map_from_java(org.vertx.java.deploy.impl.VertxLocator.container.getConfig().toMap())
+    return map_from_java(org.vertx.java.platform.impl.JythonVerticleFactory.container.getConfig().toMap())
 
 def java_vertx():
-    return org.vertx.java.deploy.impl.VertxLocator.vertx
+    return org.vertx.java.platform.impl.JythonVerticleFactory.vertx
 
 def set_timer(delay, handler):
     """Sets a one-shot timer that will fire after a certain delay.
@@ -162,5 +162,5 @@ def run_on_loop(handler):
 
 def exit():
     """ Cause the container to exit """
-    org.vertx.java.deploy.impl.VertxLocator.container.exit()
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.exit()
 

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import org.vertx.java.deploy.impl.VertxLocator
+import org.vertx.java.platform.impl.JythonVerticleFactory
 import org.vertx.java.core.buffer.Buffer
 import org.vertx.java.core.Handler
 import org.vertx.java.core.json.JsonObject
@@ -56,7 +56,7 @@ class EventBus(object):
 
     @staticmethod
     def java_eventbus():
-        return org.vertx.java.deploy.impl.VertxLocator.vertx.eventBus()
+        return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.eventBus()
 
     @staticmethod
     def send(address, message, reply_handler=None):

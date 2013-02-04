@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import org.vertx.java.deploy.impl.VertxLocator
+import org.vertx.java.platform.impl.JythonVerticleFactory
 import org.vertx.java.core.buffer.Buffer
 
 from core.javautils import map_from_java
@@ -39,7 +39,7 @@ class SharedData(object):
     """
     @staticmethod
     def shared_data():
-        return org.vertx.java.deploy.impl.VertxLocator.vertx.sharedData()
+        return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.sharedData()
 
     @staticmethod
     def get_hash(key):

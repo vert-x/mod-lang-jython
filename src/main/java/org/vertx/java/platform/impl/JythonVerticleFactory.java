@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package org.vertx.java.deploy.impl.jython;
+package org.vertx.java.platform.impl;
 
 import org.python.core.Options;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
-import org.vertx.java.deploy.Verticle;
-import org.vertx.java.deploy.impl.ModuleClassLoader;
-import org.vertx.java.deploy.impl.VerticleFactory;
-import org.vertx.java.deploy.impl.VerticleManager;
+import org.vertx.java.core.Vertx;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.platform.Container;
+import org.vertx.java.platform.Verticle;
+import org.vertx.java.platform.VerticleFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -35,20 +36,23 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class JythonVerticleFactory implements VerticleFactory {
 
-  private VerticleManager mgr;
-  private ModuleClassLoader mcl;
+  private ClassLoader cl;
   private PythonInterpreter py;
   private static final AtomicInteger seq = new AtomicInteger();
+
+  public static Vertx vertx;
+  public static Container container;
 
   public JythonVerticleFactory() {
   }
 
   @Override
-  public void init(VerticleManager mgr, ModuleClassLoader mcl) {
-    this.mgr = mgr;
-    this.mcl = mcl;
+  public void init(Vertx vertx, Container container, ClassLoader cl) {
+    this.cl = cl;
+    JythonVerticleFactory.vertx = vertx;
+    JythonVerticleFactory.container = container;
     System.setProperty("python.options.internalTablesImpl","weak");
-    Thread.currentThread().setContextClassLoader(mcl);
+    Thread.currentThread().setContextClassLoader(cl);
     Options.includeJavaStackInExceptions = false;
     this.py = new PythonInterpreter(null, new PySystemState());
   }
@@ -57,8 +61,8 @@ public class JythonVerticleFactory implements VerticleFactory {
     return new JythonVerticle(main);
   }
 
-  public void reportException(Throwable t) {
-    mgr.getLogger().error("Exception in Python verticle", t);
+  public void reportException(Logger logger, Throwable t) {
+    logger.error("Exception in Python verticle", t);
   }
 
   public void close() {
@@ -77,7 +81,7 @@ public class JythonVerticleFactory implements VerticleFactory {
     }
 
     public void start() throws Exception {
-      try (InputStream is = mcl.getResourceAsStream(scriptName)) {
+      try (InputStream is = cl.getResourceAsStream(scriptName)) {
         if (is == null) {
           throw new IllegalArgumentException("Cannot find verticle: " + scriptName);
         }

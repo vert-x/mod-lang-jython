@@ -15,7 +15,7 @@
 import datetime
 import core.streams
 import org.vertx.java.core.AsyncResultHandler
-import org.vertx.java.deploy.impl.VertxLocator
+import org.vertx.java.platform.impl.JythonVerticleFactory
 
 from core.buffer import Buffer
 
@@ -184,7 +184,7 @@ class FileSystem(object):
 
     @staticmethod
     def java_file_system():
-        return org.vertx.java.deploy.impl.VertxLocator.vertx.fileSystem()
+        return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.fileSystem()
     
     @staticmethod
     def copy(frm, to, handler):

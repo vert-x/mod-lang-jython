@@ -17,7 +17,7 @@ Net support to the python vert.x platform
 """
 
 import org.vertx.java.core.Handler
-import org.vertx.java.deploy.impl.VertxLocator
+import org.vertx.java.platform.impl.JythonVerticleFactory
 import core.tcp_support
 import core.ssl_support
 import core.buffer
@@ -38,7 +38,7 @@ class NetServer(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
     set using connect_handler.
     """
     def __init__(self, **kwargs):
-        self.java_obj = org.vertx.java.deploy.impl.VertxLocator.vertx.createNetServer()
+        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createNetServer()
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
 
@@ -91,7 +91,7 @@ class NetClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
     Multiple connections to different servers can be made using the same instance.
     """
     def __init__(self, **kwargs):
-        self.java_obj = org.vertx.java.deploy.impl.VertxLocator.vertx.createNetClient()
+        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createNetClient()
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
 

@@ -17,7 +17,7 @@ import core.ssl_support
 import org.vertx.java.core
 import org.vertx.java.core.json.JsonObject
 import org.vertx.java.core.json.JsonArray
-import org.vertx.java.deploy.impl.VertxLocator
+import org.vertx.java.platform.impl.JythonVerticleFactory
 
 from core.javautils import map_to_java
 from core.event_bus import EventBus
@@ -55,7 +55,7 @@ class SockJSServer(object):
     """
 
     def __init__(self, http_server):
-      self.java_obj = org.vertx.java.deploy.impl.VertxLocator.vertx.createSockJSServer(http_server._to_java_server())
+      self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createSockJSServer(http_server._to_java_server())
 
     def install_app(self, config, handler):
         """Install an application

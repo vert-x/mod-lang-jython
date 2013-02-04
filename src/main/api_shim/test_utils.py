@@ -1,5 +1,5 @@
 
-import org.vertx.java.deploy.impl.VertxLocator
+import org.vertx.java.platform.impl.JythonVerticleFactory
 import org.vertx.java.testframework.TestUtils
 from org.vertx.java.core import Handler
 import java.lang
@@ -8,7 +8,7 @@ from core.buffer import Buffer
 
 class TestUtils(object):
     def __init__(self):
-        self.java_obj = org.vertx.java.testframework.TestUtils(org.vertx.java.deploy.impl.VertxLocator.vertx)
+        self.java_obj = org.vertx.java.testframework.TestUtils(org.vertx.java.platform.impl.JythonVerticleFactory.vertx)
 
     def azzert(self, result, message=None):
         try:

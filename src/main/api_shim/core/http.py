@@ -16,7 +16,7 @@
 This module adds the http support to the python vert.x platform 
 """
 
-import org.vertx.java.deploy.impl.VertxLocator
+import org.vertx.java.platform.impl.JythonVerticleFactory
 import org.vertx.java.core.http.RouteMatcher
 import core.tcp_support
 import core.ssl_support
@@ -34,7 +34,7 @@ __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 class HttpServer(core.tcp_support.TCPSupport, core.ssl_support.SSLSupport, object):
     """ An HTTP and websockets server """
     def __init__(self, **kwargs):
-        self.java_obj = org.vertx.java.deploy.impl.VertxLocator.vertx.createHttpServer()
+        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createHttpServer()
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
 
@@ -110,7 +110,7 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
      used as a factory for HTML5 WebSocket websockets.
     """
     def __init__(self, **kwargs):
-        self.java_obj = org.vertx.java.deploy.impl.VertxLocator.vertx.createHttpClient()
+        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createHttpClient()
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
 
