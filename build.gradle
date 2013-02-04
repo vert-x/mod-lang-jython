@@ -133,3 +133,18 @@ task collectDeps(type: Copy) {
     from configurations.testCompile
   }
 }
+
+task pydoc(type: Exec) {
+  ignoreExitValue true
+  workingDir = project.projectDir
+
+  commandLine = [ System.getenv()['JYTHON_HOME'] + "/jython",
+      "-Dproj.base=${project.projectDir}",
+      "-Dpython.path=${project.projectDir}/src/build_tools/doclib" + System.properties['path.separator'] + "src/main/python_scripts",
+      "-Dproj.base=$project.projectDir.path",
+      "${project.projectDir}/src/build_tools/pydocx.py" ]
+
+  if( System.properties['os.name'].toLowerCase().contains('windows') ) {
+    commandLine = ['cmd', '/c'] + commandLine
+  }
+}
