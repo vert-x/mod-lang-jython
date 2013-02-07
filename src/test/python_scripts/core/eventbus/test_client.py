@@ -143,10 +143,8 @@ class EventBusTest(object):
 
     def echo(self, msg):
         address = "some-address"
-        #print "The message is %s type %s"% (msg, type(msg))
         class Handler(object):
             def handler_func(self, received):
-                #print "received: %s type %s"% type(received.body, type(received.body))
                 tu.check_context()
                 EventBus.unregister_handler(self.id)
                 received.reply(received.body)
@@ -154,7 +152,6 @@ class EventBusTest(object):
         handler.id = EventBus.register_handler(address, handler=handler.handler_func)
         
         def reply_handler(reply):
-            #print "received reply %s type %s"% (reply.body, type(reply.body))
             if isinstance(reply.body, dict):
                 for k,v in reply.body.iteritems():
                     tu.azzert(msg[k] == v)

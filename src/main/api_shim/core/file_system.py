@@ -380,7 +380,7 @@ class FileSystem(object):
     @staticmethod 
     def delete_recursive_sync(path):
         """Synchronous version of FileSystem.delete_recursive"""
-        FileSystem.java_file_system().deleteSync(path, true)
+        FileSystem.java_file_system().deleteSync(path, True)
 
     @staticmethod 
     def mkdir(path, perms=None, handler=None):

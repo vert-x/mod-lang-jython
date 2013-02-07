@@ -58,12 +58,10 @@ class NetTest(object):
             @socket.drain_handler
             def drain_handler(stream):
                 tu.check_context()
-                #print "drained\n"
 
             @socket.end_handler
             def end_handler(stream):
                 tu.check_context()
-                #print "end\n"
 
             socket.pause()
             socket.resume()
@@ -129,17 +127,14 @@ class NetTest(object):
             @socket.drain_handler
             def drain_handler(stream): 
                 tu.check_context()
-                #print "drained\n"
 
             @socket.end_handler
             def end_handler(stream):
                 tu.check_context()
-                #print "end\n"
 
             @socket.closed_handler
             def closed_handler():
                 tu.check_context()
-                #print "closed\n"
 
             socket.pause()
             socket.resume()

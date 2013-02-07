@@ -126,10 +126,8 @@ def route(method, regex, pattern, params, uri):
         req.response.end()
 
     if regex:
-        #print "calling rm.%s_re with pattern %s"%(method, pattern)
         getattr(rm, method + '_re')(pattern, handler)
     else:
-        #print "calling rm.%s with pattern %s"%(method, pattern)
         getattr(rm, method)(pattern, handler)
 
     if method == 'all':

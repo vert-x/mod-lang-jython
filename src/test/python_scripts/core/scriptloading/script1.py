@@ -19,8 +19,6 @@
 #        tu.azzert(Bar.func2() == 'bar')
 #        return "foo"
 
-print "#################### IN FooClass"
-
 class FooClass(object):
 
     def foo(self):
