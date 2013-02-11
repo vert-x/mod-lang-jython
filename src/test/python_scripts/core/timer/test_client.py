@@ -16,12 +16,12 @@ import vertx
 from test_utils import TestUtils
 
 tu = TestUtils()
-tu.check_context()
+tu.check_thread()
 
 class TimerTest(object):
     def test_one_off(self):
         def handler(timer_id):
-            tu.check_context()
+            tu.check_thread()
             tu.test_complete()
         vertx.set_timer(10, handler)
 
@@ -29,7 +29,7 @@ class TimerTest(object):
         fires = 10
         self.count = 0
         def handler(timer_id):
-            tu.check_context()
+            tu.check_thread()
             self.count += 1
             if self.count == fires:
                 vertx.cancel_timer(timer_id)
@@ -42,7 +42,7 @@ class TimerTest(object):
         vertx.set_periodic(10, handler)
     
 def vertx_stop():
-    tu.check_context()
+    tu.check_thread()
     tu.unregister_all()
     tu.app_stopped()
 

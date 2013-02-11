@@ -18,7 +18,7 @@ from core.buffer import Buffer
 
 tu = TestUtils()
 
-tu.check_context()
+tu.check_thread()
 
 
 class NetTest(object):
@@ -30,18 +30,18 @@ class NetTest(object):
         server = vertx.create_net_server()
         @server.connect_handler
         def connect_handler(socket):
-            tu.check_context()
+            tu.check_thread()
 
             @socket.data_handler
             def data_handler(data):
-                tu.check_context()
+                tu.check_thread()
                 socket.write_buffer(data) # Just echo it back
 
         server.listen(8080)
 
         client = vertx.create_net_client()
         def client_connect_handler(socket):
-            tu.check_context()
+            tu.check_thread()
             sends = 10
             size = 100
 
@@ -50,18 +50,18 @@ class NetTest(object):
 
             @socket.data_handler
             def data_handler(data):
-                tu.check_context()
+                tu.check_thread()
                 received.append_buffer(data)
                 if received.length == sends * size:
                     tu.azzert(TestUtils.buffers_equal(sent, received))
                     tu.test_complete()
             @socket.drain_handler
             def drain_handler(stream):
-                tu.check_context()
+                tu.check_thread()
 
             @socket.end_handler
             def end_handler(stream):
-                tu.check_context()
+                tu.check_thread()
 
             socket.pause()
             socket.resume()
@@ -90,11 +90,11 @@ class NetTest(object):
         
         @server.connect_handler
         def connect_handler(socket):
-            tu.check_context()
+            tu.check_thread()
 
             @socket.data_handler
             def data_handler(data):
-                tu.check_context()
+                tu.check_thread()
                 socket.write_buffer(data) # Just echo it back
         
         server.listen(8080)
@@ -107,7 +107,7 @@ class NetTest(object):
         client.trust_store_password = 'wibble'
 
         def client_connect_handler(socket):
-            tu.check_context()
+            tu.check_thread()
             sends = 10
             size = 100
 
@@ -116,7 +116,7 @@ class NetTest(object):
 
             @socket.data_handler
             def data_handler(data):
-                tu.check_context()
+                tu.check_thread()
                 received.append_buffer(data)
 
                 if received.length == sends * size:
@@ -126,15 +126,15 @@ class NetTest(object):
             #Just call the methods. Real testing is done in java tests
             @socket.drain_handler
             def drain_handler(stream): 
-                tu.check_context()
+                tu.check_thread()
 
             @socket.end_handler
             def end_handler(stream):
-                tu.check_context()
+                tu.check_thread()
 
             @socket.closed_handler
             def closed_handler():
-                tu.check_context()
+                tu.check_thread()
 
             socket.pause()
             socket.resume()
@@ -154,11 +154,11 @@ class NetTest(object):
 
         @server.connect_handler
         def connect_handler(socket):
-            tu.check_context()
+            tu.check_thread()
 
             @socket.data_handler
             def data_handler(data):
-                tu.check_context()
+                tu.check_thread()
                 socket.write_buffer(data) # Just echo it back
         
         server.listen(8080)
@@ -166,13 +166,13 @@ class NetTest(object):
         client = vertx.create_net_client() 
 
         def client_connect_handler(socket):
-            tu.check_context()
+            tu.check_thread()
             sent = 'some-string'
             received = Buffer.create()
 
             @socket.data_handler
             def data_handler(data):
-                tu.check_context()
+                tu.check_thread()
                 received.append_buffer(data)
 
                 if received.length == len(sent):

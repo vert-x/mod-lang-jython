@@ -17,7 +17,7 @@ from test_utils import TestUtils
 from core.buffer import Buffer
 
 tu = TestUtils()
-tu.check_context()
+tu.check_thread()
 
 server = vertx.create_http_server()
 client = vertx.create_http_client()
@@ -33,10 +33,10 @@ class WebsocketTest(object):
     def echo(self, binary):
         @server.websocket_handler
         def websocket_handler(ws):
-            tu.check_context()
+            tu.check_thread()
             @ws.data_handler
             def data_handler(buff):
-                tu.check_context()
+                tu.check_thread()
                 ws.write_buffer(buff)
             
         server.listen(8080)
@@ -47,12 +47,12 @@ class WebsocketTest(object):
             self.str_ = TestUtils.random_unicode_string(1000)
 
         def connect_handler(ws):
-            tu.check_context()
+            tu.check_thread()
             received = Buffer.create()
 
             @ws.data_handler
             def data_handler(buff):
-                tu.check_context()
+                tu.check_thread()
                 received.append_buffer(buff)
                 if received.length == buff.length:
                     tu.azzert(TestUtils.buffers_equal(buff, received))
@@ -68,17 +68,17 @@ class WebsocketTest(object):
     def test_write_from_connect_handler(self):
         @server.websocket_handler
         def websocket_handler(ws):
-            tu.check_context()
+            tu.check_thread()
             ws.write_text_frame("foo")
   
         server.listen(8080)
 
         def connect_handler(ws):
-            tu.check_context()
+            tu.check_thread()
 
             @ws.data_handler
             def data_handler(buff):
-                tu.check_context()
+                tu.check_thread()
                 tu.azzert("foo" == buff.to_string())
                 tu.test_complete()
         client.connect_web_socket("/someurl", connect_handler)
@@ -86,14 +86,14 @@ class WebsocketTest(object):
     def test_close(self):
         @server.websocket_handler
         def websocket_handler(ws):
-            tu.check_context()
+            tu.check_thread()
             @ws.data_handler
             def data_handler(buff):
                 ws.close()
     
         server.listen(8080)
         def connect_handler(ws):
-            tu.check_context()
+            tu.check_thread()
             @ws.closed_handler
             def closed_handler():
                 tu.test_complete()
@@ -104,19 +104,19 @@ class WebsocketTest(object):
     def test_close_from_connect(self):
         @server.websocket_handler
         def websocket_handler(ws):
-            tu.check_context()
+            tu.check_thread()
             ws.close()
 
         server.listen(8080)
         def connect_handler(ws):
-            tu.check_context()
+            tu.check_thread()
             @ws.closed_handler
             def closed_handler():
                 tu.test_complete()
         client.connect_web_socket("/someurl", connect_handler)
 
 def vertx_stop():
-    tu.check_context()
+    tu.check_thread()
     tu.unregister_all()
     client.close()
     @server.close

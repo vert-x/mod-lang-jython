@@ -17,7 +17,7 @@ from test_utils import TestUtils
 from core.buffer import Buffer
 
 tu = TestUtils()
-tu.check_context()
+tu.check_thread()
 server = vertx.create_http_server()
 client = vertx.create_http_client()
 client.port = 8080
@@ -151,7 +151,7 @@ def http_method(ssl, method, chunked):
 
     @server.request_handler
     def request_handler(req):
-        tu.check_context()
+        tu.check_thread()
         tu.azzert(req.uri == uri)
         tu.azzert(req.method == method)
         tu.azzert(req.path == path)
@@ -166,13 +166,13 @@ def http_method(ssl, method, chunked):
 
         @req.data_handler
         def data_handler(data):
-            tu.check_context()
+            tu.check_thread()
             body.append_buffer(data)
         req.response.chunked = chunked
 
         @req.end_handler
         def end_handler(stream):
-            tu.check_context()
+            tu.check_thread()
             if method != 'HEAD' and method != 'CONNECT':
                 if not chunked:
                     req.response.put_header('Content-Length', body.length)
@@ -194,7 +194,7 @@ def http_method(ssl, method, chunked):
     sent_buff = TestUtils.gen_buffer(1000)
 
     def response_handler(resp):
-        tu.check_context()
+        tu.check_thread()
         tu.azzert(200 == resp.status_code)
         tu.azzert('vrheader1' == resp.headers['rheader1'])
         tu.azzert('vrheader2' == resp.headers['rheader2'])
@@ -202,12 +202,12 @@ def http_method(ssl, method, chunked):
         
         @resp.data_handler
         def data_handler(data):
-            tu.check_context()
+            tu.check_thread()
             body.append_buffer(data)
 
         @resp.end_handler
         def end_handler(stream):
-            tu.check_context()
+            tu.check_thread()
             if method != 'HEAD' and method != 'CONNECT':
                 tu.azzert(TestUtils.buffers_equal(sent_buff, body))
                 if chunked:
@@ -227,7 +227,7 @@ def http_method(ssl, method, chunked):
     request.end()
 
 def vertx_stop():
-    tu.check_context()
+    tu.check_thread()
     tu.unregister_all()
     client.close()
     def close_handler():

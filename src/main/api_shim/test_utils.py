@@ -43,8 +43,8 @@ class TestUtils(object):
     def unregister_all(self):
         self.java_obj.unregisterAll()
 
-    def check_context(self):
-        return self.java_obj.checkContext()
+    def check_thread(self):
+        return self.java_obj.checkThread()
 
     @staticmethod
     def gen_buffer(size):

@@ -20,7 +20,7 @@ tu = TestUtils()
 
 FILEDIR = "python-test-output"
 
-tu.check_context()
+tu.check_thread()
 
 def setup(setup_func):
     def mkdir_handler(err, result):
@@ -40,9 +40,9 @@ class FileSystemTest(object):
         filename = FILEDIR + "/test-file.txt"
         tofile = FILEDIR + "/to-file.txt"
         def create_file_handler(err, res):
-            tu.check_context()
+            tu.check_thread()
             def copy_handler(err, res):
-                tu.check_context()
+                tu.check_thread()
                 tu.azzert(err == None)
                 tu.test_complete()
             FileSystem.copy(filename, tofile, copy_handler)
@@ -52,9 +52,9 @@ class FileSystemTest(object):
     def test_stats(self):
         filename = FILEDIR + "/test-file.txt"
         def create_file_handler(err, stats):
-            tu.check_context()
+            tu.check_thread()
             def props_handler(err, stats):
-                tu.check_context()
+                tu.check_thread()
                 tu.azzert(err == None)
 #                print "creation time %s"% stats.creation_time
 #                print "last access time %s"% stats.last_access_time
@@ -71,7 +71,7 @@ class FileSystemTest(object):
 
     def test_async_file(self):
         def open_handler(err, file):
-            tu.check_context()
+            tu.check_thread()
             tu.azzert(err == None)
             num_chunks = 100;
             chunk_size = 1000;
@@ -81,7 +81,7 @@ class FileSystemTest(object):
                 buff = TestUtils.gen_buffer(chunk_size)
                 tot_buff.append_buffer(buff)
                 def write_handler(err, res):
-                    tu.check_context()
+                    tu.check_thread()
                     self.written += 1
                     if self.written == num_chunks:
                       # all written
@@ -90,14 +90,14 @@ class FileSystemTest(object):
                       for j in range(0, num_chunks):
                         pos = j * chunk_size
                         def read_handler(err, buff):
-                            tu.check_context
+                            tu.check_thread
                             tu.azzert(err == None)
                             self.read += 1
                             if self.read == num_chunks:
                                 # all read
                                 tu.azzert(TestUtils.buffers_equal(tot_buff, tot_read))
                                 def close_handler(err, res):
-                                    tu.check_context()
+                                    tu.check_thread()
                                     tu.test_complete()
                                 file.close(close_handler)
                         file.read(tot_read, pos, pos, chunk_size, read_handler)
@@ -108,7 +108,7 @@ class FileSystemTest(object):
     def test_async_file_streams(self):
         filename = FILEDIR + "/somefile.txt"
         def open_handler(err, file):
-            tu.check_context()
+            tu.check_thread()
             tu.azzert(err == None)
             num_chunks = 100;
             chunk_size = 1000;
@@ -120,7 +120,7 @@ class FileSystemTest(object):
                 write_stream.write_buffer(buff)
             def close_handler(err, file):
                 def open_handler2(err, file):
-                    tu.check_context()
+                    tu.check_thread()
                     tu.azzert(err == None)
                     read_stream = file.read_stream
                     tot_read = Buffer.create()
@@ -129,9 +129,9 @@ class FileSystemTest(object):
                     read_stream.data_handler(data_handler)
                     def end_handler(stream):
                         tu.azzert(TestUtils.buffers_equal(tot_buff, tot_read))
-                        tu.check_context
+                        tu.check_thread
                         def close_handler2(err, result):
-                            tu.check_context()
+                            tu.check_thread()
                             tu.test_complete()
                         file.close(close_handler2)
                     read_stream.end_handler(end_handler)
@@ -141,7 +141,7 @@ class FileSystemTest(object):
         FileSystem.open(filename, handler=open_handler)
 
 def vertx_stop():
-    tu.check_context()
+    tu.check_thread()
     FileSystem.delete_recursive_sync(FILEDIR)
     tu.unregister_all()
     tu.app_stopped()

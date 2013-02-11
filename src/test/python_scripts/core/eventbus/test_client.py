@@ -18,7 +18,7 @@ from core.event_bus import EventBus
 
 tu = TestUtils()
 
-tu.check_context()
+tu.check_thread()
 
 class EventBusTest(object):
     def test_simple_send(self):
@@ -145,7 +145,7 @@ class EventBusTest(object):
         address = "some-address"
         class Handler(object):
             def handler_func(self, received):
-                tu.check_context()
+                tu.check_thread()
                 EventBus.unregister_handler(self.id)
                 received.reply(received.body)
         handler = Handler()
@@ -182,7 +182,7 @@ class EventBusTest(object):
         EventBus.send(address, "message", reply_handler2)
 
 def vertx_stop():
-    tu.check_context()
+    tu.check_thread()
     tu.unregister_all()
     tu.app_stopped()
 
