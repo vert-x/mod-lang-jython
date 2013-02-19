@@ -26,6 +26,7 @@ import org.vertx.java.platform.Verticle;
 import org.vertx.java.platform.VerticleFactory;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -109,7 +110,12 @@ public class JythonVerticleFactory implements VerticleFactory {
         sWrap.append("\tif ").append(stopFuncVar).append(" is not None:\n");
         sWrap.append("\t\t").append(stopFuncVar).append("()\n");
 
-        py.exec(sWrap.toString());
+        // We have to convert it back to an inputstream since for some reason there is no version
+        // py.exec which takes a String AND a fileName - and without the filename
+        // any stack traces from errors won't show the filename and be hard for the user to parse.
+        try (InputStream sis = new ByteArrayInputStream(sWrap.toString().getBytes("UTF-8"))) {
+          py.execfile(sis, scriptName);
+        }
       }
     }
 
