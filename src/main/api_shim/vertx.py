@@ -68,7 +68,7 @@ def deploy_verticle(main, config=None, instances=1, handler=None):
 
     org.vertx.java.platform.impl.JythonVerticleFactory.container.deployVerticle(main, config, instances, DoneHandler(handler))
 
-def deploy_worker_verticle(main, config=None, instances=1, handler=None):
+def deploy_worker_verticle(main, config=None, instances=1, handler=None, multithreaded=False):
     """Deploy a worker verticle. The actual deploy happens asynchronously
 
     Keyword arguments:
@@ -76,10 +76,11 @@ def deploy_worker_verticle(main, config=None, instances=1, handler=None):
     @param config: dict configuration for the verticle
     @param instances: the number of instances to deploy
     @param handler: an handler that will be called when deploy has completed
+    @param multithreaded: enables multithreaded worker
     """
     if config != None:
         config = org.vertx.java.core.json.JsonObject(map_to_java(config))
-    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployWorkerVerticle(main, config, instances, DoneHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployWorkerVerticle(main, config, instances, multithreaded, DoneHandler(handler))
 
 
 def deploy_module(module_name, config=None, instances=1, handler=None):
