@@ -18,8 +18,8 @@ apply from: "gradle/maven.gradle"
 
 apply plugin: 'groovy'
 
-group = groupname
-archivesBaseName = artifact
+group = modowner
+archivesBaseName = modname
 
 apply plugin: 'java'
 
@@ -38,13 +38,16 @@ configurations {
 }
 
 repositories {
+  flatDir {
+    dirs 'extralibs'
+  }
   mavenLocal()
   maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
   mavenCentral()
 }
 
 dependencies {
-  compile "org.python:jython-standalone:$jythonVersion"
+  compile ":jython-standalone:$jythonVersion"
 
   provided "io.vertx:vertx-core:$vertxVersion"
   provided "io.vertx:vertx-platform:$vertxVersion"
@@ -67,7 +70,7 @@ sourceSets {
 }
 
 task copyMod( type:Copy, dependsOn: 'classes' ) {
-  into "build/mod/maven:$groupname:$artifact:$version"
+  into "build/mod/$modowner#$modname#$version"
   from compileJava
   from 'src/main/conf'
   from 'src/main/api_shim'
@@ -82,7 +85,7 @@ task dist( type: Zip) {
   group = 'vert.x'
   description = "Assembles a vert.x module"
   destinationDir = project.file('build/libs')
-  archiveName = "${artifact}-${version}" + ".zip"
+  archiveName = "${modname}-${version}" + ".zip"
   from copyMod
 }
 
