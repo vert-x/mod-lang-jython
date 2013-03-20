@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-  compile ":jython-standalone:$jythonVersion"
+  compile "io.vertx:jython-standalone:$jythonVersion"
 
   provided "io.vertx:vertx-core:$vertxVersion"
   provided "io.vertx:vertx-platform:$vertxVersion"
