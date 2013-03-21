@@ -23,7 +23,7 @@ import core.ssl_support
 import core.buffer
 import core.streams
 
-from core.handlers import CloseHandler, DoneHandler, ClosedHandler
+from core.handlers import CloseHandler, DoneHandler, ClosedHandler, ListenHandler
 from core.event_bus import EventBus
 
 __author__ = "Scott Horn"
@@ -66,17 +66,17 @@ class NetServer(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
         return self
 
 
-    def listen(self, port, host="0.0.0.0"):
+    def listen(self, port, host="0.0.0.0", handler=None):
         """Instruct the server to listen for incoming connections.
 
         Keyword arguments:
-        @param port: The port to listen on.
-        @param host: The host name or ip address to listen on.
+        @param port:    The port to listen on.
+        @param host:    The host name or ip address to listen on.
+        @param handler: The handler to notify once the listen operations completes (default None)
         
         @return: a reference to self so invocations can be chained
-        """    
-        self.java_obj.listen(port, host)
-        return self
+        """
+        self.java_obj.listen(port, host, ListenHandler(handler))
 
 
     def close(self, handler=None):
@@ -202,3 +202,4 @@ class ConnectHandler(org.vertx.java.core.Handler):
     def handle(self, socket):
         """ Call the handler after connection is established"""
         self.handler(NetSocket(socket))
+

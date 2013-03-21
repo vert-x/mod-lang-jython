@@ -25,7 +25,7 @@ import core.streams
 
 from core.javautils import map_from_java, map_to_java
 from core.handlers import CloseHandler, ClosedHandler, ExceptionHandler
-from core.handlers import DoneHandler, ContinueHandler, BufferHandler
+from core.handlers import DoneHandler, ContinueHandler, BufferHandler, ListenHandler
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
@@ -61,18 +61,19 @@ class HttpServer(core.tcp_support.TCPSupport, core.ssl_support.SSLSupport, objec
         self.java_obj.websocketHandler(ServerWebSocketHandler(handler))
         return self
 
-    def listen(self, port, host=None):
+    def listen(self, port, host="0.0.0.0", handler=None):
         """Instruct the server to listen for incoming connections. If host is None listens on all.
 
         Keyword arguments:
-        @param port: The port to listen on.
-        @param host: The host name or ip address to listen on. (default None)
+        @param port:    The port to listen on.
+        @param host:    The host name or ip address to listen on. (default 0.0.0.0)
+        @param handler: The handler to notify once the listen operation completes. (default None)
     
         """
         if host is None:
-            self.java_obj.listen(port)
+            self.java_obj.listen(port, ListenHandler(handler))
         else:
-            self.java_obj.listen(port, host)
+            self.java_obj.listen(port, host, ListenHandler(handler))
 
     def client_auth_required(self, val):
         """ Client authentication is an extra level of security in SSL, and requires clients to provide client certificates.

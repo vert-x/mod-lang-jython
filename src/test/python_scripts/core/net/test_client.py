@@ -37,8 +37,6 @@ class NetTest(object):
                 tu.check_thread()
                 socket.write_buffer(data) # Just echo it back
 
-        server.listen(8080)
-
         client = vertx.create_net_client()
         def client_connect_handler(socket):
             tu.check_thread()
@@ -72,8 +70,11 @@ class NetTest(object):
                 data = TestUtils.gen_buffer(size)
                 sent.append_buffer(data)
                 socket.write_buffer(data)
-            
-        client.connect(8080, "localhost", client_connect_handler)
+
+        def listen_handler(serv):
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
     def test_echo_ssl(self):
@@ -96,8 +97,6 @@ class NetTest(object):
             def data_handler(data):
                 tu.check_thread()
                 socket.write_buffer(data) # Just echo it back
-        
-        server.listen(8080)
 
         client = vertx.create_net_client()
         client.ssl = True
@@ -146,7 +145,11 @@ class NetTest(object):
                 sent.append_buffer(data)
                 socket.write_buffer(data)
 
-        client.connect(8080, "localhost", client_connect_handler)
+        def listen_handler(serv):
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
 
     def test_write_str(self):
         global server, client
@@ -160,8 +163,6 @@ class NetTest(object):
             def data_handler(data):
                 tu.check_thread()
                 socket.write_buffer(data) # Just echo it back
-        
-        server.listen(8080)
 
         client = vertx.create_net_client() 
 
@@ -181,7 +182,11 @@ class NetTest(object):
 
             socket.write_str(sent)
 
-        client.connect(8080, "localhost", client_connect_handler)
+        def listen_handler(serv):
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
 
     # Basically we just need to touch all methods, the real testing occurs in the Java tests
     def test_methods(self):
