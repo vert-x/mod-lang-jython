@@ -17,6 +17,7 @@
 apply from: "gradle/maven.gradle"
 
 apply plugin: 'groovy'
+apply plugin: 'idea'
 
 group = modowner
 archivesBaseName = modname
@@ -161,5 +162,17 @@ task pydoc(type: Exec) {
 
   if( System.properties['os.name'].toLowerCase().contains('windows') ) {
     commandLine = ['cmd', '/c'] + commandLine
+  }
+}
+
+// Map the 'provided' dependency configuration to the appropriate IDEA visibility scopes.
+plugins.withType(IdeaPlugin) {
+  idea {
+    module {
+      scopes.PROVIDED.plus += configurations.provided
+      scopes.COMPILE.minus += configurations.provided
+      scopes.TEST.minus += configurations.provided
+      scopes.RUNTIME.minus += configurations.provided
+    }
   }
 }
