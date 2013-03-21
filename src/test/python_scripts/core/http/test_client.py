@@ -182,7 +182,6 @@ def http_method(ssl, method, chunked):
                     req.response.put_trailer('trailer2', 'vtrailer2')
             req.response.end()
 
-    server.listen(8080)
 
     if ssl:
         client.ssl = True
@@ -215,16 +214,20 @@ def http_method(ssl, method, chunked):
                     tu.azzert('vtrailer2' == resp.trailers['trailer2'])
             tu.test_complete()
 
-    request = client.request(method, uri, response_handler)
+    def listen_handler(serv):
+        request = client.request(method, uri, response_handler)
     
-    request.chunked = chunked
-    request.put_header('header1', 'vheader1')
-    request.put_header('header2', 'vheader2')
-    if not chunked:
-        request.put_header('Content-Length', sent_buff.length) 
+        request.chunked = chunked
+        request.put_header('header1', 'vheader1')
+        request.put_header('header2', 'vheader2')
+        if not chunked:
+            request.put_header('Content-Length', sent_buff.length)
 
-    request.write_buffer(sent_buff)
-    request.end()
+        request.write_buffer(sent_buff)
+        request.end()
+
+    server.listen(8080, "0.0.0.0", listen_handler)
+
 
 def vertx_stop():
     tu.check_thread()

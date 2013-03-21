@@ -111,3 +111,13 @@ class TimerHandler(org.vertx.java.core.Handler):
         """ Call the handler """
         if self.handler != None:
             self.handler(timer_id)
+
+class ListenHandler(org.vertx.java.core.Handler):
+    """ A handler for Listen operations"""
+    def __init__(self, handler):
+        self.handler = handler
+
+    def handle(self, server):
+        if self.handler is not None:
+            """ Calls the Handler with the server """
+            self.handler(server)
