@@ -215,8 +215,6 @@ def http_method(ssl, method, chunked):
             tu.test_complete()
 
     def listen_handler(serv):
-        print "HERE!"
-
         request = client.request(method, uri, response_handler)
     
         request.chunked = chunked
