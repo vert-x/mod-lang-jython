@@ -21,7 +21,6 @@ tu = TestUtils()
 server = vertx.create_http_server()
 rm = RouteMatcher()
 server.request_handler(rm)
-server.listen(8080)
 
 client = vertx.create_http_client()
 client.port = 8080;
@@ -116,8 +115,13 @@ class RouteMatcherTest(object):
         def response_handler(resp):
             tu.azzert(404 == resp.status_code)
             tu.test_complete()
-        client.get('some-uri', response_handler).end()
-        
+
+        def listen_handler(serv):
+            client.get('some-uri', response_handler).end()
+
+        server.listen(8080, '0.0.0.0', listen_handler)
+
+
 def route(method, regex, pattern, params, uri): 
     def handler(req):
         tu.azzert(len(req.params) == len(params))
@@ -125,19 +129,24 @@ def route(method, regex, pattern, params, uri):
             tu.azzert(v == req.params[k])
         req.response.end()
 
-    if regex:
-        getattr(rm, method + '_re')(pattern, handler)
-    else:
-        getattr(rm, method)(pattern, handler)
+    def listen_handler(serv):
+        if regex:
+            getattr(rm, method + '_re')(pattern, handler)
+        else:
+            getattr(rm, method)(pattern, handler)
 
-    if method == 'all':
-        method = 'get' 
+        m = method
+        if m == 'all':
+            m = 'get'
 
-    def response_handler(resp):
-        tu.azzert(200 == resp.status_code)
-        tu.test_complete()
+        def response_handler(resp):
+            tu.azzert(200 == resp.status_code)
+            tu.test_complete()
 
-    getattr(client, method)(uri, response_handler).end()
+        getattr(client, m)(uri, response_handler).end()
+
+    server.listen(8080, '0.0.0.0', listen_handler)
+
 
 def vertx_stop(): 
     tu.unregister_all()
