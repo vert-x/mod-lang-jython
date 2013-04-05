@@ -36,12 +36,16 @@ class DeployTest(object):
     def test_undeploy(self):
         global handler_id
         def handler(message):
-            if message.body == "stopped":
-                tu.test_complete()
+            return
+
         handler_id = EventBus.register_handler("test-handler", False, handler)
         conf = {'foo' : 'bar'}
+
+        def undeploy_handler():
+            tu.test_complete()
+
         def deploy_handler(id):
-            vertx.undeploy_verticle(id)
+            vertx.undeploy_verticle(id, handler=undeploy_handler)
         vertx.deploy_verticle("core/deploy/child.py", conf, handler=deploy_handler)
 
 def vertx_stop():
