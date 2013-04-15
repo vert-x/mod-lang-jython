@@ -37,7 +37,7 @@ class WebsocketTest(object):
             @ws.data_handler
             def data_handler(buff):
                 tu.check_thread()
-                ws.write_buffer(buff)
+                ws.write(buff)
 
         if binary:
             self.buff = TestUtils.gen_buffer(1000)
@@ -94,8 +94,8 @@ class WebsocketTest(object):
     
         def connect_handler(ws):
             tu.check_thread()
-            @ws.closed_handler
-            def closed_handler():
+            @ws.close_handler
+            def close_handler():
                 tu.test_complete()
             ws.write_text_frame("foo")
 
@@ -111,8 +111,8 @@ class WebsocketTest(object):
 
         def connect_handler(ws):
             tu.check_thread()
-            @ws.closed_handler
-            def closed_handler():
+            @ws.close_handler
+            def close_handler():
                 tu.test_complete()
 
         server.listen(8080, "0.0.0.0")

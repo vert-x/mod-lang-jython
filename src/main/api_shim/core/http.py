@@ -540,29 +540,29 @@ class HttpServerRequest(core.streams.ReadStream):
     """
     def __init__(self, java_obj):
         self.java_obj = java_obj
-        self.http_server_response = HttpServerResponse(java_obj.response)
+        self.http_server_response = HttpServerResponse(java_obj.response())
         self.headers_dict = None
         self.params_dict = None
     
     @property
     def method(self):
         """ The HTTP method, one of HEAD, OPTIONS, GET, POST, PUT, DELETE, CONNECT, TRACE """
-        return self.java_obj.method
+        return self.java_obj.method()
 
     @property
     def uri(self):
         """ The uri of the request. For example 'http://www.somedomain.com/somepath/somemorepath/somresource.foo?someparam=32&someotherparam=x """
-        return self.java_obj.uri   
+        return self.java_obj.uri()
 
     @property
     def path(self):
         """ The path part of the uri. For example /somepath/somemorepath/somresource.foo """
-        return self.java_obj.path    
+        return self.java_obj.path()
 
     @property
     def query(self):
         """ The query part of the uri. For example someparam=32&someotherparam=x """
-        return self.java_obj.query
+        return self.java_obj.query()
 
     @property
     def params(self):
@@ -617,22 +617,22 @@ class HttpServerResponse(core.streams.WriteStream):
 
     def get_status_code(self):
         """ Get the status code of the response. """
-        return self.java_obj.statusCode
+        return self.java_obj.getStatusCode()
 
     def set_status_code(self, code):
         """ Set the status code of the response. Default is 200 """
-        self.java_obj.statusCode = code
+        self.java_obj.setStatusCode(code)
         return self
 
     status_code = property(get_status_code, set_status_code)
 
     def get_status_message(self):
         """ Get the status message the goes with status code """
-        return self.java_obj.statusMessage
+        return self.java_obj.getStatusMessage()
 
     def set_status_message(self, message):
         """ Set the status message for a response """
-        self.java_obj.statusMessage = message
+        self.java_obj.setStatusMessage(message)
         return self
 
     status_message = property(get_status_message, set_status_message)
@@ -681,7 +681,7 @@ class HttpServerResponse(core.streams.WriteStream):
         @return: a HttpServerResponse so multiple operations can be chained.
         """
         if handler is None:
-            self.java_obj.writeBuffer(buffer._to_java_buffer())
+            self.java_obj.write(buffer._to_java_buffer())
         else:
             self.java_obj.writeBuffer(buffer._to_java_buffer(), AsyncHandler(handler))
         return self
@@ -733,11 +733,11 @@ class HttpServerResponse(core.streams.WriteStream):
         self.java_obj.setChunked(val)
         return self
 
-    def get_chunked(self):
+    def is_chunked(self):
         """ Get whether this response uses HTTP chunked encoding or not. """
-        return self.java_obj.getChunked()        
+        return self.java_obj.isChunked()
 
-    chunked = property(get_chunked, set_chunked)
+    chunked = property(is_chunked, set_chunked)
 
     def end(self, data=None):
         """ Ends the response. If no data has been written to the response body, the actual response won't get written until this method gets called.
@@ -792,14 +792,14 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         """ Close the websocket """
         self.java_obj.close()
 
-    def closed_handler(self, handler):
+    def close_handler(self, handler):
         """ Set a closed handler on the connection, the handler receives a no parameters. 
         This can be used as a decorator. 
 
         Keyword arguments:
         handler - The handler to be called when writing has been completed. It is wrapped in a ClosedHandler.
         """
-        self.java_obj.closedHandler(ClosedHandler(handler))
+        self.java_obj.closeHandler(ClosedHandler(handler))
         return self
 
 class ServerWebSocket(WebSocket):
