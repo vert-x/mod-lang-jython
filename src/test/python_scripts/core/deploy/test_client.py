@@ -31,26 +31,30 @@ class DeployTest(object):
                 tu.test_complete()
         handler_id = EventBus.register_handler("test-handler", False, handler)
         conf = {'foo' : 'bar'}
-        vertx.deploy_verticle("core/deploy/child.py", conf)
+        def deploy_handler(err, ok):
+            tu.azzert(err == None)
 
-    # def test_undeploy(self):
-    #     print "in test undeploy"
-    #     global handler_id
-    #     def handler(message):
-    #         return
-    #
-    #     handler_id = EventBus.register_handler("test-handler", False, handler)
-    #     conf = {'foo' : 'bar'}
-    #
-    #     def undeploy_handler(err, result):
-    #         #tu.azzert(err is None)
-    #         tu.test_complete()
-    #
-    #     def deploy_handler(err, id):
-    #         #tu.azzert(err is None)
-    #         vertx.undeploy_verticle(id, handler=undeploy_handler)
-    #
-    #     vertx.deploy_verticle("core/deploy/child.py", conf, handler=deploy_handler)
+        vertx.deploy_verticle("core/deploy/child.py", conf, 1, deploy_handler)
+
+    def test_undeploy(self):
+        print "in test undeploy"
+        global handler_id
+        def handler(message):
+            return
+
+        handler_id = EventBus.register_handler("test-handler", False, handler)
+
+        conf = {'foo' : 'bar'}
+
+        def undeploy_handler(err, result):
+            tu.azzert(err == None)
+            tu.test_complete()
+
+        def deploy_handler(err, id):
+            tu.azzert(err == None)
+            vertx.undeploy_verticle(id, handler=undeploy_handler)
+
+        vertx.deploy_verticle("core/deploy/child.py", conf, handler=deploy_handler)
 
 def vertx_stop():
     EventBus.unregister_handler(handler_id)
