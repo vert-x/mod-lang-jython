@@ -129,32 +129,31 @@ def route(method, regex, pattern, params, uri):
             tu.azzert(v == req.params[k])
         req.response.end()
 
-    def listen_handler(serv):
-        if regex:
-            getattr(rm, method + '_re')(pattern, handler)
-        else:
-            getattr(rm, method)(pattern, handler)
+    server.listen(8080, '0.0.0.0')
+    if regex:
+        getattr(rm, method + '_re')(pattern, handler)
+    else:
+        getattr(rm, method)(pattern, handler)
 
-        m = method
-        if m == 'all':
-            m = 'get'
+    m = method
+    if m == 'all':
+        m = 'get'
 
-        def response_handler(resp):
-            tu.azzert(200 == resp.status_code)
-            tu.test_complete()
+    def response_handler(resp):
+        tu.azzert(200 == resp.status_code)
+        tu.test_complete()
 
-        getattr(client, m)(uri, response_handler).end()
-
-    server.listen(8080, '0.0.0.0', listen_handler)
+    getattr(client, m)(uri, response_handler).end()
 
 
 def vertx_stop(): 
     tu.unregister_all()
     client.close()
 
-    @server.close
-    def close():
+    def close_handler(err, ok):
         tu.app_stopped()
+
+    server.close(close_handler)
 
 tu.register_all(RouteMatcherTest())
 tu.app_ready()

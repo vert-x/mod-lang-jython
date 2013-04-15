@@ -41,11 +41,14 @@ class DeployTest(object):
         handler_id = EventBus.register_handler("test-handler", False, handler)
         conf = {'foo' : 'bar'}
 
-        def undeploy_handler():
+        def undeploy_handler(err, result):
+            #tu.azzert(err is None)
             tu.test_complete()
 
-        def deploy_handler(id):
+        def deploy_handler(err, id):
+            #tu.azzert(err is None)
             vertx.undeploy_verticle(id, handler=undeploy_handler)
+
         vertx.deploy_verticle("core/deploy/child.py", conf, handler=deploy_handler)
 
 def vertx_stop():

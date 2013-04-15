@@ -121,3 +121,18 @@ class ListenHandler(org.vertx.java.core.Handler):
         if self.handler is not None:
             """ Calls the Handler with the server """
             self.handler(server)
+
+class AsyncHandler(org.vertx.java.core.AsyncResultHandler):
+    def __init__(self, handler, result_converter=None):
+        self.handler = handler
+        self.result_converter = result_converter
+
+    def handle(self, async_result):
+        if not (self.handler is None):
+            if async_result.cause is None:
+                if self.result_converter is None:
+                    self.handler(None, async_result.result)
+                else:
+                    self.handler(None, self.result_converter(async_result.result))
+            else:
+                self.handler(async_result.cause, None)

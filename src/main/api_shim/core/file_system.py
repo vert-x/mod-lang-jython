@@ -18,6 +18,7 @@ import org.vertx.java.core.AsyncResultHandler
 import org.vertx.java.platform.impl.JythonVerticleFactory
 
 from core.buffer import Buffer
+from core.handlers import AsyncHandler
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
@@ -74,9 +75,9 @@ class FSProps(object):
   
     def __init__(self, java_obj):
         self.java_obj = java_obj
-    
+
     @property
-    def total_space(self): 
+    def total_space(self):
         """returns  the total space on the file system, in bytes."""
         return self.java_obj.totalSpace()
 
@@ -90,7 +91,7 @@ class FSProps(object):
         """returns usable space on the file system, in bytes."""
         return self.java_obj.usableSpace()
 
-class AsyncFile(object):
+class AsyncFile(core.streams.ReadStream, core.streams.WriteStream):
     """Represents a file on the file-system which can be read from, or written to asynchronously.
     Methods also exist to get a read stream or a write stream on the file. This allows the data to be pumped to and from
     other streams, e.g. an HttpClientRequest instance, using the Pump class
@@ -100,7 +101,7 @@ class AsyncFile(object):
 
     def close(self, handler):
         """Close the file, asynchronously."""
-        self.java_obj.close(FSWrappedHandler(handler))
+        self.java_obj.close(AsyncHandler(handler))
 
 
     def write(self, buffer, position, handler):
@@ -113,7 +114,8 @@ class AsyncFile(object):
         @param position: the position in the file where to write the buffer. Position is measured in bytes and
         starts with zero at the beginning of the file.
         """
-        self.java_obj.write(buffer._to_java_buffer(), position, FSWrappedHandler(handler))
+        self.java_obj.write(buffer._to_java_buffer(), position, AsyncHandler(handler))
+        return self
 
     def read(self, buffer, offset, position, length, handler):
         """Reads some data from a file into a buffer, asynchronously.
@@ -128,49 +130,22 @@ class AsyncFile(object):
         """
         def converter(buffer):
             return Buffer(buffer)
-        self.java_obj.read(buffer._to_java_buffer(), offset, position, length, FSWrappedHandler(handler, converter))
+        self.java_obj.read(buffer._to_java_buffer(), offset, position, length, AsyncHandler(handler, converter))
+        return self
 
-    @property  
-    def write_stream(self): 
-        """returns a write stream operating on the file."""
-        return AsyncFileWriteStream(self.java_obj.getWriteStream())
-
-    @property
-    def read_stream(self): 
-        """returns  [ReadStream] A read stream operating on the file."""
-        return AsyncFileReadStream(self.java_obj.getReadStream())
-
-    def flush(self): 
+    def flush(self, handler=None):
         """Flush any writes made to this file to underlying persistent storage, asynchronously.
         If the file was opened with flush set to true then calling this method will have no effect.
         Keyword arguments:
 
         @param handler: the handler which is called on completion.
         """
-        Future(self.java_obj.flush())
+        if handler is None:
+            Future(self.java_obj.flush())
+        else:
+            Future(self.java_obj.flush(AsyncHandler(handler)))
+        return self
 
-class AsyncFileWriteStream(core.streams.WriteStream):
-    def __init__(self, java_obj):
-        self.java_obj = java_obj
-
-class AsyncFileReadStream(core.streams.ReadStream):
-    def __init__(self, java_obj):
-        self.java_obj = java_obj
-
-class FSWrappedHandler(org.vertx.java.core.AsyncResultHandler):
-    def __init__(self, handler, result_converter=None):
-        self.handler = handler
-        self.result_converter = result_converter
-
-    def handle(self, async_result):
-        if not (self.handler is None):
-            if async_result.exception is None:
-                if self.result_converter is None:
-                    self.handler(None, async_result.result)
-                else:
-                    self.handler(None, self.result_converter(async_result.result))
-            else:
-                self.handler(async_result.exception, None)
 
 class FileSystem(object):
     """Represents the file-system and contains a broad set of operations for manipulating files.
@@ -182,27 +157,26 @@ class FileSystem(object):
     there was no result to return.
     The synchronous versions return the results, or throw exceptions directly."""
 
-    @staticmethod
-    def java_file_system():
-        return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.fileSystem()
-    
-    @staticmethod
-    def copy(frm, to, handler):
+    def __init__(self):
+        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.fileSystem()
+
+
+    def copy(self, frm, to, handler):
         """Copy a file, asynchronously. The copy will fail if from does not exist, or if to already exists.
 
         Keyword arguments:
         @param frm: path of file to copy
         @param to: path of file to copy to
         @param handler: the handler which is called on completion."""
-        FileSystem.java_file_system().copy(frm, to, FSWrappedHandler(handler))
+        self.java_obj.copy(frm, to, AsyncHandler(handler))
+        return self
 
-    @staticmethod
-    def copy_sync(frm, to):
+    def copy_sync(self, frm, to):
         """Synchronous version of FileSystem.copy"""
-        FileSystem.java_file_system().copySync(frm, to)
+        self.java_obj.copySync(frm, to)
+        return self
 
-    @staticmethod 
-    def copy_recursive(frm, to, handler):
+    def copy_recursive(self, frm, to, handler):
         """Copy a file recursively, asynchronously. The copy will fail if from does not exist, or if to already exists and is not empty.
         If the source is a directory all contents of the directory will be copied recursively, i.e. the entire directory
         tree is copied.
@@ -212,15 +186,15 @@ class FileSystem(object):
         @param to: path of file to copy to
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().copy(frm, to, True, FSWrappedHandler(handler))
+        self.java_obj.copy(frm, to, True, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def copy_recursive_sync(frm, to):
+    def copy_recursive_sync(self, frm, to):
         """Synchronous version of FileSystem.copy_recursive"""
-        FileSystem.java_file_system().copySync(frm, to, True)
+        self.copySync(frm, to, True)
+        return self
 
-    @staticmethod 
-    def move(frm, to, handler):
+    def move(self, frm, to, handler):
         """Move a file, asynchronously. The move will fail if from does not exist, or if to already exists.
 
         Keyword arguments:
@@ -228,15 +202,15 @@ class FileSystem(object):
         @param to: Path of file to move to
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().move(frm, to, FSWrappedHandler(handler))
+        self.java_obj.move(frm, to, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def move_sync(frm, to):
+    def move_sync(self, frm, to):
         """Synchronous version of FileSystem.move"""
-        FileSystem.java_file_system().moveSync(frm, to)
+        self.java_obj.moveSync(frm, to)
+        return self
 
-    @staticmethod 
-    def truncate(path, len, handler):
+    def truncate(self, path, len, handler):
         """Truncate a file, asynchronously. The move will fail if path does not exist.
 
         Keyword arguments:
@@ -244,15 +218,15 @@ class FileSystem(object):
         @param len: Length to truncate file to. Will fail if len < 0. If len > file size then will do nothing.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().truncate(path, len, FSWrappedHandler(handler))
+        self.java_obj.truncate(path, len, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def truncate_sync(path, len):
+    def truncate_sync(self, path, len):
         """Synchronous version of FileSystem.truncate"""
-        FileSystem.java_file_system().truncateSync(path, len)
+        self.java_obj.truncateSync(path, len)
+        return self
 
-    @staticmethod 
-    def chmod(path, perms, dir_perms=None, handler=None):
+    def chmod(self, path, perms, dir_perms=None, handler=None):
         """Change the permissions on a file, asynchronously. If the file is directory then all contents will also have their permissions changed recursively.
 
         Keyword arguments:
@@ -262,15 +236,15 @@ class FileSystem(object):
         @param dir_perms: a permission string of the form rwxr-x---. Used to set permissions for regular files.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().chmod(path, perms, dir_perms, FSWrappedHandler(handler))
+        self.java_obj.chmod(path, perms, dir_perms, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def chmod_sync(path, perms, dir_perms=None):
+    def chmod_sync(self, path, perms, dir_perms=None):
         """Synchronous version of FileSystem.chmod"""
-        FileSystem.java_file_system().chmodSync(path, perms, dir_perms)
+        self.java_obj.chmodSync(path, perms, dir_perms)
+        return self
 
-    @staticmethod 
-    def props(path, handler):
+    def props(self, path, handler):
         """Get file properties for a file, asynchronously.
 
         Keyword arguments:
@@ -279,16 +253,16 @@ class FileSystem(object):
         """
         def converter(obj):
             return FileProps(obj)
-        return FileSystem.java_file_system().props(path, FSWrappedHandler(handler, converter))
 
-    @staticmethod 
-    def props_sync(path):
+        self.java_obj.props(path, AsyncHandler(handler, converter))
+        return self
+
+    def props_sync(self, path):
         """Synchronous version of FileSystem.props"""
-        java_obj = FileSystem.java_file_system().propsSync(path)
+        java_obj = self.java_obj.propsSync(path)
         return FileProps(java_obj)
 
-    @staticmethod 
-    def link(link, existing, handler):
+    def link(self, link, existing, handler):
         """Create a hard link, asynchronously..
 
         Keyword arguments:
@@ -296,16 +270,15 @@ class FileSystem(object):
         @param existing: path of where the link points to.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().link(link, existing, FSWrappedHandler(handler))
+        self.java_obj.link(link, existing, AsyncHandler(handler))
+        return self
 
-
-    @staticmethod 
-    def link_sync(link, existing):
+    def link_sync(self, link, existing):
         """Synchronous version of FileSystem.link"""
-        FileSystem.java_file_system().linkSync(link, existing)
+        self.java_obj.linkSync(link, existing)
+        return self
 
-    @staticmethod 
-    def sym_link(link, existing, handler):
+    def sym_link(self, link, existing, handler):
         """Create a symbolic link, asynchronously.
 
         Keyword arguments:
@@ -313,44 +286,44 @@ class FileSystem(object):
         @param existing: Path of where the link points to.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().symLink(link, existing, FSWrappedHandler(handler))
+        self.java_obj.symLink(link, existing, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def sym_link_sync(link, existing):
+    def sym_link_sync(self, link, existing):
         """Synchronous version of FileSystem.sym_link"""
-        FileSystem.java_file_system().symLinkSync(link, existing)
+        self.java_obj.symLinkSync(link, existing)
+        return self
 
-    @staticmethod 
-    def unlink(link, handler):
+    def unlink(self, link, handler):
         """Unlink a hard link.
 
         Keyword arguments:
         @param link: path of the link to unlink.
         """
-        FileSystem.java_file_system().unlink(link, FSWrappedHandler(handler))
+        self.java_obj.unlink(link, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def unlinkSync(link):
+    def unlinkSync(self, link):
         """Synchronous version of FileSystem.unlink"""
-        FileSystem.java_file_system().unlinkSync(link)
+        self.java_obj.unlinkSync(link)
+        return self
 
-    @staticmethod 
-    def read_sym_link(link, handler):
+    def read_sym_link(self, link, handler):
         """Read a symbolic link, asynchronously. I.e. tells you where the symbolic link points.
 
         Keyword arguments:
         @param link: path of the link to read.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().readSymLink(link, FSWrappedHandler(handler))
+        self.java_obj.readSymLink(link, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def read_sym_link_sync(link):
+    def read_sym_link_sync(self, link):
         """Synchronous version of FileSystem.read_sym_link"""
-        FileSystem.java_file_system().readSymLinkSync(link)
+        self.java_obj.readSymLinkSync(link)
+        return self
 
-    @staticmethod 
-    def delete(path, handler):
+    def delete(self, path, handler):
         """Delete a file on the file system, asynchronously.
         The delete will fail if the file does not exist, or is a directory and is not empty.
 
@@ -358,15 +331,15 @@ class FileSystem(object):
         @param path: path of the file to delete.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().delete(path, FSWrappedHandler(handler))
+        self.java_obj.delete(path, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def delete_sync(path):
+    def delete_sync(self, path):
         """Synchronous version of FileSystem.delete"""
-        FileSystem.java_file_system().deleteSync(path)
+        self.java_obj.deleteSync(path)
+        return self
 
-    @staticmethod 
-    def delete_recursive(path, handler):
+    def delete_recursive(self, path, handler):
         """Delete a file on the file system recursively, asynchronously.
         The delete will fail if the file does not exist. If the file is a directory the entire directory contents
         will be deleted recursively.
@@ -375,15 +348,15 @@ class FileSystem(object):
         @param path: path of the file to delete.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().delete(path, True, FSWrappedHandler(handler))
+        self.java_obj.delete(path, True, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def delete_recursive_sync(path):
+    def delete_recursive_sync(self, path):
         """Synchronous version of FileSystem.delete_recursive"""
-        FileSystem.java_file_system().deleteSync(path, True)
+        self.java_obj.deleteSync(path, True)
+        return self
 
-    @staticmethod 
-    def mkdir(path, perms=None, handler=None):
+    def mkdir(self, path, perms=None, handler=None):
         """Create a directory, asynchronously.
         The create will fail if the directory already exists, or if it contains parent directories which do not already
         exist.
@@ -393,15 +366,15 @@ class FileSystem(object):
         @param perms: a permission string of the form rwxr-x--- to give directory.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().mkdir(path, perms, FSWrappedHandler(handler))
+        self.java_obj.mkdir(path, perms, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def mkdir_sync(path, perms=None):
+    def mkdir_sync(self, path, perms=None):
         """Synchronous version of FileSystem.mkdir"""
-        FileSystem.java_file_system().mkdirSync(path, perms)
+        self.java_obj.mkdirSync(path, perms)
+        return self
 
-    @staticmethod 
-    def mkdir_with_parents(path, perms=None, handler=None):
+    def mkdir_with_parents(self, path, perms=None, handler=None):
         """Create a directory, and create all it's parent directories if they do not already exist, asynchronously.
         The create will fail if the directory already exists.
 
@@ -409,15 +382,15 @@ class FileSystem(object):
         @param path: path of the directory to create.
         @param perms: a permission string of the form rwxr-x--- to give the created directory(ies).
         """
-        FileSystem.java_file_system().mkdir(path, perms, True, FSWrappedHandler(handler))
+        self.java_obj.mkdir(path, perms, True, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def mkdir_with_parents_sync(path, perms=None):
+    def mkdir_with_parents_sync(self, path, perms=None):
         """Synchronous version of FileSystem.mkdir_with_parents"""
-        FileSystem.java_file_system().mkdirSync(path, perms, true)
+        self.java_obj.mkdirSync(path, perms, True)
+        return self
 
-    @staticmethod 
-    def read_dir(path, filter=None, handler=None):
+    def read_dir(self, path, filter=None, handler=None):
         """Read a directory, i.e. list it's contents, asynchronously.
         The read will fail if the directory does not exist.
 
@@ -427,15 +400,15 @@ class FileSystem(object):
         then only files which match the filter will be returned.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().readDir(path, filter, FSWrappedHandler(handler))
-    
-    @staticmethod 
-    def read_dir_sync(path, filter=None):
-        """Synchronous version of FileSystem.read_dir"""
-        FileSystem.java_file_system().readDirSync(path, filter)
+        self.java_obj.readDir(path, filter, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def read_file_as_buffer(path, handler):
+    def read_dir_sync(self, path, filter=None):
+        """Synchronous version of FileSystem.read_dir"""
+        self.java_obj.readDirSync(path, filter)
+        return self
+
+    def read_file_as_buffer(self, path, handler):
         """Read the contents of an entire file as a Buffer, asynchronously.
 
         Keyword arguments:
@@ -444,15 +417,15 @@ class FileSystem(object):
         """
         def converter(buffer):
             return Buffer(buffer)
-        FileSystem.java_file_system().readFile(path, FSWrappedHandler(handler, converter))
+        self.java_obj.readFile(path, AsyncHandler(handler, converter))
+        return self
 
-    @staticmethod 
-    def read_file_as_buffer_sync(path):
+    def read_file_as_buffer_sync(self, path):
         """Synchronous version of FileSystem.read_file_as_buffer"""
-        FileSystem.java_file_system().readFileSync(path)
+        self.java_obj.readFileSync(path)
+        return self
 
-    @staticmethod 
-    def write_buffer_to_file(path, buffer, handler):
+    def write_buffer_to_file(self, path, buffer, handler):
         """Write a  as the entire contents of a file, asynchronously.
 
         Keyword arguments:
@@ -460,15 +433,15 @@ class FileSystem(object):
         @param buffer: the Buffer to write
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().writeFile(path, buffer, FSWrappedHandler(handler))
+        self.java_obj.writeFile(path, buffer, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def write_buffer_to_file_sync(path, buffer):
+    def write_buffer_to_file_sync(self, path, buf):
         """Synchronous version of FileSystem.write_buffer_to_file"""
-        FileSystem.java_file_system().writeFileSync(path, buffer)
+        self.java_obj.writeFileSync(path, buf)
+        return self
 
-    @staticmethod 
-    def open(path, perms=None, read=True, write=True, create_new=True, flush=False, handler=None):
+    def open(self, path, perms=None, read=True, write=True, create_new=True, flush=False, handler=None):
         """Open a file on the file system, asynchronously.
 
         Keyword arguments:
@@ -480,18 +453,17 @@ class FileSystem(object):
         @param flush: whenever any data is written to the file, flush all changes to permanent storage immediately?
         @param handler: the function to call when complete
         """
-        def converter(file):
+        def converter(f):
             return AsyncFile(file)
-        FileSystem.java_file_system().open(path, perms, read, write, create_new, flush, FSWrappedHandler(handler, converter))
+        self.java_obj.open(path, perms, read, write, create_new, flush, AsyncHandler(handler, converter))
+        return self
 
-    @staticmethod 
-    def open_sync(path, perms=None, read=True, write=True, create_new=True, flush=False):
+    def open_sync(self, path, perms=None, read=True, write=True, create_new=True, flush=False):
         """Synchronous version of FileSystem.open"""
-        java_obj = FileSystem.java_file_system().open(path, perms, read, write, create_new, flush)
+        java_obj = self.java_obj.open(path, perms, read, write, create_new, flush)
         return AsyncFile(java_obj)
 
-    @staticmethod 
-    def create_file(path, perms=None, handler=None):
+    def create_file(self, path, perms=None, handler=None):
         """Create a new empty file, asynchronously.
 
         Keyword arguments:
@@ -499,30 +471,29 @@ class FileSystem(object):
         @param perms: the file will be created with these permissions.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().createFile(path, perms, FSWrappedHandler(handler))
+        self.java_obj.createFile(path, perms, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def create_file_sync(path, perms=None):
+    def create_file_sync(self, path, perms=None):
         """Synchronous version of FileSystem.create_file"""
-        FileSystem.java_file_system().createFileSync(path, perms)
+        self.java_obj.createFileSync(path, perms)
+        return self
 
-    @staticmethod 
-    def exists(path, handler):
+    def exists(self, path, handler):
         """Check if  a file exists, asynchronously.
 
         Keyword arguments:
         @param path: Path of the file to check.
         @param handler: the function to call when complete
         """
-        FileSystem.java_file_system().exists(path, FSWrappedHandler(handler))
+        self.java_obj.exists(path, AsyncHandler(handler))
+        return self
 
-    @staticmethod 
-    def exists_sync(path):
+    def exists_sync(self, path):
         """Synchronous version of FileSystem.exists"""
-        return FileSystem.java_file_system().existsSync(path)
+        return self.java_obj.existsSync(path)
 
-    @staticmethod 
-    def fs_props(path, handler):
+    def fs_props(self, path, handler):
         """Get properties for the file system, asynchronously.
 
         Keyword arguments:
@@ -531,10 +502,10 @@ class FileSystem(object):
         """
         def converter(props):
             return FSProps(props)
-        FileSystem.java_file_system().fsProps(path, FSWrappedHandler(handler, converter))
+        self.java_obj.fsProps(path, AsyncHandler(handler, converter))
+        return self
 
-    @staticmethod 
-    def fs_props_sync(path):
+    def fs_props_sync(self, path):
         """Synchronous version of FileSystem.fs_props"""
-        j_fsprops = FileSystem.java_file_system().fsPropsSync(path)
+        j_fsprops = self.java_obj.fsPropsSync(path)
         return FSProps(j_fsprops)

@@ -23,7 +23,7 @@ import core.ssl_support
 import core.buffer
 import core.streams
 
-from core.handlers import CloseHandler, DoneHandler, ClosedHandler, ListenHandler
+from core.handlers import CloseHandler, DoneHandler, ClosedHandler, AsyncHandler
 from core.event_bus import EventBus
 
 __author__ = "Scott Horn"
@@ -66,7 +66,7 @@ class NetServer(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
         return self
 
 
-    def listen(self, port, host="0.0.0.0", handler=None):
+    def listen(self, port, host="0.0.0.0"):
         """Instruct the server to listen for incoming connections.
 
         Keyword arguments:
@@ -76,12 +76,12 @@ class NetServer(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
         
         @return: a reference to self so invocations can be chained
         """
-        self.java_obj.listen(port, host, ListenHandler(handler))
+        self.java_obj.listen(port, host)
 
 
     def close(self, handler=None):
         """Close the server. The handler will be called when the close is complete."""
-        self.java_obj.close(CloseHandler(handler))
+        self.java_obj.close(AsyncHandler(handler))
 
 
 
@@ -122,7 +122,10 @@ class NetClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
 
         @return: a reference to self so invocations can be chained
         """
-        self.java_obj.connect(port, host, ConnectHandler(handler))
+        def converter(socket):
+            return NetSocket(socket)
+
+        self.java_obj.connect(port, host, AsyncHandler(handler, converter))
         return self
 
     def close(self):
@@ -158,7 +161,8 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         if handler is None:
             self.java_obj.write(java_buffer)
         else:
-            self.java_obj.write(java_buffer, DoneHandler(handler))
+            self.java_obj.write(java_buffer, AsyncHandler(handler))
+        return self
 
     def write_str(self, str, enc="UTF-8", handler=None):
         """Write a String to the socket. The handler will be called when the string has actually been written to the wire.
@@ -171,7 +175,8 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         if handler is None:
             self.java_obj.write(str, enc)
         else:
-            self.java_obj.write(str, enc, DoneHandler(handler))
+            self.java_obj.write(str, enc, AsyncHandler(handler))
+        return self
       
     def closed_handler(self, handler):
         """Set a closed handler on the socket.
@@ -180,6 +185,7 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         @param handler: A block to be used as the handler
         """
         self._closed_handler = handler
+        return self
 
     def send_file(self, file_path):
         """Tell the kernel to stream a file directly from disk to the outgoing connection, bypassing userspace altogether
@@ -189,6 +195,7 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         @param file_path: Path to file to send.
         """
         self.java_obj.sendFile(file_path)
+        return self
      
     def close(self):
         """Close the socket"""

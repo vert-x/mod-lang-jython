@@ -61,11 +61,8 @@ class WebsocketTest(object):
             else:
                 ws.write_text_frame(self.str_)
 
-        def listen_handler(serv):
-            client.connect_web_socket("/someurl", connect_handler)
-
-        server.listen(8080, "0.0.0.0", listen_handler)
-
+        server.listen(8080, "0.0.0.0")
+        client.connect_web_socket("/someurl", connect_handler)
 
 
     def test_write_from_connect_handler(self):
@@ -84,10 +81,8 @@ class WebsocketTest(object):
                 tu.azzert("foo" == buff.to_string())
                 tu.test_complete()
 
-        def listen_handler(serv):
-            client.connect_web_socket("/someurl", connect_handler)
-
-        server.listen(8080, "0.0.0.0", listen_handler)
+        server.listen(8080, "0.0.0.0")
+        client.connect_web_socket("/someurl", connect_handler)
 
     def test_close(self):
         @server.websocket_handler
@@ -104,12 +99,10 @@ class WebsocketTest(object):
                 tu.test_complete()
             ws.write_text_frame("foo")
 
-        def listen_handler(serv):
-            client.connect_web_socket("/someurl",connect_handler)
+        server.listen(8080, "0.0.0.0")
+        client.connect_web_socket("/someurl",connect_handler)
 
-        server.listen(8080, "0.0.0.0", listen_handler)
 
-    
     def test_close_from_connect(self):
         @server.websocket_handler
         def websocket_handler(ws):
@@ -122,19 +115,19 @@ class WebsocketTest(object):
             def closed_handler():
                 tu.test_complete()
 
-        def listen_handler(serv):
-            client.connect_web_socket("/someurl", connect_handler)
-
-        server.listen(8080, "0.0.0.0", listen_handler)
+        server.listen(8080, "0.0.0.0")
+        client.connect_web_socket("/someurl", connect_handler)
 
 
 def vertx_stop():
     tu.check_thread()
     tu.unregister_all()
     client.close()
-    @server.close
-    def close():
+
+    def close_handler(err, ok):
         tu.app_stopped()
-  
+
+    server.close(close_handler)
+
 tu.register_all(WebsocketTest())
 tu.app_ready()

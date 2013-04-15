@@ -24,8 +24,8 @@ import core.buffer
 import core.streams
 
 from core.javautils import map_from_java, map_to_java
-from core.handlers import CloseHandler, ClosedHandler, ExceptionHandler
-from core.handlers import DoneHandler, ContinueHandler, BufferHandler, ListenHandler
+from core.handlers import ClosedHandler, ExceptionHandler
+from core.handlers import ContinueHandler, BufferHandler, AsyncHandler
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
@@ -61,7 +61,7 @@ class HttpServer(core.tcp_support.TCPSupport, core.ssl_support.SSLSupport, objec
         self.java_obj.websocketHandler(ServerWebSocketHandler(handler))
         return self
 
-    def listen(self, port, host="0.0.0.0", handler=None):
+    def listen(self, port, host="0.0.0.0"):
         """Instruct the server to listen for incoming connections. If host is None listens on all.
 
         Keyword arguments:
@@ -71,9 +71,9 @@ class HttpServer(core.tcp_support.TCPSupport, core.ssl_support.SSLSupport, objec
     
         """
         if host is None:
-            self.java_obj.listen(port, ListenHandler(handler))
+            self.java_obj.listen(port)
         else:
-            self.java_obj.listen(port, host, ListenHandler(handler))
+            self.java_obj.listen(port, host)
 
     def client_auth_required(self, val):
         """ Client authentication is an extra level of security in SSL, and requires clients to provide client certificates.
@@ -97,7 +97,7 @@ class HttpServer(core.tcp_support.TCPSupport, core.ssl_support.SSLSupport, objec
         if handler is None:
             self.java_obj.close()
         else:
-            self.java_obj.close(CloseHandler(handler))
+            self.java_obj.close(AsyncHandler(handler))
 
     def _to_java_server(self):
         """ private """
@@ -191,6 +191,19 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
     
     host = property(fset=set_host)
 
+    def set_verify_host(self, val):
+        """ If set then the client will try to validate the remote server's certificate
+         hostname against the requested host. Should default to 'true'.
+         This method should only be used in SSL mode.
+
+        Keyword arguments:
+        @param val: true if verify hostname
+        """
+        self.java_obj.setVerifyHost(val)
+        return self
+
+    verify_host = property(fset=set_verify_host)
+
     def connect_web_socket(self, uri, handler):
         """Attempt to connect an HTML5 websocket to the specified URI.
         The connect is done asynchronously and the handler is called with a WebSocket on success.
@@ -215,7 +228,8 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
         if len(headers) == 0:
             self.java_obj.getNow(uri, HttpClientResponseHandler(handler))    
         else:
-            self.java_obj.getNow(uri, map_to_java(headers), HttpClientResponseHandler(handler))    
+            self.java_obj.getNow(uri, map_to_java(headers), HttpClientResponseHandler(handler))
+        return self
         
     def options(self, uri, handler):
         """This method returns an HttpClientRequest instance which represents an HTTP OPTIONS request with the specified uri.
@@ -371,7 +385,7 @@ class HttpClientRequest(core.streams.WriteStream):
 
         @return:  self So multiple operations can be chained.
         """
-        self.java_obj.write(chunk._to_java_buffer(), DoneHandler(handler))
+        self.java_obj.write(chunk._to_java_buffer(), AsyncHandler(handler))
         return self
 
     def write_str(self, str, enc="UTF-8", handler=None):
@@ -387,7 +401,7 @@ class HttpClientRequest(core.streams.WriteStream):
         if handler is None:
             self.java_obj.write(str, enc)
         else:
-            self.java_obj.write(str, enc, DoneHandler(handler))
+            self.java_obj.write(str, enc, AsyncHandler(handler))
         return self
 
     def send_head(self):
@@ -455,6 +469,7 @@ class HttpClientRequest(core.streams.WriteStream):
         @param handler: The handler
         """
         self.java_obj.continueHandler(ContinueHandler(handler))
+        return self
 
    
 class HttpClientResponse(core.streams.ReadStream):
@@ -513,6 +528,7 @@ class HttpClientResponse(core.streams.ReadStream):
     def body_handler(self, handler):
         """Set a handler to receive the entire body in one go - do not use this for large bodies"""
         self.java_obj.bodyHandler(BufferHandler(handler))
+        return self
   
 class HttpServerRequest(core.streams.ReadStream):
     """ Encapsulates a server-side HTTP request.
@@ -576,6 +592,7 @@ class HttpServerRequest(core.streams.ReadStream):
 
         """
         self.java_obj.bodyHandler(BufferHandler(handler))
+        return self
 
     def _to_java_request(self):
         return self.java_obj
@@ -605,6 +622,7 @@ class HttpServerResponse(core.streams.WriteStream):
     def set_status_code(self, code):
         """ Set the status code of the response. Default is 200 """
         self.java_obj.statusCode = code
+        return self
 
     status_code = property(get_status_code, set_status_code)
 
@@ -615,6 +633,7 @@ class HttpServerResponse(core.streams.WriteStream):
     def set_status_message(self, message):
         """ Set the status message for a response """
         self.java_obj.statusMessage = message
+        return self
 
     status_message = property(get_status_message, set_status_message)
 
@@ -657,14 +676,14 @@ class HttpServerResponse(core.streams.WriteStream):
 
         Keyword arguments:
         @param buffer: The buffer to write
-        @param handler: The handler to be called when writing has been completed. It is wrapped in a DoneHandler (default None)
+        @param handler: The handler to be called when writing has been completed. It is wrapped in a AsyncHandler (default None)
         
         @return: a HttpServerResponse so multiple operations can be chained.
         """
         if handler is None:
             self.java_obj.writeBuffer(buffer._to_java_buffer())
         else:
-            self.java_obj.writeBuffer(buffer._to_java_buffer(), DoneHandler(handler))
+            self.java_obj.writeBuffer(buffer._to_java_buffer(), AsyncHandler(handler))
         return self
 
     def write_str(self, str, enc="UTF-8", handler=None):
@@ -674,14 +693,14 @@ class HttpServerResponse(core.streams.WriteStream):
         @param str: The string to write
         @param enc: Encoding to use.
 
-        @param handler: The handler to be called when writing has been completed. It is wrapped in a DoneHandler (default None)
+        @param handler: The handler to be called when writing has been completed. It is wrapped in a AsyncHandler (default None)
         
         @return: a HttpServerResponse so multiple operations can be chained.
         """
         if handler is None:
             self.java_obj.write(str, enc)
         else:
-            self.java_obj.write(str, enc, DoneHandler(handler)) 
+            self.java_obj.write(str, enc, AsyncHandler(handler))
         return self
 
     def send_file(self, path):
@@ -757,6 +776,7 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
 
         """
         self.java_obj.writeBinaryFrame(buffer._to_java_buffer())
+        return self
 
     def write_text_frame(self, text):
         """ 
@@ -766,6 +786,7 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         @param text: text to write to socket
         """
         self.java_obj.writeTextFrame(text)
+        return self
 
     def close(self):
         """ Close the websocket """
@@ -779,6 +800,7 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         handler - The handler to be called when writing has been completed. It is wrapped in a ClosedHandler.
         """
         self.java_obj.closedHandler(ClosedHandler(handler))
+        return self
 
 class ServerWebSocket(WebSocket):
     """ Instances of this class are created when a WebSocket is accepted on the server.
@@ -792,6 +814,7 @@ class ServerWebSocket(WebSocket):
     def reject(self):
         """ Reject the WebSocket. Sends 404 to client """
         self.java_obj.reject()
+        return self
 
     @property
     def path(self):
@@ -876,6 +899,7 @@ class RouteMatcher(object):
         @param handler: handler for match
         """
         self.java_obj.get(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def put(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP PUT
@@ -885,6 +909,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.put(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def post(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP POST
@@ -894,6 +919,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.post(pattern, HttpServerRequestHandler(handler))
+        return self
     
     def delete(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP DELETE
@@ -903,6 +929,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.delete(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def options(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP OPTIONS
@@ -911,6 +938,7 @@ class RouteMatcher(object):
         @param pattern: pattern to match
         @param handler: http server request handler"""
         self.java_obj.options(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def head(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP HEAD
@@ -920,6 +948,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.head(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def trace(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP TRACE
@@ -929,6 +958,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """  
         self.java_obj.trace(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def patch(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP PATCH
@@ -938,6 +968,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.patch(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def connect(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP CONNECT
@@ -947,6 +978,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.connect(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def all(self, pattern, handler):
         """Specify a handler that will be called for any matching HTTP request
@@ -955,6 +987,7 @@ class RouteMatcher(object):
         @param pattern: pattern to match
         @param handler: http server request handler"""
         self.java_obj.all(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def get_re(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP GET
@@ -965,6 +998,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.getWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def put_re(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP PUT
@@ -974,6 +1008,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.putWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def post_re(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP POST
@@ -983,6 +1018,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.postWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def delete_re(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP DELETE
@@ -992,6 +1028,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.deleteWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
 
     def options_re(self, pattern, handler):
@@ -1002,6 +1039,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """  
         self.java_obj.optionsWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def head_re(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP HEAD
@@ -1011,6 +1049,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.headWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def trace_re(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP TRACE
@@ -1020,6 +1059,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """  
         self.java_obj.traceWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def patch_re(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP PATCH
@@ -1029,6 +1069,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.patchWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def connect_re(self, pattern, handler):
         """Specify a handler that will be called for a matching HTTP CONNECT
@@ -1038,6 +1079,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """
         self.java_obj.connectWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def all_re(self, pattern, handler):
         """Specify a handler that will be called for any matching HTTP request
@@ -1047,6 +1089,7 @@ class RouteMatcher(object):
         @param handler: http server request handler
         """  
         self.java_obj.allWithRegEx(pattern, HttpServerRequestHandler(handler))
+        return self
 
     def no_match(self, handler):
         """Specify a handler that will be called when nothing matches
@@ -1055,3 +1098,4 @@ class RouteMatcher(object):
         Keyword arguments:
         @param handler: http server request handler"""
         self.java_obj.noMatch(HttpServerRequestHandler(handler))
+        return self

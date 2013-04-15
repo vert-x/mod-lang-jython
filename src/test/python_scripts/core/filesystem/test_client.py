@@ -14,9 +14,11 @@
 
 from test_utils import TestUtils
 from core.buffer import Buffer
-from core.file_system import FileSystem
+
+import vertx
 
 tu = TestUtils()
+fs = vertx.file_system()
 
 FILEDIR = "python-test-output"
 
@@ -28,11 +30,11 @@ def setup(setup_func):
     def exists_handler(err, exists):
         if exists:
             def delete_handler(err, result):
-                FileSystem.mkdir(FILEDIR, handler=mkdir_handler)
-            FileSystem.delete_recursive(FILEDIR, delete_handler)
+                fs.mkdir(FILEDIR, handler=mkdir_handler)
+            fs.delete_recursive(FILEDIR, delete_handler)
         else:
-            FileSystem.mkdir(FILEDIR, handler=mkdir_handler)
-    FileSystem.exists(FILEDIR, exists_handler)
+            fs.mkdir(FILEDIR, handler=mkdir_handler)
+    fs.exists(FILEDIR, exists_handler)
 
 class FileSystemTest(object):
 
@@ -45,8 +47,8 @@ class FileSystemTest(object):
                 tu.check_thread()
                 tu.azzert(err == None)
                 tu.test_complete()
-            FileSystem.copy(filename, tofile, copy_handler)
-        FileSystem.create_file(filename, handler=create_file_handler)  
+            fs.copy(filename, tofile, copy_handler)
+        fs.create_file(filename, handler=create_file_handler)
   
 
     def test_stats(self):
@@ -66,8 +68,8 @@ class FileSystemTest(object):
 #                print "size %s"% stats.size
                 tu.azzert(stats.regular_file)
                 tu.test_complete()
-            FileSystem.props(filename, props_handler)
-        FileSystem.create_file(filename, handler=create_file_handler)    
+            fs.props(filename, props_handler)
+        fs.create_file(filename, handler=create_file_handler)
 
     def test_async_file(self):
         def open_handler(err, file):
@@ -102,7 +104,7 @@ class FileSystemTest(object):
                                 file.close(close_handler)
                         file.read(tot_read, pos, pos, chunk_size, read_handler)
                 file.write(buff, i * chunk_size, write_handler)
-        FileSystem.open(FILEDIR + "/somefile.txt", handler=open_handler)
+        fs.open(FILEDIR + "/somefile.txt", handler=open_handler)
                 
 
     def test_async_file_streams(self):
@@ -135,14 +137,14 @@ class FileSystemTest(object):
                             tu.test_complete()
                         file.close(close_handler2)
                     read_stream.end_handler(end_handler)
-                FileSystem.open(filename, handler=open_handler2)
+                fs.open(filename, handler=open_handler2)
             
             file.close(close_handler)
-        FileSystem.open(filename, handler=open_handler)
+        fs.open(filename, handler=open_handler)
 
 def vertx_stop():
     tu.check_thread()
-    FileSystem.delete_recursive_sync(FILEDIR)
+    fs.delete_recursive_sync(FILEDIR)
     tu.unregister_all()
     tu.app_stopped()
 

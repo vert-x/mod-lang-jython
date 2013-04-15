@@ -14,7 +14,7 @@
 
 import org.vertx.java.core.streams.Pump
 
-from core.handlers import BufferHandler, StreamEndHandler
+from core.handlers import BufferHandler, StreamEndHandler, ExceptionHandler
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
@@ -35,6 +35,7 @@ class WriteStream(object):
         param [Buffer]. The buffer to write.
         """
         self.java_obj.writeBuffer(buff._to_java_buffer())
+        return self
     
     def set_write_queue_max_size(self, size):
         """Set the maximum size of the write queue. You will still be able to write to the stream even
@@ -45,6 +46,7 @@ class WriteStream(object):
         @param size: The maximum size, in bytes.
         """
         self.java_obj.setWriteQueueMaxSize(size)
+        return self
 
     write_queue_max_size = property(fset=set_write_queue_max_size)
     
@@ -64,6 +66,7 @@ class WriteStream(object):
         @param handler: The drain handler
         """
         self.java_obj.drainHandler(BufferHandler(handler))
+        return self
     
     def exception_handler(self, handler):
         """Set an execption handler on the stream.
@@ -72,6 +75,7 @@ class WriteStream(object):
         @param handler: The exception handler
         """  
         self.java_obj.exceptionHandler(ExceptionHandler(handler))
+        return self
     
     def _to_write_stream(self):
         return self.java_obj
@@ -89,28 +93,33 @@ class ReadStream(object):
         @param handler: The data handler
         """
         self.java_obj.dataHandler(BufferHandler(handler))
+        return self
     
     def pause(self):
         """Pause the ReadStream. After calling this, the ReadStream will aim to send no more data to the """
         self.java_obj.pause()
+        return self
         
     def resume(self):
         """Resume reading. If the ReadStream has been paused, reading will recommence on it."""
         self.java_obj.resume()
+        return self
         
     def exception_handler(self, handler):
         """Set an execption handler on the stream.
         param [Block] hndlr. The exception handler
         """
         self.java_obj.exceptionHandler(ExceptionHandler(handler))
-        
+        return self
+
     def end_handler(self, handler):
         """Set an end handler on the stream. Once the stream has ended, and there is no more data to be read, this handler will be called.
 
         Keyword arguments:
         @param handler: The exception handler"""
         self.java_obj.endHandler(StreamEndHandler(handler))
-        
+        return self
+
     def _to_read_stream(self):
         return self.java_obj
         
@@ -144,16 +153,19 @@ class Pump(object):
         @param val: The write queue max size
         """  
         self.j_pump.setWriteQueueMaxSize(val)
+        return self
 
     write_queue_max_size = property(fset=set_write_queue_max_size)
 
     def start(self):
         """Start the Pump. The Pump can be started and stopped multiple times."""
         self.j_pump.start()
+        return self
 
     def stop(self):
         """Stop the Pump. The Pump can be started and stopped multiple times."""  
         self.j_pump.stop()
+        return self
 
     @property
     def bytes_pumped(self):
