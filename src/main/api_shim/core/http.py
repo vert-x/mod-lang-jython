@@ -486,7 +486,7 @@ class HttpClientResponse(core.streams.ReadStream):
     @property
     def status_code(self):
         """return the HTTP status code of the response."""
-        return self.java_obj.statusCode
+        return self.java_obj.statusCode()
   
     def header(self, key):
         """Get a header value
@@ -683,7 +683,7 @@ class HttpServerResponse(core.streams.WriteStream):
         if handler is None:
             self.java_obj.write(buffer._to_java_buffer())
         else:
-            self.java_obj.writeBuffer(buffer._to_java_buffer(), AsyncHandler(handler))
+            self.java_obj.write(buffer._to_java_buffer(), AsyncHandler(handler))
         return self
 
     def write_str(self, str, enc="UTF-8", handler=None):
@@ -819,7 +819,7 @@ class ServerWebSocket(WebSocket):
     @property
     def path(self):
         """ The path the websocket connect was attempted at. """
-        return self.java_obj.path
+        return self.java_obj.path()
 
 class HttpServerRequestHandler(org.vertx.java.core.Handler):
     """ A handler for Http Server Requests"""
