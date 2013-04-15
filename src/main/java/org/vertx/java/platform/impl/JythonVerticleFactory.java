@@ -119,11 +119,10 @@ public class JythonVerticleFactory implements VerticleFactory {
           py.execfile(sis, scriptName);
         }
       } catch (IOException e) {
+          funcName = null;
+          stopFuncName = null;
+          stopFuncVar = null;
         throw new VertxException(e);
-      } finally {
-        funcName = null;
-        stopFuncName = null;
-        stopFuncVar = null;
       }
     }
 
