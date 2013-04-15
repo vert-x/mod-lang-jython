@@ -180,12 +180,12 @@ class Message(object):
     """Represents a message received from the event bus"""
     def __init__(self, message):
         self.java_obj = message
-        if isinstance(message.body, org.vertx.java.core.json.JsonObject):
-            self.body = map_from_java(message.body.toMap())
-        elif isinstance(message.body, org.vertx.java.core.buffer.Buffer):
-            self.body = Buffer(message.body) 
+        if isinstance(message.body(), org.vertx.java.core.json.JsonObject):
+            self.body = map_from_java(message.body().toMap())
+        elif isinstance(message.body(), org.vertx.java.core.buffer.Buffer):
+            self.body = Buffer(message.body())
         else:
-            self.body = map_from_java(message.body)
+            self.body = map_from_java(message.body())
     
     def reply(self, reply, handler=None):
         """Reply to this message. If the message was sent specifying a receipt handler, that handler will be
