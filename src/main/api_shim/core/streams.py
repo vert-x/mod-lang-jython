@@ -28,13 +28,13 @@ class WriteStream(object):
 
     """
 
-    def write_buffer(self, buff):
+    def write(self, buff):
         """Write some data to the stream. The data is put on an internal write queue, and the write actually happens
         asynchronously. To avoid running out of memory by putting too much on the write queue,
         check the  method before writing. This is done automatically if using a .
         param [Buffer]. The buffer to write.
         """
-        self.java_obj.writeBuffer(buff._to_java_buffer())
+        self.java_obj.write(buff._to_java_buffer())
         return self
     
     def set_write_queue_max_size(self, size):
