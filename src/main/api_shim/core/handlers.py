@@ -129,10 +129,10 @@ class AsyncHandler(org.vertx.java.core.AsyncResultHandler):
 
     def handle(self, async_result):
         if not (self.handler is None):
-            if async_result.cause is None:
+            if async_result.cause() is None:
                 if self.result_converter is None:
-                    self.handler(None, async_result.result)
+                    self.handler(None, async_result.result())
                 else:
-                    self.handler(None, self.result_converter(async_result.result))
+                    self.handler(None, self.result_converter(async_result.result()))
             else:
-                self.handler(async_result.cause, None)
+                self.handler(async_result.cause(), None)

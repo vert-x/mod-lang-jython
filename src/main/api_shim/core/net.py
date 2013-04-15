@@ -23,7 +23,7 @@ import core.ssl_support
 import core.buffer
 import core.streams
 
-from core.handlers import CloseHandler, DoneHandler, ClosedHandler, AsyncHandler
+from core.handlers import ClosedHandler, AsyncHandler
 from core.event_bus import EventBus
 
 __author__ = "Scott Horn"
@@ -144,11 +144,11 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
 
         self.write_handler_id = EventBus.register_simple_handler(False, simple_handler)
         
-        def wrapped_closed_handler():
+        def wrapped_close_handler():
             EventBus.unregister_handler(self.write_handler_id)
-            if hasattr(self, "_closed_handler"):
-                self._closed_handler()
-        self.java_obj.closedHandler(ClosedHandler(wrapped_closed_handler))
+            if hasattr(self, "_close_handler"):
+                self._close_handler()
+        self.java_obj.closeHandler(ClosedHandler(wrapped_close_handler))
         
     def write_buffer(self, buffer, handler=None):
         """Write a Buffer to the socket. The handler will be called when the buffer has actually been written to the wire.
@@ -178,13 +178,13 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
             self.java_obj.write(str, enc, AsyncHandler(handler))
         return self
       
-    def closed_handler(self, handler):
-        """Set a closed handler on the socket.
+    def close_handler(self, handler):
+        """Set a close handler on the socket.
 
         Keyword arguments:
         @param handler: A block to be used as the handler
         """
-        self._closed_handler = handler
+        self._close_handler = handler
         return self
 
     def send_file(self, file_path):

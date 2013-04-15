@@ -38,7 +38,8 @@ class NetTest(object):
                 socket.write_buffer(data) # Just echo it back
 
         client = vertx.create_net_client()
-        def client_connect_handler(socket):
+        def client_connect_handler(err, socket):
+            tu.azzert(err == None)
             tu.check_thread()
             sends = 10
             size = 100
@@ -103,7 +104,8 @@ class NetTest(object):
         client.trust_store_path = './src/test/keystores/client-truststore.jks'
         client.trust_store_password = 'wibble'
 
-        def client_connect_handler(socket):
+        def client_connect_handler(err, socket):
+            tu.azzert(err == None)
             tu.check_thread()
             sends = 10
             size = 100
@@ -129,8 +131,8 @@ class NetTest(object):
             def end_handler(stream):
                 tu.check_thread()
 
-            @socket.closed_handler
-            def closed_handler():
+            @socket.close_handler
+            def close_handler():
                 tu.check_thread()
 
             socket.pause()
@@ -162,7 +164,8 @@ class NetTest(object):
 
         client = vertx.create_net_client() 
 
-        def client_connect_handler(socket):
+        def client_connect_handler(err, socket):
+            tu.azzert(err == None)
             tu.check_thread()
             sent = 'some-string'
             received = Buffer.create()
