@@ -120,6 +120,10 @@ public class JythonVerticleFactory implements VerticleFactory {
         }
       } catch (IOException e) {
         throw new VertxException(e);
+      } finally {
+        funcName = null;
+        stopFuncName = null;
+        stopFuncVar = null;
       }
     }
 

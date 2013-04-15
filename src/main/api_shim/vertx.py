@@ -65,13 +65,15 @@ def deploy_verticle(main, config=None, instances=1, handler=None):
     @param main: the main of the verticle to deploy
     @param config: dict configuration for the verticle
     @param instances: number of instances to deploy
-    @param handler: an handler that will be called when deploy has completed
+    @param handler: a handler that will be called when deploy has completed
 
     """
     if config != None:
         config = org.vertx.java.core.json.JsonObject(map_to_java(config))
 
-    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployVerticle(main, config, instances, AsyncHandler(handler))
+    if handler != None:
+        handler = AsyncHandler(handler)
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployVerticle(main, config, instances, handler)
 
 def deploy_worker_verticle(main, config=None, instances=1, handler=None):
     """Deploy a worker verticle. The actual deploy happens asynchronously
@@ -122,7 +124,7 @@ def config():
     """Get config for the verticle
     @return: dict config for the verticle
     """
-    return map_from_java(org.vertx.java.platform.impl.JythonVerticleFactory.container.getConfig().toMap())
+    return map_from_java(org.vertx.java.platform.impl.JythonVerticleFactory.container.config().toMap())
 
 def java_vertx():
     return org.vertx.java.platform.impl.JythonVerticleFactory.vertx
