@@ -24,14 +24,14 @@ import core.buffer
 import core.streams
 
 from core.javautils import map_from_java, map_to_java
-from core.handlers import ClosedHandler, ExceptionHandler
+from core.handlers import CloseHandler, ExceptionHandler
 from core.handlers import ContinueHandler, BufferHandler, AsyncHandler
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
 __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
-class HttpServer(core.tcp_support.TCPSupport, core.ssl_support.SSLSupport, object):
+class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSupport, object):
     """ An HTTP and websockets server """
     def __init__(self, **kwargs):
         self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createHttpServer()
@@ -75,23 +75,11 @@ class HttpServer(core.tcp_support.TCPSupport, core.ssl_support.SSLSupport, objec
         else:
             self.java_obj.listen(port, host)
 
-    def client_auth_required(self, val):
-        """ Client authentication is an extra level of security in SSL, and requires clients to provide client certificates.
-        Those certificates must be added to the server trust store.
-
-        Keyword arguments:
-        @param val: If true then the server will request client authentication from any connecting clients, if they 
-        do not authenticate then they will not make a connection.
-
-        """
-        self.java_obj.setClientAuthRequired(val)
-        return self
-
     def close(self, handler=None):
         """ Close the server. Any open HTTP connections will be closed. This can be used as a decorator.
 
         Keyword arguments:
-        @param handler: a handler that is called when the connection is closed. The handler is wrapped in a ClosedHandler.
+        @param handler: a handler that is called when the connection is closed. The handler is wrapped in a CloseHandler.
 
         """
         if handler is None:
@@ -103,7 +91,7 @@ class HttpServer(core.tcp_support.TCPSupport, core.ssl_support.SSLSupport, objec
         """ private """
         return self.java_obj
 
-class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, object):
+class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport, object):
     """ An HTTP client.
      A client maintains a pool of connections to a specific host, at a specific port. The HTTP connections can act
      as pipelines for HTTP requests.
@@ -126,7 +114,7 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
     
     def get_max_pool_size(self):
         """The maxium number of connections this client will pool."""
-        return self.java_obj.getMaxPoolSize
+        return self.java_obj.getMaxPoolSize()
 
     def set_max_pool_size(self, val):
         """ Set the maximum pool size.
@@ -140,6 +128,10 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
 
     max_pool_size = property(get_max_pool_size, set_max_pool_size)
 
+    def get_keep_alive(self):
+        """Return if the client use keep alive."""
+        return self.java_obj.getKeepAlive()
+
     def set_keep_alive(self, val):
         """If val is true then, after the request has ended the connection will be returned to the pool
         where it can be used by another request. In this manner, many HTTP requests can be pipe-lined over an HTTP connection.
@@ -151,23 +143,14 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
         Keyword arguments:
         @param val: The value to use for keep_alive
         """
-        self.java_obj.setTCPKeepAlive(val)
+        self.java_obj.setKeepAlive(val)
         return self
 
-    keep_alive = property(fset=set_keep_alive)
+    keep_alive = property(get_keep_alive, set_keep_alive)
 
-    def set_trust_all(self, val):
-        """Should the client trust ALL server certificates?
-
-        Keyword arguments:
-        @param val: If val is set to true then the client will trust ALL server certificates and will not attempt to authenticate them
-        against it's local client trust store. The default value is false.
-        Use this method with caution!
-        """
-        self.java_obj.setTrustAll(val)
-        return self
-
-    trust_all = property(fset=set_trust_all)
+    def get_port(self):
+        """Return the port the client will attempt to ."""
+        return self.java_obj.getPort()
 
     def set_port(self, val):
         """Set the port that the client will attempt to connect to on the server on. The default value is 80
@@ -178,7 +161,10 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
         self.java_obj.setPort(val)
         return self
 
-    port = property(fset=set_port)
+    port = property(get_port, set_port)
+
+    def get_host(self):
+        return self.java_obj.getHost()
 
     def set_host(self, val):
         """Set the host name or ip address that the client will attempt to connect to on the server on.
@@ -189,7 +175,10 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
         self.java_obj.setHost(val)
         return self
     
-    host = property(fset=set_host)
+    host = property(get_host, set_host)
+
+    def get_verify_host(self):
+        return self.java_obj.getVerifyHost()
 
     def set_verify_host(self, val):
         """ If set then the client will try to validate the remote server's certificate
@@ -202,7 +191,7 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
         self.java_obj.setVerifyHost(val)
         return self
 
-    verify_host = property(fset=set_verify_host)
+    verify_host = property(get_verify_host, set_verify_host)
 
     def connect_web_socket(self, uri, handler):
         """Attempt to connect an HTML5 websocket to the specified URI.
@@ -212,7 +201,11 @@ class HttpClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport, objec
         @param uri: A relative URI where to connect the websocket on the host, e.g. /some/path
         @param handler: The handler to be called with the WebSocket
         """
-        self.java_obj.connectWebsocket(uri, WebSocketHandler(handler))
+        if (handler is None):
+            self.java_obj.connectWebsocket(uri, WebSocketHandler(handler))
+        else:
+            self.java_obj.connectWebsocket(uri, WebSocketHandler(handler))
+        return self
 
     def get_now(self, uri, handler, **headers):
         """This is a quick version of the get method where you do not want to do anything with the request
@@ -363,7 +356,7 @@ class HttpClientRequest(core.streams.WriteStream):
         if self.headers_dict is None:
             self.headers_dict = map_from_java(self.java_obj.headers())
         return self.headers_dict
-     
+
     def put_header(self, key, value):
         """Inserts a header into the request.
 
@@ -375,7 +368,7 @@ class HttpClientRequest(core.streams.WriteStream):
         """
         self.java_obj.putHeader(key, value)
         return self
-     
+
     def write_buffer(self, chunk, handler=None):
         """Write a to the request body.
 
@@ -456,7 +449,26 @@ class HttpClientRequest(core.streams.WriteStream):
         self.java_obj.setChunked(val)
         return self
 
-    chunked = property(fset=set_chunked)
+    def is_chunked(self):
+        return self.java_obj.isChunked()
+
+    chunked = property(is_chunked, set_chunked)
+
+    def set_timeout(self, val):
+        """Set's the amount of time after which if a response is not received TimeoutException()
+        will be sent to the exception handler of this request. Calling this method more than once
+        has the effect of canceling any existing timeout and starting the timeout from scratch.
+
+
+        Keyword arguments:
+        @param val: The quantity of time in milliseconds.
+
+        @return: self So multiple operations can be chained.
+        """
+        self.java_obj.setTimeout(val)
+        return self
+
+    timeout = property(fset=set_timeout)
 
     def continue_handler(self, handler):
         """If you send an HTTP request with the header 'Expect' set to the value '100-continue'
@@ -482,6 +494,7 @@ class HttpClientResponse(core.streams.ReadStream):
         self.java_obj = java_obj
         self.headers_dict = None
         self.trailers_dict = None
+        self.cookies_set = None
    
     @property
     def status_code(self):
@@ -524,6 +537,13 @@ class HttpClientResponse(core.streams.ReadStream):
         if self.trailers_dict is None:
           self.trailers_dict = map_from_java(self.java_obj.trailers())
         return self.trailers_dict
+
+    @property
+    def cookies(self):
+        """The Set-Cookie headers (including trailers)"""
+        if self.cookies_set is None:
+            self.cookies_set = map_from_java(self.java_obj.cookies())
+        return self.cookies_set
 
     def body_handler(self, handler):
         """Set a handler to receive the entire body in one go - do not use this for large bodies"""
@@ -593,6 +613,21 @@ class HttpServerRequest(core.streams.ReadStream):
         """
         self.java_obj.bodyHandler(BufferHandler(handler))
         return self
+
+    @property
+    def remote_address(self):
+        """ Return the remote (client side) address of the request"""
+        return self.java_obj.remoteAddress()
+
+    @property
+    def absolute_uri(self):
+        """ Return the absolute URI corresponding to the the HTTP request"""
+        return self.java_obj.absoluteURI()
+
+
+    @property
+    def peer_certificate_chain(self):
+        return self.java_obj.peerCertificateChain()
 
     def _to_java_request(self):
         return self.java_obj
@@ -767,7 +802,31 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
     def __init__(self, websocket):
         self.java_obj = websocket
 
-    def write_binary_frame(self, buffer):
+    @property
+    def binary_handler_id(self):
+        """
+        When a WebSocket is created it automatically registers an event handler with the eventbus, the ID of that
+        handler is returned.
+
+        Given this ID, a different event loop can send a binary frame to that event handler using the event bus and
+        that buffer will be received by this instance in its own event loop and written to the underlying connection. This
+        allows you to write data to other websockets which are owned by different event loops.
+        """
+        return self.java_obj.binaryHandlerID()
+
+    @property
+    def text_handler_id(self):
+        """
+        When a WebSocket is created it automatically registers an event handler with the eventbus, the ID of that
+        handler is returned.
+
+        Given this ID, a different event loop can send a text frame to that event handler using the event bus and
+        that buffer will be received by this instance in its own event loop and written to the underlying connection. This
+        allows you to write data to other websockets which are owned by different event loops.
+        """
+        return self.java_obj.textHandlerID()
+
+    def write_binary_frame(self, buf):
         """ 
         Write data to the websocket as a binary frame 
 
@@ -775,7 +834,7 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         @param buffer: Buffer data to write to socket.
 
         """
-        self.java_obj.writeBinaryFrame(buffer._to_java_buffer())
+        self.java_obj.writeBinaryFrame(buf._to_java_buffer())
         return self
 
     def write_text_frame(self, text):
@@ -797,9 +856,9 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         This can be used as a decorator. 
 
         Keyword arguments:
-        handler - The handler to be called when writing has been completed. It is wrapped in a ClosedHandler.
+        handler - The handler to be called when writing has been completed. It is wrapped in a CloseHandler.
         """
-        self.java_obj.closeHandler(ClosedHandler(handler))
+        self.java_obj.closeHandler(CloseHandler(handler))
         return self
 
 class ServerWebSocket(WebSocket):

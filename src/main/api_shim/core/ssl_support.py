@@ -30,7 +30,10 @@ class SSLSupport(object):
     self.java_obj.setSSL(val)
     return self
 
-  ssl = property(fset=set_ssl)
+  def get_ssl(self):
+      self.java_obj.getSSL()
+      return self
+  ssl = property(get_ssl, set_ssl)
 
   def set_key_store_path(self, path):
     """Set the path to the SSL key store. This method should only be used with the client/server in SSL mode, i.e. after {#ssl=}
@@ -46,7 +49,10 @@ class SSLSupport(object):
     self.java_obj.setKeyStorePath(path)
     return self
 
-  key_store_path = property(fset=set_key_store_path)
+  def get_key_store_path(self):
+    return self.java_obj.getKeyStorePath()
+
+  key_store_path = property(get_key_store_path, set_key_store_path)
 
   def set_key_store_password(self, password):
     """Set the password for the SSL key store. This method should only be used with the client in SSL mode, i.e. after ssl
@@ -60,7 +66,10 @@ class SSLSupport(object):
     self.java_obj.setKeyStorePassword(password)
     return self
 
-  key_store_password = property(fset=set_key_store_password)
+  def get_key_store_password(self):
+      return self.java_obj.getKeyStorePassword()
+
+  key_store_password = property(get_key_store_password, set_key_store_password)
 
   def set_trust_store_path(self, path):
     """Set the path to the SSL trust store. This method should only be used with the client/server in SSL mode, i.e. after {#ssl=}
@@ -77,7 +86,10 @@ class SSLSupport(object):
     self.java_obj.setTrustStorePath(path)
     return self
 
-  trust_store_path = property(fset=set_trust_store_path)
+  def get_trust_store_path(self):
+    return self.java_obj.getTrustStorePath()
+
+  trust_store_path = property(get_trust_store_path, set_trust_store_path)
 
   def set_trust_store_password(self, password):
     """Set the password for the SSL trust store. This method should only be used with the client in SSL mode, i.e. after {#ssl=}
@@ -91,5 +103,44 @@ class SSLSupport(object):
     self.java_obj.setTrustStorePassword(password)
     return self
 
-  trust_store_password = property(fset=set_trust_store_password)
-    
+  def get_trust_store_password(self):
+    return self.java_obj.getTrustStorePassword()
+
+  trust_store_password = property(get_trust_store_password, set_trust_store_password)
+
+class ClientSSLSupport(SSLSupport, object):
+
+  def set_trust_all(self, val):
+    """Should the client trust ALL server certificates?
+
+    Keyword arguments:
+    @param val: If val is set to true then the client will trust ALL server certificates and will not attempt to authenticate them
+    against it's local client trust store. The default value is false.
+    Use this method with caution!
+    """
+    self.java_obj.setTrustAll(val)
+    return self
+
+  def get_trust_all(self):
+    return self.java_obj.getTrustAll()
+
+  trust_all = property(get_trust_all, set_trust_all)
+
+class ServerSSLSupport(SSLSupport, object):
+
+  def set_client_auth_required(self, val):
+    """ Client authentication is an extra level of security in SSL, and requires clients to provide client certificates.
+    Those certificates must be added to the server trust store.
+
+    Keyword arguments:
+    @param val: If true then the server will request client authentication from any connecting clients, if they
+    do not authenticate then they will not make a connection.
+
+    """
+    self.java_obj.setClientAuthRequired(val)
+    return self
+
+  def get_client_auth_required(self):
+    return self.java_obj.getClientAuthRequired()
+
+  client_auth_required = property(get_client_auth_required, set_client_auth_required)

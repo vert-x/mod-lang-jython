@@ -102,8 +102,8 @@ class FileSystemTest(object):
                                     tu.check_thread()
                                     tu.test_complete()
                                 file.close(close_handler)
-                        file.read(tot_read, pos, pos, chunk_size, read_handler)
-                file.write(buff, i * chunk_size, write_handler)
+                        file.read_pos(tot_read, pos, pos, chunk_size, read_handler)
+                file.write_pos(buff, i * chunk_size, write_handler)
         fs.open(FILEDIR + "/somefile.txt", handler=open_handler)
                 
 

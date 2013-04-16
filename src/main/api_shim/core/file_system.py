@@ -99,12 +99,14 @@ class AsyncFile(core.streams.ReadStream, core.streams.WriteStream):
     def __init__(self, java_obj):
         self.java_obj = java_obj
 
-    def close(self, handler):
-        """Close the file, asynchronously."""
-        self.java_obj.close(AsyncHandler(handler))
+    def close(self, handler=None):
+        if (handler is None):
+            self.java_obj.close()
+        else:
+            self.java_obj.close(AsyncHandler(handler))
 
 
-    def write(self, buf, position=0, handler=None):
+    def write_at_pos(self, buf, position, handler):
         """Write a Buffer to the file, asynchronously.
         When multiple writes are invoked on the same file
         there are no guarantees as to order in which those writes actually occur.
@@ -114,13 +116,11 @@ class AsyncFile(core.streams.ReadStream, core.streams.WriteStream):
         @param position: the position in the file where to write the buffer. Position is measured in bytes and
         starts with zero at the beginning of the file.
         """
-        if (position == 0 and handler == None):
-            self.java_obj.write(buf._to_java_buffer())
-        else:
-            self.java_obj.write(buf._to_java_buffer(), position, AsyncHandler(handler))
+
+        self.java_obj.write(buf._to_java_buffer(), position, AsyncHandler(handler))
         return self
 
-    def read(self, buffer, offset, position, length, handler):
+    def read_at_pos(self, buf, offset, position, length, handler):
         """Reads some data from a file into a buffer, asynchronously.
         When multiple reads are invoked on the same file
         there are no guarantees as to order in which those reads actually occur.
@@ -131,9 +131,9 @@ class AsyncFile(core.streams.ReadStream, core.streams.WriteStream):
         @param position: the position in the file where to read the data.
         @param length: the number of bytes to read.
         """
-        def converter(buffer):
-            return Buffer(buffer)
-        self.java_obj.read(buffer._to_java_buffer(), offset, position, length, AsyncHandler(handler, converter))
+        def converter(buf):
+            return Buffer(buf)
+        self.java_obj.read(buf._to_java_buffer(), offset, position, length, AsyncHandler(handler, converter))
         return self
 
     def flush(self, handler=None):
@@ -265,6 +265,27 @@ class FileSystem(object):
         java_obj = self.java_obj.propsSync(path)
         return FileProps(java_obj)
 
+    def lprops(self, path, handler):
+        """ Obtain properties for the link represented by {@code path}, asynchronously.
+         The link will not be followed..
+
+        Keyword arguments:
+        @param path: path to file
+        @param handler: the function to call when complete
+        """
+        def converter(obj):
+            return FileProps(obj)
+
+        self.java_obj.lprops(path, AsyncHandler(handler, converter))
+        return self
+
+        """Synchronous version of FileSystem.lprops"""
+    def lprops_sync(self, path):
+        """Synchronous version of FileSystem.props"""
+        java_obj = self.java_obj.lpropsSync(path)
+        return FileProps(java_obj)
+
+
     def link(self, link, existing, handler):
         """Create a hard link, asynchronously..
 
@@ -281,7 +302,7 @@ class FileSystem(object):
         self.java_obj.linkSync(link, existing)
         return self
 
-    def sym_link(self, link, existing, handler):
+    def symlink(self, link, existing, handler):
         """Create a symbolic link, asynchronously.
 
         Keyword arguments:
@@ -289,12 +310,12 @@ class FileSystem(object):
         @param existing: Path of where the link points to.
         @param handler: the function to call when complete
         """
-        self.java_obj.symLink(link, existing, AsyncHandler(handler))
+        self.java_obj.symlink(link, existing, AsyncHandler(handler))
         return self
 
-    def sym_link_sync(self, link, existing):
-        """Synchronous version of FileSystem.sym_link"""
-        self.java_obj.symLinkSync(link, existing)
+    def symlink_sync(self, link, existing):
+        """Synchronous version of FileSystem.symlink"""
+        self.java_obj.symlinkSync(link, existing)
         return self
 
     def unlink(self, link, handler):
@@ -311,19 +332,19 @@ class FileSystem(object):
         self.java_obj.unlinkSync(link)
         return self
 
-    def read_sym_link(self, link, handler):
+    def read_symlink(self, link, handler):
         """Read a symbolic link, asynchronously. I.e. tells you where the symbolic link points.
 
         Keyword arguments:
         @param link: path of the link to read.
         @param handler: the function to call when complete
         """
-        self.java_obj.readSymLink(link, AsyncHandler(handler))
+        self.java_obj.readSymlink(link, AsyncHandler(handler))
         return self
 
-    def read_sym_link_sync(self, link):
-        """Synchronous version of FileSystem.read_sym_link"""
-        self.java_obj.readSymLinkSync(link)
+    def read_symlink_sync(self, link):
+        """Synchronous version of FileSystem.read_symlink"""
+        self.java_obj.readSymlinkSync(link)
         return self
 
     def delete(self, path, handler):

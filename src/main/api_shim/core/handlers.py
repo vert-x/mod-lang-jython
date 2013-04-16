@@ -56,15 +56,6 @@ class BufferHandler(org.vertx.java.core.Handler):
     def handle(self, buffer):
         self.handler(Buffer(buffer))
 
-class ClosedHandler(org.vertx.java.core.Handler):
-    """ Closed connection handler """
-    def __init__(self, handler):
-        self.handler = handler
-
-    def handle(self, nothing=None):
-        """ Call the handler when a connection is closed """
-        self.handler()
-
 class CloseHandler(org.vertx.java.core.Handler):
     """ Close connection handler """
     def __init__(self, handler):

@@ -48,7 +48,10 @@ class WriteStream(object):
         self.java_obj.setWriteQueueMaxSize(size)
         return self
 
-    write_queue_max_size = property(fset=set_write_queue_max_size)
+    def get_write_queue_max_size(self):
+        return self.java_obj.getWriteQueueMaxSize()
+
+    write_queue_max_size = property(get_write_queue_max_size, set_write_queue_max_size)
     
     @property
     def write_queue_full(self):
