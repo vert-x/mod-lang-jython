@@ -48,27 +48,27 @@ class FileProps(object):
     @property 
     def directory(self):
         """return is the file a directory"""
-        return self.java_obj.isDirectory
+        return self.java_obj.isDirectory()
 
     @property
     def other(self):
         """return Is the file some other file type?"""
-        return self.java_obj.isOther
+        return self.java_obj.isOther()
 
     @property
     def regular_file(self):
         """returns   Is it a regular file?"""
-        return self.java_obj.isRegularFile
+        return self.java_obj.isRegularFile()
 
     @property
     def symbolic_link(self): 
         """returns is it a symbolic link?"""
-        return self.java_obj.isSymbolicLink
+        return self.java_obj.isSymbolicLink()
 
     @property
     def size(self):
         """returnsthe size of the file, in bytes."""
-        return self.java_obj.size
+        return self.java_obj.size()
 
 class FSProps(object):
     """Represents the properties of a file system"""
@@ -104,7 +104,7 @@ class AsyncFile(core.streams.ReadStream, core.streams.WriteStream):
         self.java_obj.close(AsyncHandler(handler))
 
 
-    def write(self, buffer, position, handler):
+    def write(self, buf, position=0, handler=None):
         """Write a Buffer to the file, asynchronously.
         When multiple writes are invoked on the same file
         there are no guarantees as to order in which those writes actually occur.
@@ -114,7 +114,10 @@ class AsyncFile(core.streams.ReadStream, core.streams.WriteStream):
         @param position: the position in the file where to write the buffer. Position is measured in bytes and
         starts with zero at the beginning of the file.
         """
-        self.java_obj.write(buffer._to_java_buffer(), position, AsyncHandler(handler))
+        if (position == 0 and handler == None):
+            self.java_obj.write(buf._to_java_buffer())
+        else:
+            self.java_obj.write(buf._to_java_buffer(), position, AsyncHandler(handler))
         return self
 
     def read(self, buffer, offset, position, length, handler):
@@ -454,7 +457,7 @@ class FileSystem(object):
         @param handler: the function to call when complete
         """
         def converter(f):
-            return AsyncFile(file)
+            return AsyncFile(f)
         self.java_obj.open(path, perms, read, write, create_new, flush, AsyncHandler(handler, converter))
         return self
 

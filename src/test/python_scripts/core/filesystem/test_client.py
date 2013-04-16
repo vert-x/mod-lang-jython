@@ -115,16 +115,15 @@ class FileSystemTest(object):
             num_chunks = 100;
             chunk_size = 1000;
             tot_buff = Buffer.create()
-            write_stream = file.write_stream
             for i in range(0, num_chunks):
                 buff = TestUtils.gen_buffer(chunk_size)
                 tot_buff.append_buffer(buff)
-                write_stream.write_buffer(buff)
+                file.write(buff)
             def close_handler(err, file):
                 def open_handler2(err, file):
                     tu.check_thread()
                     tu.azzert(err == None)
-                    read_stream = file.read_stream
+                    read_stream = file
                     tot_read = Buffer.create()
                     def data_handler(data):
                         tot_read.append_buffer(data)  
