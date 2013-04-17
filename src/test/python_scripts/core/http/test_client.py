@@ -21,7 +21,7 @@ tu.check_thread()
 server = vertx.create_http_server()
 client = vertx.create_http_client()
 client.port = 8080
-logger = vertx.get_logger()
+logger = vertx.logger()
 
 # This is just a basic test. Most testing occurs in the Java tests
 class HttpTest(object):

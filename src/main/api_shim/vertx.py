@@ -54,7 +54,7 @@ def file_system():
     """ Return the filesystem """
     return FileSystem()
 
-def get_logger():
+def logger():
     """ Get the logger for the verticle """
     return org.vertx.java.platform.impl.JythonVerticleFactory.container.logger()
 
@@ -75,7 +75,7 @@ def deploy_verticle(main, config=None, instances=1, handler=None):
         handler = AsyncHandler(handler)
     org.vertx.java.platform.impl.JythonVerticleFactory.container.deployVerticle(main, config, instances, handler)
 
-def deploy_worker_verticle(main, config=None, instances=1, handler=None):
+def deploy_worker_verticle(main, config=None, instances=1, multi_threaded=False, handler=None):
     """Deploy a worker verticle. The actual deploy happens asynchronously
 
     Keyword arguments:
@@ -86,7 +86,7 @@ def deploy_worker_verticle(main, config=None, instances=1, handler=None):
     """
     if config != None:
         config = org.vertx.java.core.json.JsonObject(map_to_java(config))
-    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployWorkerVerticle(main, config, instances, AsyncHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.deployWorkerVerticle(main, config, instances, multi_threaded, AsyncHandler(handler))
 
 
 def deploy_module(module_name, config=None, instances=1, handler=None):
@@ -125,9 +125,6 @@ def config():
     @return: dict config for the verticle
     """
     return map_from_java(org.vertx.java.platform.impl.JythonVerticleFactory.container.config().toMap())
-
-def java_vertx():
-    return org.vertx.java.platform.impl.JythonVerticleFactory.vertx
 
 def set_timer(delay, handler):
     """Sets a one-shot timer that will fire after a certain delay.
@@ -170,4 +167,8 @@ def run_on_loop(handler):
 def exit():
     """ Cause the container to exit """
     org.vertx.java.platform.impl.JythonVerticleFactory.container.exit()
+
+def java_vertx():
+    return org.vertx.java.platform.impl.JythonVerticleFactory.vertx
+
 

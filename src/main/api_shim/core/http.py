@@ -61,7 +61,7 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
         self.java_obj.websocketHandler(ServerWebSocketHandler(handler))
         return self
 
-    def listen(self, port, host="0.0.0.0", handler=None):
+    def listen(self, port=80, host="0.0.0.0", handler=None):
         """Instruct the server to listen for incoming connections. If host is None listens on all.
 
         Keyword arguments:

@@ -55,10 +55,6 @@ class EventBus(object):
     handler_dict = {}
 
     @staticmethod
-    def java_eventbus():
-        return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.eventBus()
-
-    @staticmethod
     def send(address, message, reply_handler=None):
         """Send a message on the event bus
 
@@ -128,7 +124,7 @@ class EventBus(object):
         Keyword arguments:
         @param local_only: If Rrue then handler won't be propagated across cluster
         @param handler: The handler
-        
+
         @return: id of the handler which can be used in EventBus.unregister_handler
         """
         if handler is None:
@@ -168,7 +164,12 @@ class EventBus(object):
         else:
             message = map_to_java(message)
         return message
-        
+
+    @staticmethod
+    def java_eventbus():
+        return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.eventBus()
+
+
 class InternalHandler(org.vertx.java.core.Handler):
     def __init__(self, handler):
         self.handler = handler
