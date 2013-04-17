@@ -168,7 +168,9 @@ def http_method(ssl, method, chunked):
         def data_handler(data):
             tu.check_thread()
             body.append_buffer(data)
-        req.response.chunked = chunked
+
+        if method != 'HEAD' and method != 'CONNECT':
+            req.response.chunked = chunked
 
         @req.end_handler
         def end_handler(stream):
