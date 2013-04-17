@@ -24,7 +24,7 @@ import core.buffer
 import core.streams
 
 from core.javautils import map_from_java, map_to_java
-from core.handlers import CloseHandler, ExceptionHandler
+from core.handlers import CloseHandler, ExceptionHandler, ListenHandler
 from core.handlers import ContinueHandler, BufferHandler, AsyncHandler
 
 __author__ = "Scott Horn"
@@ -33,8 +33,8 @@ __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
 class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSupport, object):
     """ An HTTP and websockets server """
-    def __init__(self, **kwargs):
-        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createHttpServer()
+    def __init__(self, server, **kwargs):
+        self.java_obj = server
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
 
@@ -61,7 +61,7 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
         self.java_obj.websocketHandler(ServerWebSocketHandler(handler))
         return self
 
-    def listen(self, port, host="0.0.0.0"):
+    def listen(self, port, host="0.0.0.0", handler=None):
         """Instruct the server to listen for incoming connections. If host is None listens on all.
 
         Keyword arguments:
@@ -70,10 +70,13 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
         @param handler: The handler to notify once the listen operation completes. (default None)
     
         """
-        if host is None:
-            self.java_obj.listen(port)
-        else:
+        if handler is None:
             self.java_obj.listen(port, host)
+        else:
+            def converter(server):
+                return HttpServer(server)
+            self.java_obj.listen(port, host, ListenHandler(handler, converter))
+        return self
 
     def close(self, handler=None):
         """ Close the server. Any open HTTP connections will be closed. This can be used as a decorator.

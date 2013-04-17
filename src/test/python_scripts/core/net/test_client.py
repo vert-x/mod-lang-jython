@@ -72,8 +72,10 @@ class NetTest(object):
                 sent.append_buffer(data)
                 socket.write_buffer(data)
 
-        server.listen(8080, "0.0.0.0")
-        client.connect(8080, "localhost", client_connect_handler)
+        def listen_handler(serv):
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
     def test_echo_ssl(self):
@@ -145,8 +147,10 @@ class NetTest(object):
                 sent.append_buffer(data)
                 socket.write_buffer(data)
 
-        server.listen(8080, "0.0.0.0")
-        client.connect(8080, "localhost", client_connect_handler)
+        def listen_handler(serv):
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
     def test_write_str(self):
@@ -181,8 +185,10 @@ class NetTest(object):
 
             socket.write_str(sent)
 
-        server.listen(8080, "0.0.0.0")
-        client.connect(8080, "localhost", client_connect_handler)
+        def listen_handler(serv):
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
     # Basically we just need to touch all methods, the real testing occurs in the Java tests

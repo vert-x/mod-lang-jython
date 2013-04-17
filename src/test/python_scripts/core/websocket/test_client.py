@@ -61,8 +61,10 @@ class WebsocketTest(object):
             else:
                 ws.write_text_frame(self.str_)
 
-        server.listen(8080, "0.0.0.0")
-        client.connect_web_socket("/someurl", connect_handler)
+        def listen_handler(serv):
+            client.connect_web_socket("/someurl", connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
     def test_write_from_connect_handler(self):
@@ -81,8 +83,10 @@ class WebsocketTest(object):
                 tu.azzert("foo" == buff.to_string())
                 tu.test_complete()
 
-        server.listen(8080, "0.0.0.0")
-        client.connect_web_socket("/someurl", connect_handler)
+        def listen_handler(serv):
+            client.connect_web_socket("/someurl", connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
     def test_close(self):
         @server.websocket_handler
@@ -99,8 +103,10 @@ class WebsocketTest(object):
                 tu.test_complete()
             ws.write_text_frame("foo")
 
-        server.listen(8080, "0.0.0.0")
-        client.connect_web_socket("/someurl",connect_handler)
+        def listen_handler(serv):
+            client.connect_web_socket("/someurl",connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
     def test_close_from_connect(self):
@@ -115,8 +121,10 @@ class WebsocketTest(object):
             def close_handler():
                 tu.test_complete()
 
-        server.listen(8080, "0.0.0.0")
-        client.connect_web_socket("/someurl", connect_handler)
+        def listen_handler(serv):
+            client.connect_web_socket("/someurl", connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
 def vertx_stop():

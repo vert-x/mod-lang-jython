@@ -23,7 +23,7 @@ import core.ssl_support
 import core.buffer
 import core.streams
 
-from core.handlers import CloseHandler, AsyncHandler
+from core.handlers import CloseHandler, AsyncHandler, ListenHandler
 from core.event_bus import EventBus
 
 __author__ = "Scott Horn"
@@ -37,8 +37,8 @@ class NetServer(core.ssl_support.ServerSSLSupport, core.tcp_support.ServerTCPSup
     they are supplied to the user in the form of a NetSocket instance that is passed via the handler
     set using connect_handler.
     """
-    def __init__(self, **kwargs):
-        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createNetServer()
+    def __init__(self, server, **kwargs):
+        self.java_obj = server
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
 
@@ -56,7 +56,7 @@ class NetServer(core.ssl_support.ServerSSLSupport, core.tcp_support.ServerTCPSup
         return self
 
 
-    def listen(self, port, host="0.0.0.0"):
+    def listen(self, port, host="0.0.0.0", handler=None):
         """Instruct the server to listen for incoming connections.
 
         Keyword arguments:
@@ -66,7 +66,13 @@ class NetServer(core.ssl_support.ServerSSLSupport, core.tcp_support.ServerTCPSup
         
         @return: a reference to self so invocations can be chained
         """
-        self.java_obj.listen(port, host)
+        if (handler is None):
+            self.java_obj.listen(port, host)
+        else:
+            def converter(server):
+                return NetServer(server)
+            self.java_obj.listen(port, host, ListenHandler(handler, converter))
+        return self
 
 
     def close(self, handler=None):

@@ -32,7 +32,7 @@ __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
 def create_http_server(**kwargs):
     """ Return a HttpServer """
-    return HttpServer(**kwargs)
+    return HttpServer(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createHttpServer(), **kwargs)
 
 def create_http_client(**kwargs):
     """ Return a HttpClient """
@@ -40,7 +40,7 @@ def create_http_client(**kwargs):
 
 def create_net_server(**kwargs):
     """ Return a NetServer """
-    return NetServer(**kwargs)
+    return NetServer(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createNetServer(), **kwargs)
 
 def create_net_client(**kwargs):
     """ Return a NetClient """
