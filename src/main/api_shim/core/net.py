@@ -70,8 +70,8 @@ class NetServer(core.ssl_support.ServerSSLSupport, core.tcp_support.ServerTCPSup
             self.java_obj.listen(port, host)
         else:
             def converter(server):
-                return NetServer(server)
-            self.java_obj.listen(port, host, ListenHandler(handler, converter))
+                return self
+            self.java_obj.listen(port, host, AsyncHandler(handler, converter))
         return self
 
 

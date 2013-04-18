@@ -72,7 +72,9 @@ class NetTest(object):
                 sent.append_buffer(data)
                 socket.write_buffer(data)
 
-        def listen_handler(serv):
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
             client.connect(8080, "localhost", client_connect_handler)
 
         server.listen(8080, "0.0.0.0", listen_handler)
@@ -147,7 +149,9 @@ class NetTest(object):
                 sent.append_buffer(data)
                 socket.write_buffer(data)
 
-        def listen_handler(serv):
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
             client.connect(8080, "localhost", client_connect_handler)
 
         server.listen(8080, "0.0.0.0", listen_handler)
@@ -185,7 +189,9 @@ class NetTest(object):
 
             socket.write_str(sent)
 
-        def listen_handler(serv):
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
             client.connect(8080, "localhost", client_connect_handler)
 
         server.listen(8080, "0.0.0.0", listen_handler)
