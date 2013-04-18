@@ -24,7 +24,7 @@ import core.buffer
 import core.streams
 
 from core.javautils import map_from_java, map_to_java
-from core.handlers import CloseHandler, ExceptionHandler, ListenHandler
+from core.handlers import CloseHandler, ExceptionHandler
 from core.handlers import ContinueHandler, BufferHandler, AsyncHandler
 
 __author__ = "Scott Horn"
@@ -74,8 +74,8 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
             self.java_obj.listen(port, host)
         else:
             def converter(server):
-                return HttpServer(server)
-            self.java_obj.listen(port, host, ListenHandler(handler, converter))
+                return self
+            self.java_obj.listen(port, host, AsyncHandler(handler, converter))
         return self
 
     def close(self, handler=None):

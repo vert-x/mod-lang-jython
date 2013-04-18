@@ -216,7 +216,9 @@ def http_method(ssl, method, chunked):
                     tu.azzert('vtrailer2' == resp.trailers['trailer2'])
             tu.test_complete()
 
-    def listen_handler(server):
+    def listen_handler(err, serv):
+        tu.azzert(err == None)
+        tu.azzert(serv == server)
         request = client.request(method, uri, response_handler)
 
         request.chunked = chunked

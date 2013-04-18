@@ -61,7 +61,9 @@ class WebsocketTest(object):
             else:
                 ws.write_text_frame(self.str_)
 
-        def listen_handler(serv):
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
             client.connect_web_socket("/someurl", connect_handler)
 
         server.listen(8080, "0.0.0.0", listen_handler)
@@ -83,7 +85,9 @@ class WebsocketTest(object):
                 tu.azzert("foo" == buff.to_string())
                 tu.test_complete()
 
-        def listen_handler(serv):
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
             client.connect_web_socket("/someurl", connect_handler)
 
         server.listen(8080, "0.0.0.0", listen_handler)
@@ -103,7 +107,9 @@ class WebsocketTest(object):
                 tu.test_complete()
             ws.write_text_frame("foo")
 
-        def listen_handler(serv):
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
             client.connect_web_socket("/someurl",connect_handler)
 
         server.listen(8080, "0.0.0.0", listen_handler)
@@ -121,7 +127,9 @@ class WebsocketTest(object):
             def close_handler():
                 tu.test_complete()
 
-        def listen_handler(serv):
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
             client.connect_web_socket("/someurl", connect_handler)
 
         server.listen(8080, "0.0.0.0", listen_handler)

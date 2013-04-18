@@ -116,7 +116,9 @@ class RouteMatcherTest(object):
             tu.azzert(404 == resp.status_code)
             tu.test_complete()
 
-        def listen_handler(serv):
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
             client.get('some-uri', response_handler).end()
 
         server.listen(8080, '0.0.0.0', listen_handler)
@@ -133,7 +135,9 @@ def route(method, regex, pattern, params, uri):
             tu.azzert(v == req.params[k])
         req.response.end()
 
-    def listen_handler(serv):
+    def listen_handler(err, serv):
+        tu.azzert(err == None)
+        tu.azzert(serv == server)
         if regex:
             getattr(rm, method + '_re')(pattern, handler)
         else:
