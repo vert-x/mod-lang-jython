@@ -372,32 +372,17 @@ class HttpClientRequest(core.streams.WriteStream):
         self.java_obj.putHeader(key, value)
         return self
 
-    def write_buffer(self, chunk, handler=None):
-        """Write a to the request body.
 
-        Keyword arguments:
-        @param chunk: The buffer to write.
-        @param handler: The handler will be called when the buffer has actually been written to the wire.
-
-        @return:  self So multiple operations can be chained.
-        """
-        self.java_obj.write(chunk._to_java_buffer(), AsyncHandler(handler))
-        return self
-
-    def write_str(self, str, enc="UTF-8", handler=None):
+    def write_str(self, str, enc="UTF-8"):
         """Write a to the request body.
 
         Keyword arguments:
         @param str: The string to write.
         @param enc: The encoding to use.
-        @param handler: The handler will be called when the buffer has actually been written to the wire.
         
         @return: self So multiple operations can be chained.
         """
-        if handler is None:
-            self.java_obj.write(str, enc)
-        else:
-            self.java_obj.write(str, enc, AsyncHandler(handler))
+        self.java_obj.write(str, enc)
         return self
 
     def send_head(self):
@@ -709,22 +694,7 @@ class HttpServerResponse(core.streams.WriteStream):
         self.java_obj.putTrailer(key, value)
         return self
 
-    def write_buffer(self, buffer, handler=None):
-        """ Write a buffer to the response. The handler (if supplied) will be called when the buffer has actually been written to the wire.
-
-        Keyword arguments:
-        @param buffer: The buffer to write
-        @param handler: The handler to be called when writing has been completed. It is wrapped in a AsyncHandler (default None)
-        
-        @return: a HttpServerResponse so multiple operations can be chained.
-        """
-        if handler is None:
-            self.java_obj.write(buffer._to_java_buffer())
-        else:
-            self.java_obj.write(buffer._to_java_buffer(), AsyncHandler(handler))
-        return self
-
-    def write_str(self, str, enc="UTF-8", handler=None):
+    def write_str(self, str, enc="UTF-8"):
         """ Write a String to the response. The handler will be called when the String has actually been written to the wire.
 
         Keyword arguments:
@@ -735,10 +705,7 @@ class HttpServerResponse(core.streams.WriteStream):
         
         @return: a HttpServerResponse so multiple operations can be chained.
         """
-        if handler is None:
-            self.java_obj.write(str, enc)
-        else:
-            self.java_obj.write(str, enc, AsyncHandler(handler))
+        self.java_obj.write(str, enc)
         return self
 
     def send_file(self, path):

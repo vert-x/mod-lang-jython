@@ -35,7 +35,7 @@ class NetTest(object):
             @socket.data_handler
             def data_handler(data):
                 tu.check_thread()
-                socket.write_buffer(data) # Just echo it back
+                socket.write(data) # Just echo it back
 
         client = vertx.create_net_client()
         def client_connect_handler(err, socket):
@@ -70,7 +70,7 @@ class NetTest(object):
             for i in range(0, sends):
                 data = TestUtils.gen_buffer(size)
                 sent.append_buffer(data)
-                socket.write_buffer(data)
+                socket.write(data)
 
         def listen_handler(err, serv):
             tu.azzert(err == None)
@@ -99,7 +99,7 @@ class NetTest(object):
             @socket.data_handler
             def data_handler(data):
                 tu.check_thread()
-                socket.write_buffer(data) # Just echo it back
+                socket.write(data) # Just echo it back
 
         client = vertx.create_net_client()
         client.ssl = True
@@ -147,7 +147,7 @@ class NetTest(object):
             for i in range(0, sends):
                 data = TestUtils.gen_buffer(size)
                 sent.append_buffer(data)
-                socket.write_buffer(data)
+                socket.write(data)
 
         def listen_handler(err, serv):
             tu.azzert(err == None)
@@ -168,7 +168,7 @@ class NetTest(object):
             @socket.data_handler
             def data_handler(data):
                 tu.check_thread()
-                socket.write_buffer(data) # Just echo it back
+                socket.write(data) # Just echo it back
 
         client = vertx.create_net_client() 
 

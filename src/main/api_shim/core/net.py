@@ -183,7 +183,7 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         self.java_obj = j_socket
 
         def simple_handler(msg):
-            self.write_buffer(msg.body)
+            self.write(msg.body)
 
         self.write_handler_id = EventBus.register_simple_handler(False, simple_handler)
         
@@ -192,33 +192,15 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
             if hasattr(self, "_close_handler"):
                 self._close_handler()
         self.java_obj.closeHandler(CloseHandler(wrapped_close_handler))
-        
-    def write_buffer(self, buffer, handler=None):
-        """Write a Buffer to the socket. The handler will be called when the buffer has actually been written to the wire.
 
-        Keyword arguments:
-        @param buffer: The buffer to write.
-        @param handler: The handler to call on completion.
-        """
-        java_buffer = buffer._to_java_buffer()
-        if handler is None:
-            self.java_obj.write(java_buffer)
-        else:
-            self.java_obj.write(java_buffer, AsyncHandler(handler))
-        return self
-
-    def write_str(self, str, enc="UTF-8", handler=None):
+    def write_str(self, str, enc="UTF-8"):
         """Write a String to the socket. The handler will be called when the string has actually been written to the wire.
 
         Keyword arguments:
         @param str: The string to write.
         @param enc: The encoding to use.
-        @param handler: The handler to call on completion.
         """
-        if handler is None:
-            self.java_obj.write(str, enc)
-        else:
-            self.java_obj.write(str, enc, AsyncHandler(handler))
+        self.java_obj.write(str, enc)
         return self
       
     def close_handler(self, handler):

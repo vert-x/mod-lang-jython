@@ -178,7 +178,7 @@ def http_method(ssl, method, chunked):
             if method != 'HEAD' and method != 'CONNECT':
                 if not chunked:
                     req.response.put_header('Content-Length', body.length)
-                req.response.write_buffer(body)
+                req.response.write(body)
                 if chunked:
                     req.response.put_trailer('trailer1', 'vtrailer1')
                     req.response.put_trailer('trailer2', 'vtrailer2')
@@ -227,7 +227,7 @@ def http_method(ssl, method, chunked):
         if not chunked:
             request.put_header('Content-Length', sent_buff.length)
 
-        request.write_buffer(sent_buff)
+        request.write(sent_buff)
         request.end()
 
     server.listen(8080, "0.0.0.0", listen_handler)
