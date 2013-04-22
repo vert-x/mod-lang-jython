@@ -118,10 +118,10 @@ public class JythonVerticleFactory implements VerticleFactory {
         try (InputStream sis = new ByteArrayInputStream(sWrap.toString().getBytes("UTF-8"))) {
           py.execfile(sis, scriptName);
         }
-      } catch (IOException e) {
-          funcName = null;
-          stopFuncName = null;
-          stopFuncVar = null;
+      } catch (Exception e) {
+        funcName = null;
+        stopFuncName = null;
+        stopFuncVar = null;
         throw new VertxException(e);
       }
     }

@@ -23,7 +23,7 @@ from core.file_system import FileSystem
 from core.http import HttpServer, HttpClient
 from core.net import NetServer, NetClient
 from core.sock_js import SockJSServer
-from core.handlers import TimerHandler, DoneHandler, AsyncHandler
+from core.handlers import TimerHandler, NullDoneHandler, AsyncHandler
 from core.javautils import map_to_java, map_from_java
 
 __author__ = "Scott Horn"
@@ -155,14 +155,17 @@ def cancel_timer(id):
     """
     return java_vertx().cancelTimer(id)
 
-def run_on_loop(handler):
+def run_on_context(handler):
     """Put the handler on the event queue for this loop so it will be run asynchronously
     ASAP after this event has been processed
 
     Keyword arguments:
     @param handler: an handler representing the code that will be run ASAP
     """
-    java_vertx().runOnLoop(DoneHandler(handler))
+    java_vertx().runOnContext(NullDoneHandler(handler))
+
+def current_context():
+    return Context(java_vertx().currentContext())
 
 def exit():
     """ Cause the container to exit """
@@ -170,5 +173,13 @@ def exit():
 
 def java_vertx():
     return org.vertx.java.platform.impl.JythonVerticleFactory.vertx
+
+class Context():
+    """ An HTTP and websockets server """
+    def __init__(self, j_context):
+        self.j_context = j_context
+
+    def run_on_context(self, handler):
+        self.j_context.runOnContext(NullDoneHandler(handler))
 
 
