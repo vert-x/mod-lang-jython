@@ -84,7 +84,7 @@ class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
         self.java_obj = java_sock
 
         def simple_handler(msg):
-            self.write_buffer(msg.body)
+            self.write(msg.body)
 
         self.handler_id = EventBus.register_simple_handler(True, simple_handler)
 

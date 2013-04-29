@@ -55,10 +55,6 @@ class EventBus(object):
     handler_dict = {}
 
     @staticmethod
-    def java_eventbus():
-        return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.eventBus()
-
-    @staticmethod
     def send(address, message, reply_handler=None):
         """Send a message on the event bus
 
@@ -128,7 +124,7 @@ class EventBus(object):
         Keyword arguments:
         @param local_only: If Rrue then handler won't be propagated across cluster
         @param handler: The handler
-        
+
         @return: id of the handler which can be used in EventBus.unregister_handler
         """
         if handler is None:
@@ -168,7 +164,12 @@ class EventBus(object):
         else:
             message = map_to_java(message)
         return message
-        
+
+    @staticmethod
+    def java_eventbus():
+        return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.eventBus()
+
+
 class InternalHandler(org.vertx.java.core.Handler):
     def __init__(self, handler):
         self.handler = handler
@@ -180,12 +181,12 @@ class Message(object):
     """Represents a message received from the event bus"""
     def __init__(self, message):
         self.java_obj = message
-        if isinstance(message.body, org.vertx.java.core.json.JsonObject):
-            self.body = map_from_java(message.body.toMap())
-        elif isinstance(message.body, org.vertx.java.core.buffer.Buffer):
-            self.body = Buffer(message.body) 
+        if isinstance(message.body(), org.vertx.java.core.json.JsonObject):
+            self.body = map_from_java(message.body().toMap())
+        elif isinstance(message.body(), org.vertx.java.core.buffer.Buffer):
+            self.body = Buffer(message.body())
         else:
-            self.body = map_from_java(message.body)
+            self.body = map_from_java(message.body())
     
     def reply(self, reply, handler=None):
         """Reply to this message. If the message was sent specifying a receipt handler, that handler will be

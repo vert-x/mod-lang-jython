@@ -37,9 +37,7 @@ class WebsocketTest(object):
             @ws.data_handler
             def data_handler(buff):
                 tu.check_thread()
-                ws.write_buffer(buff)
-            
-        server.listen(8080)
+                ws.write(buff)
 
         if binary:
             self.buff = TestUtils.gen_buffer(1000)
@@ -62,7 +60,13 @@ class WebsocketTest(object):
                 ws.write_binary_frame(self.buff)
             else:
                 ws.write_text_frame(self.str_)
-        client.connect_web_socket("/someurl", connect_handler)
+
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.connect_web_socket("/someurl", connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
     def test_write_from_connect_handler(self):
@@ -71,7 +75,6 @@ class WebsocketTest(object):
             tu.check_thread()
             ws.write_text_frame("foo")
   
-        server.listen(8080)
 
         def connect_handler(ws):
             tu.check_thread()
@@ -81,8 +84,14 @@ class WebsocketTest(object):
                 tu.check_thread()
                 tu.azzert("foo" == buff.to_string())
                 tu.test_complete()
-        client.connect_web_socket("/someurl", connect_handler)
-    
+
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.connect_web_socket("/someurl", connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
     def test_close(self):
         @server.websocket_handler
         def websocket_handler(ws):
@@ -91,37 +100,50 @@ class WebsocketTest(object):
             def data_handler(buff):
                 ws.close()
     
-        server.listen(8080)
         def connect_handler(ws):
             tu.check_thread()
-            @ws.closed_handler
-            def closed_handler():
+            @ws.close_handler
+            def close_handler():
                 tu.test_complete()
             ws.write_text_frame("foo")
-        
-        client.connect_web_socket("/someurl",connect_handler)
-    
+
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.connect_web_socket("/someurl",connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
+
     def test_close_from_connect(self):
         @server.websocket_handler
         def websocket_handler(ws):
             tu.check_thread()
             ws.close()
 
-        server.listen(8080)
         def connect_handler(ws):
             tu.check_thread()
-            @ws.closed_handler
-            def closed_handler():
+            @ws.close_handler
+            def close_handler():
                 tu.test_complete()
-        client.connect_web_socket("/someurl", connect_handler)
+
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.connect_web_socket("/someurl", connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
 
 def vertx_stop():
     tu.check_thread()
     tu.unregister_all()
     client.close()
-    @server.close
-    def close():
+
+    def close_handler(err, ok):
         tu.app_stopped()
-  
+
+    server.close(close_handler)
+
 tu.register_all(WebsocketTest())
 tu.app_ready()

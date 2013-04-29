@@ -21,7 +21,6 @@ tu = TestUtils()
 server = vertx.create_http_server()
 rm = RouteMatcher()
 server.request_handler(rm)
-server.listen(8080)
 
 client = vertx.create_http_client()
 client.port = 8080;
@@ -116,36 +115,50 @@ class RouteMatcherTest(object):
         def response_handler(resp):
             tu.azzert(404 == resp.status_code)
             tu.test_complete()
-        client.get('some-uri', response_handler).end()
-        
-def route(method, regex, pattern, params, uri): 
+
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.get('some-uri', response_handler).end()
+
+        server.listen(8080, '0.0.0.0', listen_handler)
+
+
+def route(method, regex, pattern, params, uri):
+    m = method
+    if m == 'all':
+        m = 'get'
+
     def handler(req):
         tu.azzert(len(req.params) == len(params))
         for k,v in params.iteritems():
             tu.azzert(v == req.params[k])
         req.response.end()
 
-    if regex:
-        getattr(rm, method + '_re')(pattern, handler)
-    else:
-        getattr(rm, method)(pattern, handler)
+    def listen_handler(err, serv):
+        tu.azzert(err == None)
+        tu.azzert(serv == server)
+        if regex:
+            getattr(rm, method + '_re')(pattern, handler)
+        else:
+            getattr(rm, method)(pattern, handler)
 
-    if method == 'all':
-        method = 'get' 
+        def response_handler(resp):
+            tu.azzert(200 == resp.status_code)
+            tu.test_complete()
 
-    def response_handler(resp):
-        tu.azzert(200 == resp.status_code)
-        tu.test_complete()
+        getattr(client, m)(uri, response_handler).end()
+    server.listen(8080, '0.0.0.0', listen_handler)
 
-    getattr(client, method)(uri, response_handler).end()
 
 def vertx_stop(): 
     tu.unregister_all()
     client.close()
 
-    @server.close
-    def close():
+    def close_handler(err, ok):
         tu.app_stopped()
+
+    server.close(close_handler)
 
 tu.register_all(RouteMatcherTest())
 tu.app_ready()

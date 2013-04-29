@@ -20,6 +20,7 @@ import org.python.core.Options;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.VertxException;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
 import org.vertx.java.platform.Verticle;
@@ -27,6 +28,7 @@ import org.vertx.java.platform.VerticleFactory;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -81,7 +83,7 @@ public class JythonVerticleFactory implements VerticleFactory {
       this.scriptName = scriptName;
     }
 
-    public void start() throws Exception {
+    public void start() {
       try (InputStream is = cl.getResourceAsStream(scriptName)) {
         if (is == null) {
           throw new IllegalArgumentException("Cannot find verticle: " + scriptName);
@@ -116,10 +118,15 @@ public class JythonVerticleFactory implements VerticleFactory {
         try (InputStream sis = new ByteArrayInputStream(sWrap.toString().getBytes("UTF-8"))) {
           py.execfile(sis, scriptName);
         }
+      } catch (Exception e) {
+        funcName = null;
+        stopFuncName = null;
+        stopFuncVar = null;
+        throw new VertxException(e);
       }
     }
 
-    public void stop() throws Exception {
+    public void stop() {
       if (stopFuncName != null) {
         py.exec(stopFuncName.toString() + "()");
         // And delete the globals

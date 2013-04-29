@@ -56,15 +56,6 @@ class BufferHandler(org.vertx.java.core.Handler):
     def handle(self, buffer):
         self.handler(Buffer(buffer))
 
-class ClosedHandler(org.vertx.java.core.Handler):
-    """ Closed connection handler """
-    def __init__(self, handler):
-        self.handler = handler
-
-    def handle(self, nothing=None):
-        """ Call the handler when a connection is closed """
-        self.handler()
-
 class CloseHandler(org.vertx.java.core.Handler):
     """ Close connection handler """
     def __init__(self, handler):
@@ -111,3 +102,28 @@ class TimerHandler(org.vertx.java.core.Handler):
         """ Call the handler """
         if self.handler != None:
             self.handler(timer_id)
+
+class ListenHandler(org.vertx.java.core.Handler):
+    """ A handler for Listen operations"""
+    def __init__(self, handler, result_converter):
+        self.handler = handler
+        self.result_converter = result_converter
+
+    def handle(self, server):
+        if self.handler is not None:
+                self.handler(self.result_converter(server))
+
+class AsyncHandler(org.vertx.java.core.AsyncResultHandler):
+    def __init__(self, handler, result_converter=None):
+        self.handler = handler
+        self.result_converter = result_converter
+
+    def handle(self, async_result):
+        if not (self.handler is None):
+            if async_result.cause() is None:
+                if self.result_converter is None:
+                    self.handler(None, async_result.result())
+                else:
+                    self.handler(None, self.result_converter(async_result.result()))
+            else:
+                self.handler(async_result.cause(), None)

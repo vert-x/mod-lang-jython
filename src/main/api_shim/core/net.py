@@ -23,34 +23,24 @@ import core.ssl_support
 import core.buffer
 import core.streams
 
-from core.handlers import CloseHandler, DoneHandler, ClosedHandler
+from core.handlers import CloseHandler, AsyncHandler, ListenHandler
 from core.event_bus import EventBus
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
 __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
-class NetServer(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):    
+class NetServer(core.ssl_support.ServerSSLSupport, core.tcp_support.ServerTCPSupport):
     """Represents a TCP or SSL Server
 
     When connections are accepted by the server
     they are supplied to the user in the form of a NetSocket instance that is passed via the handler
     set using connect_handler.
     """
-    def __init__(self, **kwargs):
-        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createNetServer()
+    def __init__(self, server, **kwargs):
+        self.java_obj = server
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
-
-    def set_client_auth_required(self, val):
-        """Client authentication is an extra level of security in SSL, and requires clients to provide client certificates.
-        Those certificates must be added to the server trust store.
-        @param val:  If true then the server will request client authentication from any connecting clients, if they
-        do not authenticate then they will not make a connection.
-        """
-        self.java_obj.setClientAuthRequired(val)
-        return self
-    client_auth_required = property(fset=set_client_auth_required)
 
     def connect_handler(self, handler):
         """Supply a connect handler for this server. The server can only have at most one connect handler at any one time.
@@ -66,26 +56,49 @@ class NetServer(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
         return self
 
 
-    def listen(self, port, host="0.0.0.0"):
+    def listen(self, port, host="0.0.0.0", handler=None):
         """Instruct the server to listen for incoming connections.
 
         Keyword arguments:
-        @param port: The port to listen on.
-        @param host: The host name or ip address to listen on.
+        @param port:    The port to listen on.
+        @param host:    The host name or ip address to listen on.
+        @param handler: The handler to notify once the listen operations completes (default None)
         
         @return: a reference to self so invocations can be chained
-        """    
-        self.java_obj.listen(port, host)
+        """
+        if (handler is None):
+            self.java_obj.listen(port, host)
+        else:
+            def converter(server):
+                return self
+            self.java_obj.listen(port, host, AsyncHandler(handler, converter))
         return self
 
 
     def close(self, handler=None):
         """Close the server. The handler will be called when the close is complete."""
-        self.java_obj.close(CloseHandler(handler))
+        if (handler is None):
+            self.java_obj.close()
+        else:
+            self.java_obj.close(AsyncHandler(handler))
+
+    @property
+    def port(self):
+        """
+        The actual port the server is listening on. This is useful if you bound the server specifying 0 as port number
+        signifying an ephemeral port
+        """
+        return self.java_obj.port()
+
+    @property
+    def host(self):
+        """
+        The host to which the server is bound.
+        """
+        return self.java_obj.host()
 
 
-
-class NetClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
+class NetClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport):
     """NetClient is an asynchronous factory for TCP or SSL connections.
 
     Multiple connections to different servers can be made using the same instance.
@@ -94,22 +107,6 @@ class NetClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
         self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createNetClient()
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
-
-    def set_trust_all(self, val):
-        """Should the client trust ALL server certificates
-
-        Keyword arguments:
-        @param val:  If val is set to true then the client will trust ALL server certificates and will not attempt to authenticate them
-        against it's local client trust store. The default value is false.
-
-        Use this method with caution!
-        
-        @return: a reference to self so invocations can be chained
-        """
-        self.java_obj.setTrustAll(val)
-        return self
-
-    trust_all = property(fset=set_trust_all)
 
     def connect(self, port, host, handler):
         """Attempt to open a connection to a server. The connection is opened asynchronously and the result returned in the
@@ -122,8 +119,57 @@ class NetClient(core.ssl_support.SSLSupport, core.tcp_support.TCPSupport):
 
         @return: a reference to self so invocations can be chained
         """
-        self.java_obj.connect(port, host, ConnectHandler(handler))
+        def converter(socket):
+            return NetSocket(socket)
+
+        self.java_obj.connect(port, host, AsyncHandler(handler, converter))
         return self
+
+    def set_reconnect_attempts(self, val):
+        """
+        Set the number of reconnection attempts. In the event a connection attempt fails, the client will attempt
+        to connect a further number of times, before it fails. Default value is zero.
+        """
+        self.java_obj.setReconnectAttempts(val)
+        return self
+
+    def get_reconnect_attempts(self):
+        """
+        Get the number of reconnect attempts
+        """
+        return self.java_obj.getReconnectAttempts()
+
+    property(get_reconnect_attempts, set_reconnect_attempts)
+
+    def set_reconnect_interval(self, val):
+        """
+        Set the reconnect interval, in milliseconds
+        """
+        self.java_obj.setReconnectInterval(val)
+        return self
+
+    def get_reconnect_interval(self):
+        """
+        Get the reconnect interval, in milliseconds.
+        """
+        return self.java_obj.getReconnectInterval()
+
+    property(get_reconnect_interval, set_reconnect_interval)
+
+    def set_connect_timeout(self, val):
+        """
+        Set the connect timeout in milliseconds.
+        """
+        self.java_obj.setConnectTimeout(val)
+        return self
+
+    def get_connect_timeout(self):
+        """
+        Returns the connect timeout in milliseconds
+        """
+        return self.java_obj.getConnectTimeout()
+
+    property(get_connect_timeout, set_connect_timeout)
 
     def close(self):
         """Close the NetClient. Any open connections will be closed."""
@@ -137,49 +183,34 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         self.java_obj = j_socket
 
         def simple_handler(msg):
-            self.write_buffer(msg.body)
+            self.write(msg.body)
 
         self.write_handler_id = EventBus.register_simple_handler(False, simple_handler)
         
-        def wrapped_closed_handler():
+        def wrapped_close_handler():
             EventBus.unregister_handler(self.write_handler_id)
-            if hasattr(self, "_closed_handler"):
-                self._closed_handler()
-        self.java_obj.closedHandler(ClosedHandler(wrapped_closed_handler))
-        
-    def write_buffer(self, buffer, handler=None):
-        """Write a Buffer to the socket. The handler will be called when the buffer has actually been written to the wire.
+            if hasattr(self, "_close_handler"):
+                self._close_handler()
+        self.java_obj.closeHandler(CloseHandler(wrapped_close_handler))
 
-        Keyword arguments:
-        @param buffer: The buffer to write.
-        @param handler: The handler to call on completion.
-        """
-        java_buffer = buffer._to_java_buffer()
-        if handler is None:
-            self.java_obj.write(java_buffer)
-        else:
-            self.java_obj.write(java_buffer, DoneHandler(handler))
-
-    def write_str(self, str, enc="UTF-8", handler=None):
+    def write_str(self, str, enc="UTF-8"):
         """Write a String to the socket. The handler will be called when the string has actually been written to the wire.
 
         Keyword arguments:
         @param str: The string to write.
         @param enc: The encoding to use.
-        @param handler: The handler to call on completion.
         """
-        if handler is None:
-            self.java_obj.write(str, enc)
-        else:
-            self.java_obj.write(str, enc, DoneHandler(handler))
+        self.java_obj.write(str, enc)
+        return self
       
-    def closed_handler(self, handler):
-        """Set a closed handler on the socket.
+    def close_handler(self, handler):
+        """Set a close handler on the socket.
 
         Keyword arguments:
         @param handler: A block to be used as the handler
         """
-        self._closed_handler = handler
+        self._close_handler = handler
+        return self
 
     def send_file(self, file_path):
         """Tell the kernel to stream a file directly from disk to the outgoing connection, bypassing userspace altogether
@@ -189,7 +220,12 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         @param file_path: Path to file to send.
         """
         self.java_obj.sendFile(file_path)
-     
+        return self
+
+    @property
+    def remote_address(self):
+        return self.java_obj.remoteAddress()
+
     def close(self):
         """Close the socket"""
         self.java_obj.close()
@@ -202,3 +238,4 @@ class ConnectHandler(org.vertx.java.core.Handler):
     def handle(self, socket):
         """ Call the handler after connection is established"""
         self.handler(NetSocket(socket))
+

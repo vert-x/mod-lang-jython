@@ -21,7 +21,7 @@ tu.check_thread()
 server = vertx.create_http_server()
 client = vertx.create_http_client()
 client.port = 8080
-logger = vertx.get_logger()
+logger = vertx.logger()
 
 # This is just a basic test. Most testing occurs in the Java tests
 class HttpTest(object):
@@ -168,7 +168,9 @@ def http_method(ssl, method, chunked):
         def data_handler(data):
             tu.check_thread()
             body.append_buffer(data)
-        req.response.chunked = chunked
+
+        if method != 'HEAD' and method != 'CONNECT':
+            req.response.chunked = chunked
 
         @req.end_handler
         def end_handler(stream):
@@ -176,13 +178,12 @@ def http_method(ssl, method, chunked):
             if method != 'HEAD' and method != 'CONNECT':
                 if not chunked:
                     req.response.put_header('Content-Length', body.length)
-                req.response.write_buffer(body)
+                req.response.write(body)
                 if chunked:
                     req.response.put_trailer('trailer1', 'vtrailer1')
                     req.response.put_trailer('trailer2', 'vtrailer2')
             req.response.end()
 
-    server.listen(8080)
 
     if ssl:
         client.ssl = True
@@ -215,22 +216,29 @@ def http_method(ssl, method, chunked):
                     tu.azzert('vtrailer2' == resp.trailers['trailer2'])
             tu.test_complete()
 
-    request = client.request(method, uri, response_handler)
-    
-    request.chunked = chunked
-    request.put_header('header1', 'vheader1')
-    request.put_header('header2', 'vheader2')
-    if not chunked:
-        request.put_header('Content-Length', sent_buff.length) 
+    def listen_handler(err, serv):
+        tu.azzert(err == None)
+        tu.azzert(serv == server)
+        request = client.request(method, uri, response_handler)
 
-    request.write_buffer(sent_buff)
-    request.end()
+        request.chunked = chunked
+        request.put_header('header1', 'vheader1')
+        request.put_header('header2', 'vheader2')
+        if not chunked:
+            request.put_header('Content-Length', sent_buff.length)
+
+        request.write(sent_buff)
+        request.end()
+
+    server.listen(8080, "0.0.0.0", listen_handler)
+
 
 def vertx_stop():
     tu.check_thread()
     tu.unregister_all()
     client.close()
-    def close_handler():
+    def close_handler(err, status):
+        tu.azzert(err == None)
         tu.app_stopped()
     server.close(close_handler)
 

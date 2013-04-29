@@ -17,6 +17,7 @@
 apply from: "gradle/maven.gradle"
 
 apply plugin: 'groovy'
+apply plugin: 'idea'
 
 group = modowner
 archivesBaseName = modname
@@ -41,7 +42,7 @@ repositories {
   flatDir {
     dirs 'extralibs'
   }
-  if (System.getenv("JENKINS_HOME") == null) {
+  if (System.getenv("VERTX_DISABLE_MAVENLOCAL") == null) {
     // We don't want to use mavenLocal when running on CI - mavenLocal is only useful in Gradle for
     // publishing artifacts locally for development purposes - maven local is also not threadsafe when there
     // are concurrent builds
@@ -52,7 +53,7 @@ repositories {
 }
 
 dependencies {
-  compile ":jython-standalone:$jythonVersion"
+  compile "io.vertx:jython-standalone:$jythonVersion"
 
   provided "io.vertx:vertx-core:$vertxVersion"
   provided "io.vertx:vertx-platform:$vertxVersion"
@@ -161,5 +162,17 @@ task pydoc(type: Exec) {
 
   if( System.properties['os.name'].toLowerCase().contains('windows') ) {
     commandLine = ['cmd', '/c'] + commandLine
+  }
+}
+
+// Map the 'provided' dependency configuration to the appropriate IDEA visibility scopes.
+plugins.withType(IdeaPlugin) {
+  idea {
+    module {
+      scopes.PROVIDED.plus += configurations.provided
+      scopes.COMPILE.minus += configurations.provided
+      scopes.TEST.minus += configurations.provided
+      scopes.RUNTIME.minus += configurations.provided
+    }
   }
 }

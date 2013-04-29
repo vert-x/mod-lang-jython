@@ -35,12 +35,11 @@ class NetTest(object):
             @socket.data_handler
             def data_handler(data):
                 tu.check_thread()
-                socket.write_buffer(data) # Just echo it back
-
-        server.listen(8080)
+                socket.write(data) # Just echo it back
 
         client = vertx.create_net_client()
-        def client_connect_handler(socket):
+        def client_connect_handler(err, socket):
+            tu.azzert(err == None)
             tu.check_thread()
             sends = 10
             size = 100
@@ -71,9 +70,14 @@ class NetTest(object):
             for i in range(0, sends):
                 data = TestUtils.gen_buffer(size)
                 sent.append_buffer(data)
-                socket.write_buffer(data)
-            
-        client.connect(8080, "localhost", client_connect_handler)
+                socket.write(data)
+
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
 
 
     def test_echo_ssl(self):
@@ -95,9 +99,7 @@ class NetTest(object):
             @socket.data_handler
             def data_handler(data):
                 tu.check_thread()
-                socket.write_buffer(data) # Just echo it back
-        
-        server.listen(8080)
+                socket.write(data) # Just echo it back
 
         client = vertx.create_net_client()
         client.ssl = True
@@ -106,7 +108,8 @@ class NetTest(object):
         client.trust_store_path = './src/test/keystores/client-truststore.jks'
         client.trust_store_password = 'wibble'
 
-        def client_connect_handler(socket):
+        def client_connect_handler(err, socket):
+            tu.azzert(err == None)
             tu.check_thread()
             sends = 10
             size = 100
@@ -132,8 +135,8 @@ class NetTest(object):
             def end_handler(stream):
                 tu.check_thread()
 
-            @socket.closed_handler
-            def closed_handler():
+            @socket.close_handler
+            def close_handler():
                 tu.check_thread()
 
             socket.pause()
@@ -144,9 +147,15 @@ class NetTest(object):
             for i in range(0, sends):
                 data = TestUtils.gen_buffer(size)
                 sent.append_buffer(data)
-                socket.write_buffer(data)
+                socket.write(data)
 
-        client.connect(8080, "localhost", client_connect_handler)
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
 
     def test_write_str(self):
         global server, client
@@ -159,13 +168,12 @@ class NetTest(object):
             @socket.data_handler
             def data_handler(data):
                 tu.check_thread()
-                socket.write_buffer(data) # Just echo it back
-        
-        server.listen(8080)
+                socket.write(data) # Just echo it back
 
         client = vertx.create_net_client() 
 
-        def client_connect_handler(socket):
+        def client_connect_handler(err, socket):
+            tu.azzert(err == None)
             tu.check_thread()
             sent = 'some-string'
             received = Buffer.create()
@@ -181,7 +189,13 @@ class NetTest(object):
 
             socket.write_str(sent)
 
-        client.connect(8080, "localhost", client_connect_handler)
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
 
     # Basically we just need to touch all methods, the real testing occurs in the Java tests
     def test_methods(self):
@@ -227,7 +241,7 @@ class NetTest(object):
 def vertx_stop():
     tu.unregister_all()
     client.close()
-    def close_handler():
+    def close_handler(err, ok):
         tu.app_stopped()
     server.close(close_handler)
     
