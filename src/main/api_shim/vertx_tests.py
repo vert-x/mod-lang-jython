@@ -2,7 +2,8 @@ import vertx
 from org.vertx.testtools import VertxAssert
 from org.vertx.java.platform.impl import JythonVerticleFactory
 
-def init_tests(locs) :
-    VertxAssert.initialize(JythonVerticleFactory.vertx)
+VertxAssert.initialize(JythonVerticleFactory.vertx)
+
+def start_tests(locs) :
     method_name = vertx.config()['methodName']
     locs[method_name]()

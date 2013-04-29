@@ -23,7 +23,7 @@ import core.ssl_support
 import core.buffer
 import core.streams
 
-from core.handlers import CloseHandler, AsyncHandler, ListenHandler
+from core.handlers import CloseHandler, AsyncHandler
 from core.event_bus import EventBus
 
 __author__ = "Scott Horn"
