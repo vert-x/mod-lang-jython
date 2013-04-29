@@ -160,6 +160,17 @@ def http_method(ssl, method, chunked):
         tu.azzert(req.headers['header2'] == 'vheader2')
         tu.azzert(req.params['param1'] == 'vparam1')
         tu.azzert(req.params['param2'] == 'vparam2')
+
+
+        headers = req.headers
+        tu.azzert(headers.contains('header1'))
+        tu.azzert(headers.contains('header2'))
+        tu.azzert(headers.contains('header3'))
+        tu.azzert(not headers.is_empty)
+
+        headers.remove('header3')
+        tu.azzert(not headers.contains('header3'))
+
         req.response.put_header('rheader1', 'vrheader1')
         req.response.put_header('rheader2', 'vrheader2')
         body = Buffer.create()
@@ -177,7 +188,7 @@ def http_method(ssl, method, chunked):
             tu.check_thread()
             if method != 'HEAD' and method != 'CONNECT':
                 if not chunked:
-                    req.response.put_header('Content-Length', body.length)
+                    req.response.put_header('Content-Length', str(body.length))
                 req.response.write(body)
                 if chunked:
                     req.response.put_trailer('trailer1', 'vtrailer1')
@@ -214,6 +225,9 @@ def http_method(ssl, method, chunked):
                 if chunked:
                     tu.azzert('vtrailer1' == resp.trailers['trailer1'])
                     tu.azzert('vtrailer2' == resp.trailers['trailer2'])
+
+            resp.headers.clear()
+            tu.azzert(resp.headers.is_empty)
             tu.test_complete()
 
     def listen_handler(err, serv):
@@ -225,8 +239,9 @@ def http_method(ssl, method, chunked):
         request.put_header('header1', 'vheader1')
         request.put_header('header2', 'vheader2')
         if not chunked:
-            request.put_header('Content-Length', sent_buff.length)
+            request.put_header('Content-Length', str(sent_buff.length))
 
+        request.headers.add('header3', 'vheader3_1').add('header3', 'vheader3')
         request.write(sent_buff)
         request.end()
 

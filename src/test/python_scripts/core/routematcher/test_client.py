@@ -130,9 +130,9 @@ def route(method, regex, pattern, params, uri):
         m = 'get'
 
     def handler(req):
-        tu.azzert(len(req.params) == len(params))
+        tu.azzert(req.params.size == len(params))
         for k,v in params.iteritems():
-            tu.azzert(v == req.params[k])
+            tu.azzert(v == req.params.get(k))
         req.response.end()
 
     def listen_handler(err, serv):
