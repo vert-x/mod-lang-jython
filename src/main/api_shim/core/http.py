@@ -26,6 +26,7 @@ import core.streams
 from core.javautils import map_from_java, map_to_java
 from core.handlers import CloseHandler, ExceptionHandler
 from core.handlers import ContinueHandler, BufferHandler, AsyncHandler
+from UserDict import DictMixin
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
@@ -351,14 +352,14 @@ class HttpClientRequest(core.streams.WriteStream):
     """
     def __init__(self, java_obj):
         self.java_obj = java_obj
-        self.headers_dict = None
+        self.hdrs = None
 
     @property
     def headers(self):
-        """ Hash of headers for the request"""
-        if self.headers_dict is None:
-            self.headers_dict = map_from_java(self.java_obj.headers())
-        return self.headers_dict
+        """ Headers for the request"""
+        if self.hdrs is None:
+            self.hdrs = MultiMap(self.java_obj.headers())
+        return self.hdrs
 
     def put_header(self, key, value):
         """Inserts a header into the request.
@@ -480,8 +481,8 @@ class HttpClientResponse(core.streams.ReadStream):
     """
     def __init__(self, java_obj):
         self.java_obj = java_obj
-        self.headers_dict = None
-        self.trailers_dict = None
+        self.hdrs = None
+        self.trls = None
         self.cookies_set = None
    
     @property
@@ -489,28 +490,18 @@ class HttpClientResponse(core.streams.ReadStream):
         """return the HTTP status code of the response."""
         return self.java_obj.statusCode()
   
-    def header(self, key):
-        """Get a header value
-
-        Keyword arguments:
-        @param key: The key of the header.
-
-        return the header value.
-        """
-        return self.java_obj.getHeader(key)
-  
     @property
     def headers(self):
         """Get all the headers in the response.
         If the response contains multiple headers with the same key, the values
         will be concatenated together into a single header with the same key value, with each value separated by a comma,
         as specified by {http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.htmlsec4.2}.
-        return a dictionary of headers.
+        return headers.
         """
-        if self.headers_dict is None:
-            self.headers_dict = map_from_java(self.java_obj.headers())
-        return self.headers_dict
-    
+        if self.hdrs is None:
+            self.hdrs = MultiMap(self.java_obj.headers())
+        return self.hdrs
+
     @property
     def trailers(self):
         """Get all the trailers in the response.
@@ -521,10 +512,10 @@ class HttpClientResponse(core.streams.ReadStream):
         been inserted by the server on the last chunk. In such a case they won't be available on the client until the last chunk has
         been received.
         
-        return a dictionary of trailers."""
-        if self.trailers_dict is None:
-          self.trailers_dict = map_from_java(self.java_obj.trailers())
-        return self.trailers_dict
+        return trailers."""
+        if self.trls is None:
+            self.trls = MultiMap(self.java_obj.trailers())
+        return self.trls
 
     @property
     def cookies(self):
@@ -549,8 +540,8 @@ class HttpServerRequest(core.streams.ReadStream):
     def __init__(self, java_obj):
         self.java_obj = java_obj
         self.http_server_response = HttpServerResponse(java_obj.response())
-        self.headers_dict = None
-        self.params_dict = None
+        self.hdrs = None
+        self.prms = None
     
     @property
     def method(self):
@@ -574,10 +565,10 @@ class HttpServerRequest(core.streams.ReadStream):
 
     @property
     def params(self):
-        """ The request parameters as a dictionary """
-        if self.params_dict is None:
-            self.params_dict = map_from_java(self.java_obj.params())
-        return self.params_dict
+        """ The request parameters """
+        if self.prms is None:
+            self.prms = MultiMap(self.java_obj.params())
+        return self.prms
 
     @property
     def response(self):
@@ -586,10 +577,10 @@ class HttpServerRequest(core.streams.ReadStream):
 
     @property
     def headers(self):
-        """ The request headers as a dictionary """
-        if self.headers_dict is None:
-            self.headers_dict = map_from_java(self.java_obj.headers())
-        return self.headers_dict
+        """ The request headers """
+        if self.hdrs is None:
+            self.hdrs = MultiMap(self.java_obj.headers())
+        return self.hdrs
 
     def body_handler(self, handler):
         """ Set the body handler for this request, the handler receives a single Buffer object as a parameter. 
@@ -637,6 +628,8 @@ class HttpServerResponse(core.streams.WriteStream):
     """
     def __init__(self, java_obj):
         self.java_obj = java_obj
+        self.hdrs = None
+        self.trls = None
 
     def get_status_code(self):
         """ Get the status code of the response. """
@@ -662,8 +655,10 @@ class HttpServerResponse(core.streams.WriteStream):
 
     @property
     def headers(self):
-        """ Get a copy of the reponse headers as a dictionary """
-        return map_from_java(self.java_obj.headers())
+        """ Get reponse headers """
+        if (self.hdrs is None):
+            self.hdrs = MultiMap(self.java_obj.headers());
+        return self.hdrs
 
     def put_header(self, key, value):
         """ Inserts a header into the response.
@@ -680,7 +675,9 @@ class HttpServerResponse(core.streams.WriteStream):
     @property
     def trailers(self):
         """ Get a copy of the trailers as a dictionary """
-        return map_from_java(self.java_obj.trailers())
+        if (self.trls is None):
+            self.trls = MultiMap(self.java_obj.trailers())
+        return self.trls
 
     def put_trailer(self, key, value):
         """ Inserts a trailer into the response. 
@@ -839,11 +836,18 @@ class ServerWebSocket(WebSocket):
     """
     def __init__(self, websocket):
         self.java_obj = websocket
+        self.hdrs = None
 
     def reject(self):
         """ Reject the WebSocket. Sends 404 to client """
         self.java_obj.reject()
         return self
+
+    @property
+    def headers(self):
+        if (self.hdrs is None):
+            self.hdrs = MultiMap(self.java_obj.headers())
+        return self.hdrs
 
     @property
     def path(self):
@@ -1128,3 +1132,125 @@ class RouteMatcher(object):
         @param handler: http server request handler"""
         self.java_obj.noMatch(HttpServerRequestHandler(handler))
         return self
+
+
+class MultiMap(DictMixin, object):
+    """
+     A map which can hold multiple values for one name / key
+    """
+    def __init__(self, map):
+        self.map = map
+
+    @property
+    def size(self):
+        """
+        Return the number of names in this instance
+        """
+        return self.map.size()
+
+    def __getitem__(self, key):
+        """
+        Returns the value of with the specified name.  If there are
+        more than one values for the specified name, the first value is returned.
+
+        @param name The name of the header to search
+        @return The first header value or raise a KeyError if there is no such entry
+        """
+        value = self.map.get(key)
+        if (value is None):
+            raise KeyError
+        return value
+
+
+    def get_all(self, key):
+        """
+        Returns the values with the specified name
+
+        @param name The name to search
+        @return A immutable list of values which or KeyError if no entries for the key exist
+        """
+        values = self.map.getAll(key)
+        if values.isEmpty:
+            raise KeyError
+        return map_from_java(values)
+
+    def add(self, key, value):
+        """
+        Adds a new value with the specified name and value.
+
+        @param name The name
+        @param value The value being added
+        @return self
+        """
+        self.map.add(key, value)
+        return self
+
+    def __setitem__(self, key, value):
+        self.map.set(key, value)
+
+    def set(self, key, value):
+        """
+        Set a value with the specified name and value.
+
+        @param name The name
+        @param value The value being added
+        @return self
+        """
+        self[key] = value
+        return self
+
+    def __delitem__(self, key):
+        """
+        Remove the values with the given name
+
+        @param name The name
+        @return self
+        """
+        if self.map.contains(key):
+            self.map.remove(key)
+        else:
+            raise KeyError
+
+    def remove(self, key):
+        """
+        Remove the values with the given name
+
+        @param name The name
+        @return self
+        """
+        self.map.remove(key)
+        return self
+
+    def keys(self):
+        return self.names(self)
+
+    def contains(self, key):
+        """
+        Returns true if an entry with the given name was found
+        """
+        return self.map.contains(key)
+
+    def names(self):
+        """
+        Return a Set which holds all names of the entries
+
+        @return The set which holds all names or an empty set if it is empty
+        """
+        return map_from_java(self.map.names())
+
+    @property
+    def is_empty(self):
+        """
+        Returns true if the map is empty
+        """
+        return self.map.isEmpty()
+
+    def clear(self):
+        """
+        Remove all entries
+
+        @return self
+        """
+        self.map.clear()
+        return self
+
