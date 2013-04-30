@@ -103,16 +103,6 @@ class TimerHandler(org.vertx.java.core.Handler):
         if self.handler != None:
             self.handler(timer_id)
 
-class ListenHandler(org.vertx.java.core.Handler):
-    """ A handler for Listen operations"""
-    def __init__(self, handler, result_converter):
-        self.handler = handler
-        self.result_converter = result_converter
-
-    def handle(self, server):
-        if self.handler is not None:
-                self.handler(self.result_converter(server))
-
 class AsyncHandler(org.vertx.java.core.AsyncResultHandler):
     def __init__(self, handler, result_converter=None):
         self.handler = handler
