@@ -46,7 +46,7 @@ class DeployTest(object):
 
         conf = {'foo' : 'bar'}
 
-        def undeploy_handler(err, result):
+        def undeploy_handler(err):
             tu.azzert(err == None)
             tu.test_complete()
 

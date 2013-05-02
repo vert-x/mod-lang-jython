@@ -117,3 +117,14 @@ class AsyncHandler(org.vertx.java.core.AsyncResultHandler):
                     self.handler(None, self.result_converter(async_result.result()))
             else:
                 self.handler(async_result.cause(), None)
+
+class NullAsyncHandler(org.vertx.java.core.AsyncResultHandler):
+    def __init__(self, handler):
+        self.handler = handler
+
+    def handle(self, async_result):
+        if not (self.handler is None):
+            if async_result.cause() is None:
+                self.handler(None)
+            else:
+                self.handler(async_result.cause())

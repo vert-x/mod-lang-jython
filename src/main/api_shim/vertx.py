@@ -23,7 +23,7 @@ from core.file_system import FileSystem
 from core.http import HttpServer, HttpClient
 from core.net import NetServer, NetClient
 from core.sock_js import SockJSServer
-from core.handlers import TimerHandler, NullDoneHandler, AsyncHandler
+from core.handlers import TimerHandler, NullDoneHandler, AsyncHandler, NullAsyncHandler
 from core.javautils import map_to_java, map_from_java
 
 __author__ = "Scott Horn"
@@ -109,7 +109,7 @@ def undeploy_verticle(id, handler=None):
     @param id: the unique id of the deployment
     @param handler: an handler that will be called when undeploy has completed
     """
-    org.vertx.java.platform.impl.JythonVerticleFactory.container.undeployVerticle(id, AsyncHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.undeployVerticle(id, NullAsyncHandler(handler))
 
 def undeploy_module(id, handler=None):
     """Undeploy a module
@@ -118,7 +118,7 @@ def undeploy_module(id, handler=None):
     @param id: the unique id of the module
     @param handler: an handler that will be called when undeploy has completed
     """
-    org.vertx.java.platform.impl.JythonVerticleFactory.container.undeployModule(id, AsyncHandler(handler))
+    org.vertx.java.platform.impl.JythonVerticleFactory.container.undeployModule(id, NullAsyncHandler(handler))
 
 def config():
     """Get config for the verticle
