@@ -242,6 +242,15 @@ def http_method(ssl, method, chunked):
             request.put_header('Content-Length', str(sent_buff.length))
 
         request.headers.add('header3', 'vheader3_1').add('header3', 'vheader3')
+
+
+        size = request.headers.size
+        names = request.headers.names()
+        tu.azzert(size == len(names))
+
+        for k in names:
+            tu.azzert(request.headers.get_all(k) is not None)
+
         request.write(sent_buff)
         request.end()
 

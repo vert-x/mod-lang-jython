@@ -1170,7 +1170,7 @@ class MultiMap(DictMixin, object):
         @return A immutable list of values which or KeyError if no entries for the key exist
         """
         values = self.map.getAll(key)
-        if values.isEmpty:
+        if values.isEmpty():
             raise KeyError
         return map_from_java(values)
 
