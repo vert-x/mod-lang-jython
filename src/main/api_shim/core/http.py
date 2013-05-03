@@ -542,6 +542,14 @@ class HttpServerRequest(core.streams.ReadStream):
         self.http_server_response = HttpServerResponse(java_obj.response())
         self.hdrs = None
         self.prms = None
+        self.vrsn = None
+
+    @property
+    def version(self):
+        """ The HTTP version - either HTTP_1_0 or HTTP_1_1 """
+        if self.vrsn is None:
+            self.vrsn = self.java_obj.version().toString()
+        return self.vrsn
     
     @property
     def method(self):

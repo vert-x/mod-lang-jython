@@ -152,6 +152,7 @@ def http_method(ssl, method, chunked):
     @server.request_handler
     def request_handler(req):
         tu.check_thread()
+        tu.azzert(req.version == 'HTTP_1_1')
         tu.azzert(req.uri == uri)
         tu.azzert(req.method == method)
         tu.azzert(req.path == path)
