@@ -1230,7 +1230,7 @@ class MultiMap(DictMixin, object):
         return self
 
     def keys(self):
-        return self.names(self)
+        return self.names()
 
     def contains(self, key):
         """
