@@ -17,6 +17,7 @@
 package org.vertx.java.platform.impl;
 
 import org.python.core.Options;
+import org.python.core.PyException;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 import org.vertx.java.core.Vertx;
@@ -26,11 +27,7 @@ import org.vertx.java.platform.Container;
 import org.vertx.java.platform.Verticle;
 import org.vertx.java.platform.VerticleFactory;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -65,7 +62,40 @@ public class JythonVerticleFactory implements VerticleFactory {
   }
 
   public void reportException(Logger logger, Throwable t) {
-    logger.error("Exception in Python verticle", t);
+    if (t.getClass().getCanonicalName().contains("PyException")) {
+      /*
+      We have to adjust the line numbers in the stack trace so they are accurate
+      Unfortunately Jython doesn't allow us to retrieve the stack trace as an array making this
+      ugly
+      */
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter(sw);
+      t.printStackTrace(pw);
+      BufferedReader rdr =  new BufferedReader(new StringReader(sw.toString()));
+      String line;
+      StringBuilder newStack = new StringBuilder();
+      try {
+        while ((line = rdr.readLine()) != null) {
+          String newLine;
+          if (line.contains(".py") && !line.contains("__pyclasspath__")) {
+            String lineNumber = line.substring(0, line.lastIndexOf(", in "));
+            int pos = lineNumber.lastIndexOf(", line ") + 7;
+            lineNumber = lineNumber.substring(pos);
+            int lineNo = Integer.parseInt(lineNumber);
+            newLine = line.substring(0, pos) + (lineNo - 1) + line.substring(pos + lineNumber.length());
+          } else {
+            newLine = line;
+          }
+          newStack.append(newLine).append("\n");
+        }
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to parse stack trace: " + e.getMessage());
+      }
+      logger.error("Exception in Python verticle: " + t.getMessage());
+      logger.error(newStack);
+    } else {
+      logger.error("Exception in Python verticle", t);
+    }
   }
 
   public void close() {
@@ -118,6 +148,7 @@ public class JythonVerticleFactory implements VerticleFactory {
         try (InputStream sis = new ByteArrayInputStream(sWrap.toString().getBytes("UTF-8"))) {
           py.execfile(sis, scriptName);
         }
+
       } catch (Exception e) {
         funcName = null;
         stopFuncName = null;

@@ -13,15 +13,13 @@
 # limitations under the License.
 
 from test_utils import TestUtils
+from foo_class import FooClass
 
 tu = TestUtils()
 
-# doesn't work
-#execfile("src/test/python_scripts/core/scriptloading/script1.py")
-
 class ScriptingLoadingTest(object):
     def test_scriptloading(self):
-        #tu.azzert(FooClass().foo() == "bar")
+        tu.azzert(FooClass().foo() == "foo")
         tu.test_complete()
 
 def vertx_stop():
