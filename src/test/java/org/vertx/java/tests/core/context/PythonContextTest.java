@@ -6,7 +6,7 @@ import org.vertx.java.testframework.TestBase;
  * @author <a href="https://github.com/sjhorn">Scott Horn</a>
  */
 public class PythonContextTest extends TestBase {
-    
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -25,5 +25,5 @@ public class PythonContextTest extends TestBase {
   public void test_get_context() {
     startTest(getMethodName());
   }
-        
+
 }

@@ -8,21 +8,21 @@ import org.vertx.java.testframework.TestBase;
  */
 public class PythonScriptLoadingTest extends TestBase {
 
-    @Override
-    protected void setUp() throws Exception {
-      super.setUp();
-    }
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+  }
 
-    @Override
-    protected void tearDown() throws Exception {
-      super.tearDown();
-    }
+  @Override
+  protected void tearDown() throws Exception {
+    super.tearDown();
+  }
 
-    @Test
-    public void test_scriptloading() throws Exception {
-      startApp("core/scriptloading/test_client.py");
-      startTest(getMethodName());
-    }
+  @Test
+  public void test_scriptloading() throws Exception {
+    startApp("core/scriptloading/test_client.py");
+    startTest(getMethodName());
+  }
 
 
 }

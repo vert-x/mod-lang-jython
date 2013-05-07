@@ -10,37 +10,37 @@ import org.vertx.java.testframework.TestBase;
  */
 public class PythonNetTest extends TestBase {
 
-    private static final Logger log = LoggerFactory.getLogger(PythonNetTest.class);
+  private static final Logger log = LoggerFactory.getLogger(PythonNetTest.class);
 
-    @Override
-    protected void setUp() throws Exception {
-      super.setUp();
-      startApp("core/net/test_client.py");
-    }
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    startApp("core/net/test_client.py");
+  }
 
-    @Override
-    protected void tearDown() throws Exception {
-      super.tearDown();
-    }
+  @Override
+  protected void tearDown() throws Exception {
+    super.tearDown();
+  }
 
-    @Test
-    public void test_echo() throws Exception {
-      startTest(getMethodName());
-    }
+  @Test
+  public void test_echo() throws Exception {
+    startTest(getMethodName());
+  }
 
-    @Test
-    public void test_write_str() throws Exception {
-      startTest(getMethodName());
-    }
+  @Test
+  public void test_write_str() throws Exception {
+    startTest(getMethodName());
+  }
 
-    @Test
-    public void test_echo_ssl() throws Exception {
-      startTest(getMethodName());
-    }
+  @Test
+  public void test_echo_ssl() throws Exception {
+    startTest(getMethodName());
+  }
 
-    @Test
-    public void test_methods() throws Exception {
-      startTest(getMethodName());
-    }
-    
+  @Test
+  public void test_methods() throws Exception {
+    startTest(getMethodName());
+  }
+
 }

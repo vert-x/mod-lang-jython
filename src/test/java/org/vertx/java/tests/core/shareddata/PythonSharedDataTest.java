@@ -7,23 +7,23 @@ import org.vertx.java.testframework.TestBase;
  */
 public class PythonSharedDataTest extends TestBase {
 
-    @Override
-    protected void setUp() throws Exception {
-      super.setUp();
-      startApp("core/shareddata/test_client.py");
-    }
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    startApp("core/shareddata/test_client.py");
+  }
 
-    @Override
-    protected void tearDown() throws Exception {
-      super.tearDown();
-    }
+  @Override
+  protected void tearDown() throws Exception {
+    super.tearDown();
+  }
 
-    public void test_hash() {
-      startTest(getMethodName());
-    }
+  public void test_hash() {
+    startTest(getMethodName());
+  }
 
-    public void test_set() {
-      startTest(getMethodName());
-    }
+  public void test_set() {
+    startTest(getMethodName());
+  }
 
 }
