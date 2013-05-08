@@ -31,6 +31,10 @@ class NetTest(object):
         @server.connect_handler
         def connect_handler(socket):
             tu.check_thread()
+            tu.azzert(socket.local_address[0] is not None)
+            tu.azzert(socket.local_address[1] > -1)
+            tu.azzert(socket.remote_address[0] is not None)
+            tu.azzert(socket.remote_address[1] > -1)
 
             @socket.data_handler
             def data_handler(data):
@@ -41,6 +45,11 @@ class NetTest(object):
         def client_connect_handler(err, socket):
             tu.azzert(err == None)
             tu.check_thread()
+            tu.azzert(socket.local_address[0] is not None)
+            tu.azzert(socket.local_address[1] > -1)
+            tu.azzert(socket.remote_address[0] is not None)
+            tu.azzert(socket.remote_address[1] > -1)
+
             sends = 10
             size = 100
 
@@ -95,6 +104,10 @@ class NetTest(object):
         @server.connect_handler
         def connect_handler(socket):
             tu.check_thread()
+            tu.azzert(socket.local_address[0] is not None)
+            tu.azzert(socket.local_address[1] > -1)
+            tu.azzert(socket.remote_address[0] is not None)
+            tu.azzert(socket.remote_address[1] > -1)
 
             @socket.data_handler
             def data_handler(data):
@@ -111,6 +124,11 @@ class NetTest(object):
         def client_connect_handler(err, socket):
             tu.azzert(err == None)
             tu.check_thread()
+            tu.azzert(socket.local_address[0] is not None)
+            tu.azzert(socket.local_address[1] > -1)
+            tu.azzert(socket.remote_address[0] is not None)
+            tu.azzert(socket.remote_address[1] > -1)
+
             sends = 10
             size = 100
 
@@ -164,6 +182,10 @@ class NetTest(object):
         @server.connect_handler
         def connect_handler(socket):
             tu.check_thread()
+            tu.azzert(socket.local_address[0] is not None)
+            tu.azzert(socket.local_address[1] > -1)
+            tu.azzert(socket.remote_address[0] is not None)
+            tu.azzert(socket.remote_address[1] > -1)
 
             @socket.data_handler
             def data_handler(data):
@@ -175,6 +197,11 @@ class NetTest(object):
         def client_connect_handler(err, socket):
             tu.azzert(err == None)
             tu.check_thread()
+            tu.azzert(socket.local_address[0] is not None)
+            tu.azzert(socket.local_address[1] > -1)
+            tu.azzert(socket.remote_address[0] is not None)
+            tu.azzert(socket.remote_address[1] > -1)
+
             sent = 'some-string'
             received = Buffer.create()
 
