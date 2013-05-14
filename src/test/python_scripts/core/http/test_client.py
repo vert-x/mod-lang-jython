@@ -133,6 +133,91 @@ class HttpTest(object):
     def test_patch_ssl_chunked(self):
         http_method(True, "PATCH", True)
 
+    def test_form_file_upload(self):
+        content = "Vert.x rocks!"
+        @server.request_handler
+        def request_handler(req):
+            if req.uri == '/form':
+                req.response.chunked = True
+                @req.upload_handler
+                def upload_handler(event):
+                    @event.data_handler
+                    def data_handler(buffer):
+                        tu.azzert(content == buffer.to_string())
+
+                @req.end_handler
+                def end_handler(stream):
+                    attrs = req.form_attributes
+                    tu.azzert(attrs['name'] == 'file')
+                    tu.azzert(attrs['filename'] == 'tmp-0.txt')
+                    tu.azzert(attrs['Content-Type'] == 'image/gif')
+                    req.response.end()
+
+        def listen_handler (err, serv):
+            tu.azzert(err is None)
+            client.port = 8080
+
+            def post_handler(resp):
+                # assert the response
+                tu.azzert(200 == resp.status_code)
+                @resp.body_handler
+                def body_handler(body):
+                    tu.azzert(0 == body.length)
+                tu.test_complete()
+
+            req = client.post("/form", post_handler)
+            boundary = "dLV9Wyq26L_-JQxk6ferf-RT153LhOO"
+            buffer = Buffer.create()
+            b = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"file\"; filename=\"tmp-0.txt\"\r\n" + "Content-Type: image/gif\r\n" + "\r\n" + content + "\r\n" + "--" + boundary + "--\r\n"
+
+            buffer.append_str(b)
+            req.put_header('content-length', str(buffer.length))
+            req.put_header('content-type', 'multipart/form-data; boundary=' + boundary)
+            req.write(buffer).end()
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
+    def test_form_upload_attributes(self):
+        @server.request_handler
+        def request_handler(req):
+            if req.uri == '/form':
+                req.response.chunked = True
+                @req.upload_handler
+                def upload_handler(event):
+                    @event.data_handler
+                    def data_handler(buffer):
+                        tu.azzert(False)
+
+                @req.end_handler
+                def end_handler(stream):
+                    attrs = req.form_attributes
+                    tu.azzert(attrs['framework'] == 'vertx')
+                    tu.azzert(attrs['runson'] == 'jvm')
+                    req.response.end()
+
+        def listen_handler (err, serv):
+            tu.azzert(err is None)
+            client.port = 8080
+
+            def post_handler(resp):
+                # assert the response
+                tu.azzert(200 == resp.status_code)
+                @resp.body_handler
+                def body_handler(body):
+                    tu.azzert(0 == body.length)
+                tu.test_complete()
+
+            req = client.post("/form", post_handler)
+            buffer = Buffer.create()
+            buffer.append_str('framework=vertx&runson=jvm')
+            req.put_header('content-length', str(buffer.length))
+            req.put_header('content-type', 'application/x-www-form-urlencoded')
+            req.write(buffer).end()
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
+
+
 def http_method(ssl, method, chunked):
 
     logger.info("in http method %s"% method)

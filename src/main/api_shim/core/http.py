@@ -611,12 +611,26 @@ class HttpServerRequest(core.streams.ReadStream):
         """ Return the absolute URI corresponding to the the HTTP request"""
         return self.java_obj.absoluteURI()
 
-
     @property
     def peer_certificate_chain(self):
         return self.java_obj.peerCertificateChain()
 
+    @property
+    def form_attributes(self):
+        return map_from_java(self.java_obj.formAttributes())
+
+    def upload_handler(self, handler):
+        """
+        Set the upload handler. The handler will get notified once a new file upload was received and so allow to
+        get notified by the upload in progress.
+        """
+        self.java_obj.uploadHandler(HttpServerFileUploadHandler(handler))
+
     def _to_java_request(self):
+        """
+        Returns a dict of all form attributes which was found in the request. Be aware that this message should only get
+        called after the endHandler was notified as the map will be filled on-the-fly.
+        """
         return self.java_obj
 
 class HttpServerResponse(core.streams.WriteStream):
@@ -897,6 +911,14 @@ class WebSocketHandler(org.vertx.java.core.Handler):
     def handle(self, req):
         """ Calls the Handler with the WebSocket when connected """
         self.handler(WebSocket(req))
+
+class HttpServerFileUploadHandler(org.vertx.java.core.Handler):
+    """ A handler for Http Server File Uploads"""
+    def __init__(self, handler):
+        self.handler = handler
+
+    def handle(self, upload):
+        self.handler(HttpServerFileUpload(upload))
 
 class RouteMatcher(object):
     """This class allows you to do route requests based on the HTTP verb and the request URI, in a manner similar
@@ -1262,3 +1284,58 @@ class MultiMap(DictMixin, object):
         self.map.clear()
         return self
 
+class HttpServerFileUpload(core.streams.ReadStream):
+    """
+    An Upload which was found in the HttpServerMultipartRequest while handling it.
+    """
+    def __init__(self, upload):
+        self.java_obj = upload
+
+    def stream_to_file_system(self, filename):
+        """
+        Stream the content of this upload to the given filename.
+        """
+        self.java_obj.streamToFileSystem(filename)
+        return self
+
+    @property
+    def filename(self):
+        """
+        Returns the filename of the attribute
+        """
+        return self.java_obj.filename()
+
+    @property
+    def name(self):
+        """
+        Returns the filename of the attribute
+        """
+        return self.java_obj.name()
+
+    @property
+    def content_type(self):
+        """
+        Returns the contentType for the upload
+        """
+        return self.java_obj.contentType()
+
+    @property
+    def content_transfer_encoding(self):
+        """
+        Returns the contentTransferEncoding for the upload
+        """
+        return self.java_obj.contentTransferEncoding()
+
+    @property
+    def charset(self):
+        """
+        Returns the charset for the upload
+        """
+        return self.java_obj.charset()
+
+    @property
+    def size(self):
+        """
+        Returns the charset for the upload
+        """
+        return self.java_obj.size()
