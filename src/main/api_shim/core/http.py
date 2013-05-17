@@ -543,6 +543,7 @@ class HttpServerRequest(core.streams.ReadStream):
         self.hdrs = None
         self.prms = None
         self.vrsn = None
+        self.attrs = None
 
     @property
     def version(self):
@@ -617,7 +618,9 @@ class HttpServerRequest(core.streams.ReadStream):
 
     @property
     def form_attributes(self):
-        return map_from_java(self.java_obj.formAttributes())
+        if self.attrs is None:
+            self.attrs = MultiMap(self.java_obj.formAttributes())
+        return self.attrs
 
     def upload_handler(self, handler):
         """
