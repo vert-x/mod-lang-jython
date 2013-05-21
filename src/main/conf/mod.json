@@ -1,4 +1,10 @@
 {
   "system": true,
-  "resident": true
+  "resident": true,
+
+  "description":"Python language implementation module for Vert.x - uses Jython as the Python engine",
+  "licenses": ["The Apache Software License Version 2.0"],
+  "author": "purplefox",
+  "keywords": ["python", "jython", "scripting", "language"],
+  "homepage": "https://github.com/vert-x/mod-lang-jython"
 }
