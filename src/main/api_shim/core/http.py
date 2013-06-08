@@ -1235,6 +1235,15 @@ class MultiMap(DictMixin, object):
         self[key] = value
         return self
 
+    def set_all(self, other):
+        """
+        Sets all the entries from another MultiMap
+        @param other The other MultiMap
+        @return self
+        """
+        self.map.set(other.map)
+        return self
+
     def __delitem__(self, key):
         """
         Remove the values with the given name

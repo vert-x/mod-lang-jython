@@ -17,6 +17,7 @@ This module provides the entry point to the vert.x platform
 """
 
 import org.vertx.java.platform.impl.JythonVerticleFactory
+import java.lang.System
 import org.vertx.java.core.json.JsonObject
 
 from core.file_system import FileSystem
@@ -125,6 +126,12 @@ def config():
     @return: dict config for the verticle
     """
     return map_from_java(org.vertx.java.platform.impl.JythonVerticleFactory.container.config().toMap())
+
+def env():
+    """Get environment variables for the verticle
+    @return: dict containing environment variables
+    """
+    return map_from_java(java.lang.System.getenv())
 
 def set_timer(delay, handler):
     """Sets a one-shot timer that will fire after a certain delay.
