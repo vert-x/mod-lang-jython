@@ -146,7 +146,7 @@ class HttpTest(object):
                         tu.azzert(content == buffer.to_string())
 
                 @req.end_handler
-                def end_handler(stream):
+                def end_handler():
                     attrs = req.form_attributes
                     tu.azzert(attrs['name'] == 'file')
                     tu.azzert(attrs['filename'] == 'tmp-0.txt')
@@ -189,7 +189,7 @@ class HttpTest(object):
                         tu.azzert(False)
 
                 @req.end_handler
-                def end_handler(stream):
+                def end_handler():
                     attrs = req.form_attributes
                     tu.azzert(attrs['framework'] == 'vertx')
                     tu.azzert(attrs['runson'] == 'jvm')
@@ -270,7 +270,7 @@ def http_method(ssl, method, chunked):
             req.response.chunked = chunked
 
         @req.end_handler
-        def end_handler(stream):
+        def end_handler():
             tu.check_thread()
             if method != 'HEAD' and method != 'CONNECT':
                 if not chunked:
@@ -304,7 +304,7 @@ def http_method(ssl, method, chunked):
             body.append_buffer(data)
 
         @resp.end_handler
-        def end_handler(stream):
+        def end_handler():
             tu.check_thread()
             if method != 'HEAD' and method != 'CONNECT':
                 tu.azzert(TestUtils.buffers_equal(sent_buff, body))

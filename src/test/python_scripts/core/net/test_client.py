@@ -64,11 +64,11 @@ class NetTest(object):
                     tu.azzert(TestUtils.buffers_equal(sent, received))
                     tu.test_complete()
             @socket.drain_handler
-            def drain_handler(stream):
+            def drain_handler():
                 tu.check_thread()
 
             @socket.end_handler
-            def end_handler(stream):
+            def end_handler():
                 tu.check_thread()
 
             socket.pause()
@@ -146,11 +146,11 @@ class NetTest(object):
 
             #Just call the methods. Real testing is done in java tests
             @socket.drain_handler
-            def drain_handler(stream): 
+            def drain_handler():
                 tu.check_thread()
 
             @socket.end_handler
-            def end_handler(stream):
+            def end_handler():
                 tu.check_thread()
 
             @socket.close_handler

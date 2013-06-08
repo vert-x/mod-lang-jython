@@ -68,7 +68,7 @@ class WriteStream(object):
         Keyword arguments:
         @param handler: The drain handler
         """
-        self.java_obj.drainHandler(BufferHandler(handler))
+        self.java_obj.drainHandler(NullDoneHandler(handler))
         return self
     
     def exception_handler(self, handler):

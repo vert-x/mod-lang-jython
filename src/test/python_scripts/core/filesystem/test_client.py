@@ -128,7 +128,7 @@ class FileSystemTest(object):
                     def data_handler(data):
                         tot_read.append_buffer(data)  
                     read_stream.data_handler(data_handler)
-                    def end_handler(stream):
+                    def end_handler():
                         tu.azzert(TestUtils.buffers_equal(tot_buff, tot_read))
                         tu.check_thread
                         def close_handler2(err, result):
