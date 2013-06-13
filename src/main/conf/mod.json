@@ -2,6 +2,10 @@
   "system": true,
   "resident": true,
 
+  // This a workaround for https://github.com/vert-x/mod-lang-jython/issues/7 due classloader issues
+  // in Jython
+  "load-resources-with-tccl": true,
+
   "description":"Python language implementation module for Vert.x - uses Jython as the Python engine",
   "licenses": ["The Apache Software License Version 2.0"],
   "author": "purplefox",

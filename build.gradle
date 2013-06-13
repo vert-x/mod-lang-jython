@@ -101,7 +101,7 @@ artifacts {
 
 task cleanTestTmpModules(type: Delete) {
   delete { file("src/test/mod-test").listFiles().find {
-    true
+    !it.toString().endsWith("io.vertx~mod-import~1.0")
   } }
 }
 
