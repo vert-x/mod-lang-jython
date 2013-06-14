@@ -164,7 +164,7 @@ try:
     shutil.rmtree(PROJECT_BASE+"/build/docs/python")
 except: pass
 os.makedirs(PYDOC_OUTPUT_DIR)
-os.chdir(PROJECT_BASE+"/src/main/python_scripts")
+os.chdir(PROJECT_BASE+"/src/main/api_shim")
 
 # pydoc 
 # Replace some of the pydoc methods to all them to work with java inheritance

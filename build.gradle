@@ -151,12 +151,13 @@ task collectDeps(type: Copy) {
 }
 
 task pydoc(type: Exec) {
-  ignoreExitValue true
+  ignoreExitValue false
   workingDir = project.projectDir
 
   commandLine = [ System.getenv()['JYTHON_HOME'] + "/jython",
       "-Dproj.base=${project.projectDir}",
-      "-Dpython.path=${project.projectDir}/src/build_tools/doclib" + System.properties['path.separator'] + "src/main/python_scripts",
+      "-Dpython.path=${project.projectDir}/src/build_tools/doclib" + System.properties['path.separator'] +
+          "src/main/api_shim",
       "-Dproj.base=$project.projectDir.path",
       "${project.projectDir}/src/build_tools/pydocx.py" ]
 
