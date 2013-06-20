@@ -366,7 +366,7 @@ class HttpClientRequest(core.streams.WriteStream):
 
         Keyword arguments:
         @param key: The header key
-        @param value: The header value. to_s will be called on the value to determine the actual String value to insert.
+        @param value: The header value.
 
         @return: self so multiple operations can be chained.
         """
@@ -644,11 +644,6 @@ class HttpServerResponse(core.streams.WriteStream):
     It allows the developer to control the HTTP response that is sent back to the client for the corresponding HTTP
     request. It contains methods that allow HTTP headers and trailers to be set, and for a body to be written out
     to the response.
-
-    It also allows a file to be streamed by the kernel directly from disk to the outgoing HTTP connection,
-    bypassing user space altogether (where supported by the underlying operating system). This is a very efficient way of
-    serving files from the server since buffers do not have to be read one by one from the file and written to the outgoing
-    socket. 
 
     """
     def __init__(self, java_obj):
@@ -930,7 +925,7 @@ class RouteMatcher(object):
     """This class allows you to do route requests based on the HTTP verb and the request URI, in a manner similar
     to <a href="http://www.sinatrarb.com/">Sinatra</a> or <a href="http://expressjs.com/">Express</a>.
 
-    RouteMatcher also lets you extract paramaters from the request URI either a simple pattern or using
+    RouteMatcher also lets you extract parameters from the request URI either a simple pattern or using
     regular expressions for more complex matches. Any parameters extracted will be added to the requests parameters
     which will be available to you in your request handler.
 

@@ -29,15 +29,9 @@ class EventBus(object):
     """This class represents a distributed lightweight event bus which can encompass multiple vert.x instances.
     It is very useful for otherwise isolated vert.x application instances to communicate with each other.
 
-    Messages sent over the event bus are JSON objects represented as Ruby Hash instances.
-
     The event bus implements a distributed publish / subscribe network.
 
-    Messages are sent to an address.
-
-    There can be multiple handlers registered against that address.
-    Any handlers with a matching name will receive the message irrespective of what vert.x application instance and
-    what vert.x instance they are located in.
+    Messages are sent to an address. There can be multiple handlers registered against that address.
 
     All messages sent over the bus are transient. On event of failure of all or part of the event bus messages
     may be lost. Applications should be coded to cope with lost messages, e.g. by resending them, and making application
@@ -49,8 +43,6 @@ class EventBus(object):
     When sending a message, a reply handler can be provided. If so, it will be called when the reply from the receiver
     has been received.
 
-    When receiving a message in a handler the received object is an instance of EventBus::Message - this contains
-    the actual Hash of the message plus a reply method which can be used to reply to it.
     """
     handler_dict = {}
 
@@ -59,7 +51,7 @@ class EventBus(object):
         """Send a message on the event bus
 
         Keyword arguments:
-        @param address: the address to publish to
+        @param address: the address to send to
         @param message: The message to send
         @param reply_handler: An optional reply handler.
         It will be called when the reply from a receiver is received.
@@ -97,8 +89,7 @@ class EventBus(object):
         """ Register a handler.
 
         Keyword arguments:
-        @param address: the address to register for. Any messages sent to that address will be
-        received by the handler. A single handler can be registered against many addresses.
+        @param address: the address to register for. A single handler can be registered against many addresses.
         @param local_only: if True then handler won't be propagated across cluster
         @param handler: The handler
 
@@ -192,8 +183,6 @@ class Message(object):
         """Reply to this message. If the message was sent specifying a receipt handler, that handler will be
         called when it has received a reply. If the message wasn't sent specifying a receipt handler
         this method does nothing.
-        Replying to a message this way is equivalent to sending a message to an address which is the same as the message id
-        of the original message.
 
         Keyword arguments:
         @param reply: message to send as reply

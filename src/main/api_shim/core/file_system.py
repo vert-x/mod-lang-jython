@@ -93,7 +93,7 @@ class FSProps(object):
 
 class AsyncFile(core.streams.ReadStream, core.streams.WriteStream):
     """Represents a file on the file-system which can be read from, or written to asynchronously.
-    Methods also exist to get a read stream or a write stream on the file. This allows the data to be pumped to and from
+    The file is also a read stream and a write stream. This allows the data to be pumped to and from
     other streams, e.g. an HttpClientRequest instance, using the Pump class
     """
     def __init__(self, java_obj):
@@ -155,8 +155,8 @@ class FileSystem(object):
     An asynchronous and a synchronous version of each operation is provided.
     The asynchronous versions take a handler as a final argument which is
     called when the operation completes or an error occurs. The handler is called
-    with two arguments; the first an exception, this will be nil if the operation has
-    succeeded. The second is the result - this will be nil if the operation failed or
+    with two arguments; the first an exception, this will be None if the operation has
+    succeeded. The second is the result - this will be None if the operation failed or
     there was no result to return.
     The synchronous versions return the results, or throw exceptions directly."""
 

@@ -26,16 +26,10 @@ class SharedData(object):
     """Sometimes it is desirable to share immutable data between different event loops, for example to implement a
     cache of data.
 
-    This class allows instances of shareddata data structures to be looked up and used from different event loops.
+    This class allows instances of shared data structures to be looked up and used from different event loops.
     The data structures themselves will only allow certain data types to be stored into them. This shields the
-    user from worrying about any thread safety issues might occur if mutable objects were shareddata between event loops.
+    user from worrying about any thread safety issues might occur if mutable objects were shared between event loops.
 
-    The following types can be stored in a shareddata data structure:
-
-    String
-    FixNum
-    Float
-    Buffer - this will be automatically copied, and the copy will be stored in the structure.
     """
     @staticmethod
     def shared_data():
