@@ -22,12 +22,17 @@ import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxException;
+import org.vertx.java.core.json.DecodeException;
+import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
+import org.vertx.java.platform.PlatformManagerException;
 import org.vertx.java.platform.Verticle;
 import org.vertx.java.platform.VerticleFactory;
 
 import java.io.*;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -55,6 +60,30 @@ public class JythonVerticleFactory implements VerticleFactory {
     Thread.currentThread().setContextClassLoader(cl);
     Options.includeJavaStackInExceptions = false;
     this.py = new PythonInterpreter(null, new PySystemState());
+    String str =
+      "import org.vertx.java.platform.impl.JythonVerticleFactory\n" +
+      "def load(resource_name):\n" +
+      "    file_contents=org.vertx.java.platform.impl.JythonVerticleFactory.getFile(resource_name)\n" +
+      //"    print file_contents\n" +
+      "    exec(file_contents)\n";
+    py.exec(str);
+  }
+
+  /*
+  Get the file with the context classloader
+   */
+  public static String getFile(String resourceName) {
+   // System.out.println("in getFile: " + resourceName);
+    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    InputStream is = cl.getResourceAsStream(resourceName);
+    if (is == null) {
+      return null;
+    }
+    try (Scanner scanner = new Scanner(is).useDelimiter("\\A")) {
+      return scanner.next();
+    } catch (NoSuchElementException | DecodeException e) {
+      throw new IllegalStateException(e.getMessage());
+    }
   }
 
   public Verticle createVerticle(String main) throws Exception {
@@ -77,7 +106,7 @@ public class JythonVerticleFactory implements VerticleFactory {
       try {
         while ((line = rdr.readLine()) != null) {
           String newLine;
-          if (line.contains(".py") && !line.contains("__pyclasspath__")) {
+          if (line.contains(".py") && !line.contains("__pyclasspath__") && line.contains(", in ")) {
             String lineNumber = line.substring(0, line.lastIndexOf(", in "));
             int pos = lineNumber.lastIndexOf(", line ") + 7;
             lineNumber = lineNumber.substring(pos);
@@ -141,6 +170,8 @@ public class JythonVerticleFactory implements VerticleFactory {
         sWrap.append("def ").append(stopFuncName).append("():\n");
         sWrap.append("\tif ").append(stopFuncVar).append(" is not None:\n");
         sWrap.append("\t\t").append(stopFuncVar).append("()\n");
+
+
 
         // We have to convert it back to an inputstream since for some reason there is no version
         // py.exec which takes a String AND a fileName - and without the filename

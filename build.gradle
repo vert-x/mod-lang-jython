@@ -80,15 +80,16 @@ task copyMod( type:Copy, dependsOn: 'classes' ) {
   from compileJava
   from 'src/main/conf'
   from 'src/main/api_shim'
-  from 'src/main/coffeescript'
   into( 'lib' ) {
     from configurations.compile
   }
+  exclude '**/*py.class'
 }
 
 // Package into build/libs/mod.zip
 task dist( type: Zip) {
   group = 'vert.x'
+  classifier = "mod"
   description = "Assembles a vert.x module"
   destinationDir = project.file('build/libs')
   archiveName = "${modname}-${version}" + ".zip"

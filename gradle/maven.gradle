@@ -85,7 +85,7 @@ def configurePom(def pom) {
     name rootProject.name
 		description 'Vert.x module that provides Python support with Jython'
 		inceptionYear '2013'
-		packaging 'jar'
+		packaging 'pom'
 		url 'http://vertx.io'
 		
 		developers {
