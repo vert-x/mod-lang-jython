@@ -60,30 +60,6 @@ public class JythonVerticleFactory implements VerticleFactory {
     Thread.currentThread().setContextClassLoader(cl);
     Options.includeJavaStackInExceptions = false;
     this.py = new PythonInterpreter(null, new PySystemState());
-    String str =
-      "import org.vertx.java.platform.impl.JythonVerticleFactory\n" +
-      "def load(resource_name):\n" +
-      "    file_contents=org.vertx.java.platform.impl.JythonVerticleFactory.getFile(resource_name)\n" +
-      //"    print file_contents\n" +
-      "    exec(file_contents)\n";
-    py.exec(str);
-  }
-
-  /*
-  Get the file with the context classloader
-   */
-  public static String getFile(String resourceName) {
-   // System.out.println("in getFile: " + resourceName);
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-    InputStream is = cl.getResourceAsStream(resourceName);
-    if (is == null) {
-      return null;
-    }
-    try (Scanner scanner = new Scanner(is).useDelimiter("\\A")) {
-      return scanner.next();
-    } catch (NoSuchElementException | DecodeException e) {
-      throw new IllegalStateException(e.getMessage());
-    }
   }
 
   public Verticle createVerticle(String main) throws Exception {
