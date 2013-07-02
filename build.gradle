@@ -83,6 +83,7 @@ task copyMod( type:Copy, dependsOn: 'classes' ) {
   into( 'lib' ) {
     from configurations.compile
   }
+  exclude '**/*py.class'
 }
 
 // Package into build/libs/mod.zip
