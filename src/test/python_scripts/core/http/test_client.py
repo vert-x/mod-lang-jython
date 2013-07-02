@@ -140,17 +140,17 @@ class HttpTest(object):
             if req.uri == '/form':
                 req.response.chunked = True
                 @req.upload_handler
-                def upload_handler(event):
-                    @event.data_handler
+                def upload_handler(upload):
+                    tu.azzert('tmp-0.txt' == upload.filename)
+                    tu.azzert('image/gif' == upload.content_type)
+                    @upload.data_handler
                     def data_handler(buffer):
                         tu.azzert(content == buffer.to_string())
 
                 @req.end_handler
                 def end_handler():
                     attrs = req.form_attributes
-                    tu.azzert(attrs['name'] == 'file')
-                    tu.azzert(attrs['filename'] == 'tmp-0.txt')
-                    tu.azzert(attrs['Content-Type'] == 'image/gif')
+                    tu.azzert(attrs.is_empty)
                     req.response.end()
 
         def listen_handler (err, serv):
