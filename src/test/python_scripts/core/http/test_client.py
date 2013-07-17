@@ -139,6 +139,7 @@ class HttpTest(object):
         def request_handler(req):
             if req.uri == '/form':
                 req.response.chunked = True
+                req.expect_multipart = True
                 @req.upload_handler
                 def upload_handler(upload):
                     tu.azzert('tmp-0.txt' == upload.filename)
@@ -182,6 +183,7 @@ class HttpTest(object):
         def request_handler(req):
             if req.uri == '/form':
                 req.response.chunked = True
+                req.expect_multipart = True
                 @req.upload_handler
                 def upload_handler(event):
                     @event.data_handler

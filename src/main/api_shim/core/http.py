@@ -544,6 +544,7 @@ class HttpServerRequest(core.streams.ReadStream):
         self.prms = None
         self.vrsn = None
         self.attrs = None
+        self.expect_mp = False
 
     @property
     def version(self):
@@ -616,11 +617,27 @@ class HttpServerRequest(core.streams.ReadStream):
     def peer_certificate_chain(self):
         return self.java_obj.peerCertificateChain()
 
+    def set_expect_multipart(self, expect):
+        """ You must call this function with true before receiving the request body if you expect it to
+        contain a multi-part form.
+
+        Keyword arguments:
+        @param expect: true if you are expecting a multipart form
+        """
+        self.java_obj.expectMultiPart(expect)
+        self.expect_mp = expect
+        return self
+
+    def is_expect_multipart(self):
+        return self.expect_mp
+
     @property
     def form_attributes(self):
         if self.attrs is None:
             self.attrs = MultiMap(self.java_obj.formAttributes())
         return self.attrs
+
+    expect_multipart = property(is_expect_multipart, set_expect_multipart)
 
     def upload_handler(self, handler):
         """
