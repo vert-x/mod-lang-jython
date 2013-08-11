@@ -104,6 +104,9 @@ class SharedHash(object):
         if isinstance(obj, org.vertx.java.core.buffer.Buffer):
             obj = Buffer(obj)
         return obj
+
+    def __delitem__(self, key):
+        self.java_obj.remove(key)
     
     def __eq__(self, other):        
         if isinstance(other, SharedHash):
@@ -114,6 +117,27 @@ class SharedHash(object):
     def __str__(self):
         return map_from_java(self.java_obj).__str__()
 
+    def __len__(self):
+        return self.java_obj.size()
+
+    def __contains__(self, key):
+        return self.has_key(key)
+
+    def __iter__(self):
+        return iter(map_from_java(self.java_obj))
+
+    def get(self, key, default=None):
+        return map_from_java(self.java_obj).get(key, default)
+
+    def pop(self, key, *args, **kwargs):
+        return map_from_java(self.java_obj).pop(key, *args, **kwargs)
+
+    def has_key(self, key):
+        return map_from_java(self.java_obj).has_key(key)
+
+    def iterkeys(self):
+        return map_from_java(self.java_obj).iterkeys()
+
     def keys(self):
         return map_from_java(self.java_obj).keys()
 
@@ -122,6 +146,30 @@ class SharedHash(object):
 
     def items(self):
         return map_from_java(self.java_obj).items()
+
+    def itervalues(self):
+        return map_from_java(self.java_obj).itervalues()
+
+    def values(self):
+        return map_from_java(self.java_obj).values()
+
+    def setdefault(self, key, default=None):
+        map = map_from_java(self.java_obj)
+        if key in map:
+            return map[key]
+        else:
+            self[key] = default
+            return default
+
+    def update(self, other):
+        if isinstance(other, SharedHash):
+            other = map_from_java(other.java_obj)
+        if isinstance(other, dict):
+            items = other.items()
+        else:
+            items = other
+        for key, value in items():
+            self[key] = value
 
     def _to_java_map(self):
         return self.java_obj
@@ -145,6 +193,12 @@ class SharedSet(object):
 
     def __iter__(self):
         return map_from_java(self.java_obj).__iter__()
+
+    def __len__(self):
+        return self.java_obj.size()
+
+    def __contains__(self, key):
+        return key in map_from_java(self.java_obj)
 
     def add(self, obj):
         """ Add an object to the set
