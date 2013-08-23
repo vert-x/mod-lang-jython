@@ -17,22 +17,16 @@
 package org.vertx.java.platform.impl;
 
 import org.python.core.Options;
-import org.python.core.PyException;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxException;
-import org.vertx.java.core.json.DecodeException;
-import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
-import org.vertx.java.platform.PlatformManagerException;
 import org.vertx.java.platform.Verticle;
 import org.vertx.java.platform.VerticleFactory;
 
 import java.io.*;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
