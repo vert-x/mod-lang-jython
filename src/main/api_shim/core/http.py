@@ -972,209 +972,411 @@ class RouteMatcher(object):
         """
         self.java_obj.handle(request._to_java_request())
 
-    def get(self, pattern, handler):
+    def get(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP GET
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
 
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: handler for match
         """
-        self.java_obj.get(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.get(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapget(handler):
+                self.java_obj.get(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapget
 
-    def put(self, pattern, handler):
+    def put(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP PUT
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
 
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.put(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.put(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapput(handler):
+                self.java_obj.put(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapput
 
-    def post(self, pattern, handler):
+    def post(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP POST
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.post(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.post(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrappost(handler):
+                self.java_obj.post(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrappost
     
-    def delete(self, pattern, handler):
+    def delete(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP DELETE
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
                
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.delete(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.delete(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapdelete(handler):
+                self.java_obj.delete(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapdelete
 
-    def options(self, pattern, handler):
+    def options(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP OPTIONS
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler"""
-        self.java_obj.options(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.options(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapoptions(handler):
+                self.java_obj.options(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapoptions
 
-    def head(self, pattern, handler):
+    def head(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP HEAD
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.head(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.head(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wraphead(handler):
+                self.java_obj.head(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wraphead
 
-    def trace(self, pattern, handler):
+    def trace(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP TRACE
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """  
-        self.java_obj.trace(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.trace(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wraptrace(handler):
+                self.java_obj.trace(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wraptrace
 
-    def patch(self, pattern, handler):
+    def patch(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP PATCH
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.patch(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.patch(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrappatch(handler):
+                self.java_obj.patch(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrappatch
 
-    def connect(self, pattern, handler):
+    def connect(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP CONNECT
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.connect(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.connect(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapconnect(handler):
+                self.java_obj.connect(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapconnect
 
-    def all(self, pattern, handler):
+    def all(self, pattern, *args):
         """Specify a handler that will be called for any matching HTTP request
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler"""
-        self.java_obj.all(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.all(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapall(handler):
+                self.java_obj.all(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapall
 
-    def get_re(self, pattern, handler):
+    def get_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP GET
-           
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
 
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.getWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.getWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapget_re(handler):
+                self.java_obj.getWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapget_re
 
-    def put_re(self, pattern, handler):
+    def put_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP PUT
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
     
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.putWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.putWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapput_re(handler):
+                self.java_obj.putWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapput_re
 
-    def post_re(self, pattern, handler):
+    def post_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP POST
 
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
+
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.postWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.postWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrappost_re(handler):
+                self.java_obj.postWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrappost_re
 
-    def delete_re(self, pattern, handler):
+    def delete_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP DELETE
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.deleteWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.deleteWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapdelete_re(handler):
+                self.java_obj.deleteWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapdelete_re
 
-
-    def options_re(self, pattern, handler):
+    def options_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP OPTIONS
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """  
-        self.java_obj.optionsWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.optionsWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapoptions_re(handler):
+                self.java_obj.optionsWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapoptions_re
 
-    def head_re(self, pattern, handler):
+    def head_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP HEAD
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.headWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.headWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wraphead_re(handler):
+                self.java_obj.headWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wraphead_re
 
-    def trace_re(self, pattern, handler):
+    def trace_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP TRACE
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """  
-        self.java_obj.traceWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.traceWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wraptrace_re(handler):
+                self.java_obj.traceWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wraptrace_re
 
-    def patch_re(self, pattern, handler):
+    def patch_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP PATCH
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.patchWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.patchWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrappatch_re(handler):
+                self.java_obj.patchWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrappatch_re
 
-    def connect_re(self, pattern, handler):
+    def connect_re(self, pattern, *args):
         """Specify a handler that will be called for a matching HTTP CONNECT
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """
-        self.java_obj.connectWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.connectWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapconnect_re(handler):
+                self.java_obj.connectWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapconnect_re
 
-    def all_re(self, pattern, handler):
+    def all_re(self, pattern, *args):
         """Specify a handler that will be called for any matching HTTP request
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
            
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
         """  
-        self.java_obj.allWithRegEx(pattern, HttpServerRequestHandler(handler))
-        return self
+        if len(args) > 0:
+            self.java_obj.allWithRegEx(pattern, HttpServerRequestHandler(args[0]))
+            return self
+        else:
+            def wrapall_re(handler):
+                self.java_obj.allWithRegEx(pattern, HttpServerRequestHandler(handler))
+                return handler
+            return wrapall_re
 
     def no_match(self, handler):
         """Specify a handler that will be called when nothing matches
         Default behaviour is to return a 404
+
+        This method can be called either as a normal instance method or
+        used as a decorator to a request handler. If decorating a handler
+        the decorator accepts a single pattern argument.
 
         Keyword arguments:
         @param handler: http server request handler"""
