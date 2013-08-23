@@ -197,8 +197,146 @@ class SharedSet(object):
     def __len__(self):
         return self.java_obj.size()
 
-    def __contains__(self, key):
-        return key in map_from_java(self.java_obj)
+    def __contains__(self, obj):
+        obj = SharedData.check_obj(obj)
+        return self.java_obj.contains(obj)
+
+    def issubset(self, other):
+        """Test whether every element in this set is in other.
+
+        @param other: A set on which to test.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        return map_from_java(self.java_obj).issubset(other)
+
+    def __le__(self, other):
+        return self.issubset(other)
+
+    def issuperset(self, other):
+        """Test whether every element in other is in this set.
+
+        @param other: A set with which to test.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        return map_from_java(self.java_obj).issuperset(other)
+
+    def __ge__(self, other):
+        return self.issuperset(other)
+
+    def union(self, other):
+        """Return a new set instance with elements from both sets.
+
+        @param other: A set with which to unite.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        return map_from_java(self.java_obj).union(other)
+
+    def __or__(self, other):
+        return self.union(other)
+
+    def intersection(self, other):
+        """Return a new set instance with elements common to both sets.
+
+        @param other: A set with which to intersect.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        return map_from_java(self.java_obj).intersection(other)
+
+    def __rand__(self, other):
+        return self.intersection(other)
+
+    def difference(self, other):
+        """Return a new set instance with elements not in other.
+
+        @param other: A set with which to compute difference.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        return map_from_java(self.java_obj).difference(other)
+
+    def __sub__(self, other):
+        return self.difference(other)
+
+    def symmetric_difference(self, other):
+        """Return a new set with elements in either this set or other but not both.
+
+        @param other: A set with which to compute difference.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        return map_from_java(self.java_obj).symmetric_difference(other)
+
+    def __xor__(self, other):
+        return self.symmetric_difference(other)
+
+    def update(self, other):
+        """Update the set with all elements from the given set.
+
+        @param other: A set of elements to add.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        for item in other:
+            self.add(item)
+        return self
+
+    def __ior__(self, other):
+        return self.update(other)
+
+    def intersection_update(self, other):
+        """Update the set with only elements found in both sets.
+
+        @param other: A set of elements to add.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        iter = self.java_obj.iterator()
+        while iter.hasNext():
+            obj = iter.next()
+            if obj not in other:
+                self.remove(obj)
+        for item in other:
+            self.add(item)
+        return self
+
+    def __iand__(self, other):
+        return self.intersection_update(other)
+
+    def difference_update(self, other):
+        """Update the set, removing elements from other.
+
+        @param other: A set of elements to remove.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        for item in other:
+            if item in self:
+                self.remove(item)
+        return self
+
+    def __isub__(self, other):
+        return self.difference_update(other)
+
+    def symmetric_difference_update(self, other):
+        """Update the set with elements existing on one set or the other but not both.
+
+        @param other: A set of elements with which to update.
+        """
+        if isinstance(other, SharedSet):
+            other = map_from_java(other.java_obj)
+        for item in other:
+            if item in self:
+                self.remove(item)
+            else:
+                self.add(item)
+        return self
+
+    def __ixor__(self, other):
+        return self.symmetric_difference_update(other)
 
     def add(self, obj):
         """ Add an object to the set
@@ -223,6 +361,17 @@ class SharedSet(object):
         """
         self.java_obj.remove(obj)
 
+    def remove(self, obj):
+        if obj not in self:
+            raise KeyError("Item not found in set.")
+        else:
+          self.delete(obj)
+
+    def discard(self, obj):
+        self.delete(obj)
+
+    def pop(self):
+        raise NotImplementedError("pop() method is not implemented on shared sets.")
 
     def each(self, func):
         """Call the func for every element of the set
