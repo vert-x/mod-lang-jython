@@ -50,6 +50,15 @@ class BufferTest(object):
 
         tu.test_complete()
 
+    def test_append_int(self):
+        buff1 = Buffer.create()
+        for i in range(100):
+          buff1.append_int(i)
+
+        for i in range(100):
+          val = buff1.get_int(i)
+          tu.azzert(val == i)
+
     def test_append_float_4(self):
         self.append_float(4)
 
@@ -100,6 +109,15 @@ class BufferTest(object):
             val = buff1.get_fixnum((i + 128) * num_bytes, num_bytes)
             tu.azzert(val == i << ((num_bytes -1)* 8))
         tu.test_complete()
+
+    def test_set_int(self):
+        buff1 = Buffer.create()
+        for i in range(100):
+            buff1.set_int(i, i)
+
+        for i in range(100):
+            val = buff1.get_int(i)
+            tu.azzert(val == i)
 
     def test_set_float_4(self):
         self.set_float(4)

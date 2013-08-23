@@ -17,6 +17,7 @@ This module adds the buffer support to the python vert.x platform
 """
 
 import org.vertx.java.core.buffer.Buffer
+from core import deprecated
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
@@ -65,8 +66,15 @@ class Buffer(object):
         """ Get the byte at position pos in the buffer. """
         return self.buffer.getByte(pos)
 
+    def get_int(self, pos):
+        """ Get the integer at position pos in the buffer. """
+        return self.buffer.getInt(pos)
+
+    @deprecated('Buffer.get_fixnum() is deprecated.')
     def get_fixnum(self, pos, bytes):
-        """ Get the fixnum represented by a sequence of bytes starting at position pos in the buffer. """
+        """
+        @deprecated: This method is deprecated.
+        """
         if bytes == 1:
           return self.buffer.getByte(pos)
         elif bytes ==  2:
@@ -100,8 +108,16 @@ class Buffer(object):
         self.buffer.appendBuffer(buff._to_java_buffer())        
         return self
 
+    def append_int(self, num):
+        """ Appends an integer to the end of this buffer. The buffer will expand as necessary to accomodate any bytes written. """
+        self.buffer.appendInt(num)
+        return self
+
+    @deprecated('Buffer.append_fixnum() is deprecated.')
     def append_fixnum(self, num, bytes):
-        """ Appends a fixnum to the end of this buffer. The buffer will expand as necessary to accomodate any bytes written. """
+        """
+        @deprecated: This method is deprecated.
+        """
         if bytes == 1:
             self.buffer.appendByte(num)
         elif bytes == 2:
@@ -122,14 +138,22 @@ class Buffer(object):
           self.buffer.appendDouble(num)
         else:
           raise Exception("bytes must be 4 or 8")
-      
+
     def append_str(self, str, enc="UTF-8"):
         """ Appends a string to the end of this buffer. The buffer will expand as necessary to accomodate any bytes written. """
         self.buffer.appendString(str, enc)
         return self
 
+    def set_int(self, pos, num):
+      """ Sets bytes in the buffer to a representation of an integer. The buffer will expand as necessary to accomodate any bytes written. """
+      self.buffer.setInt(pos, num)
+      return self
+
+    @deprecated('Buffer.set_fixnum() is deprecated.')
     def set_fixnum(self, pos, num, bytes):
-        """ Sets bytes in the buffer to a representation of a fixnum. The buffer will expand as necessary to accomodate any bytes written. """
+        """
+        @deprecated: This method is deprecated.
+        """
         if bytes == 1:
             self.buffer.setByte(pos, num)
         elif bytes == 2:
