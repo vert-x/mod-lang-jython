@@ -20,6 +20,7 @@ import org.vertx.java.platform.impl.JythonVerticleFactory
 import java.lang.System
 import org.vertx.java.core.json.JsonObject
 
+from core.dns import DnsClient
 from core.file_system import FileSystem
 from core.http import HttpServer, HttpClient
 from core.net import NetServer, NetClient
@@ -177,6 +178,12 @@ def current_context():
 def exit():
     """ Cause the container to exit """
     org.vertx.java.platform.impl.JythonVerticleFactory.container.exit()
+
+def create_dns_client(**kwargs):
+    """Create a new dns client
+    @param kwargs: tuples which hold (address, port)
+    """
+    return DnsClient(**kwargs)
 
 def java_vertx():
     return org.vertx.java.platform.impl.JythonVerticleFactory.vertx
