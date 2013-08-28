@@ -15,19 +15,16 @@
 import org.vertx.java.platform.impl.JythonVerticleFactory
 
 from core.handlers import AsyncHandler
-from java import net
-from jarray import zeros
+from java import net, util
 
 class DnsClient():
 
     def __init__(self, *args):
-        addresses = zeros(len(args), net.InetSocketAddress)
+        addresses = util.ArrayList(len(args))
         for item in args:
-            self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDnsClient(net.InetSocketAddress(item[0], item[1]))
-            #addresses.append(net.InetSocketAddress(item[0], item[1]))
+            addresses.add(net.InetSocketAddress(item[0], item[1]))
 
-        # TODO: Why does this not work ????
-        #self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDnsClient(addresses)
+        self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.createDnsClient(addresses)
 
     def lookup(self, name, handler):
         self.java_obj.lookup(name, AsyncHandler(handler, self.address_converter))
