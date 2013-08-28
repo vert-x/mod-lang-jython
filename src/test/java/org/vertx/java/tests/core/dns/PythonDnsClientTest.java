@@ -35,6 +35,7 @@ public class PythonDnsClientTest extends TestBase {
     startTest(getMethodName());
   }
 
+
   public void test_resolve_aaaa() {
     startTest(getMethodName());
   }
@@ -75,4 +76,15 @@ public class PythonDnsClientTest extends TestBase {
     startTest(getMethodName());
   }
 
+  public void test_lookup_non_existing() {
+    startTest(getMethodName());
+  }
+
+  public void test_reverse_lookup_ipv4() {
+    startTest(getMethodName());
+  }
+
+  public void test_reverse_lookup_ipv6() {
+    startTest(getMethodName());
+  }
 }

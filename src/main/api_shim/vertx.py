@@ -179,11 +179,11 @@ def exit():
     """ Cause the container to exit """
     org.vertx.java.platform.impl.JythonVerticleFactory.container.exit()
 
-def create_dns_client(**kwargs):
+def create_dns_client(*args):
     """Create a new dns client
     @param kwargs: tuples which hold (address, port)
     """
-    return DnsClient(**kwargs)
+    return DnsClient(*args)
 
 def java_vertx():
     return org.vertx.java.platform.impl.JythonVerticleFactory.vertx
