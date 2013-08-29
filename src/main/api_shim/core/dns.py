@@ -37,7 +37,7 @@ class DnsClient():
         @param handler: The handler to notify once the response was received or a failure was detected
         @return:        Itself for method-chaining.
         """
-        self.java_obj.lookup(name, AsyncHandler(handler, self.address_converter))
+        self.java_obj.lookup(name, AsyncHandler(handler, self.__address_converter))
         return self
 
     def lookup_4(self, name, handler):
@@ -48,7 +48,7 @@ class DnsClient():
         @param handler: The handler to notify once the response was received or a failure was detected
         @return:        Itself for method-chaining.
         """
-        self.java_obj.lookup4(name, AsyncHandler(handler, self.address_converter))
+        self.java_obj.lookup4(name, AsyncHandler(handler, self.__address_converter))
         return self
 
     def lookup_6(self, name, handler):
@@ -59,7 +59,7 @@ class DnsClient():
             @param handler: The handler to notify once the response was received or a failure was detected
             @return:        Itself for method-chaining.
         """
-        self.java_obj.lookup6(name, AsyncHandler(handler, self.address_converter))
+        self.java_obj.lookup6(name, AsyncHandler(handler, self.__address_converter))
         return self
 
     def resolve_a(self, name, handler):
@@ -70,7 +70,7 @@ class DnsClient():
         @param handler: The handler to notify once the response was received or a failure was detected
         @return:        Itself for method-chaining.
         """
-        self.java_obj.resolveA(name, AsyncHandler(handler, self.address_array_converter))
+        self.java_obj.resolveA(name, AsyncHandler(handler, self.__address_array_converter))
         return self
 
     def resolve_aaaa(self, name, handler):
@@ -81,7 +81,7 @@ class DnsClient():
         @param handler: The handler to notify once the response was received or a failure was detected
         @return:        Itself for method-chaining.
         """
-        self.java_obj.resolveAAAA(name, AsyncHandler(handler, self.address_array_converter))
+        self.java_obj.resolveAAAA(name, AsyncHandler(handler, self.__address_array_converter))
         return self
 
     def resolve_cname(self, name, handler):
@@ -173,23 +173,23 @@ class DnsClient():
         @param handler: The handler to notify once the response was received or a failure was detected
         @return:        Itself for method-chaining.
         """
-        self.java_obj.reverseLookup(ip, AsyncHandler(handler, self.host_converter))
+        self.java_obj.reverseLookup(ip, AsyncHandler(handler, self.__host_converter))
         return self
 
-    def address_converter(self, addr):
+    def __address_converter(self, addr):
         return addr.getHostAddress()
 
-    def host_converter(self, addr):
+    def __host_converter(self, addr):
         return addr.getHostName()
 
-    def address_array_converter(self, array):
-        return map(self.address_converter, array)
+    def __address_array_converter(self, array):
+        return map(self.__address_converter, array)
 
 class MxRecord():
     """ Represent a Mail-Exchange-Record (MX) which was resolved for a domain.
     """
     def __init__(self, obj):
-        self.java_obj = obj;
+        self.java_obj = obj
 
     @property
     def priority(self):
@@ -207,7 +207,7 @@ class SrvRecord():
     """ Represent a Service-Record (SRV) which was resolved for a domain.
     """
     def __init__(self, obj):
-        self.java_obj = obj;
+        self.java_obj = obj
 
     @property
     def priority(self):
