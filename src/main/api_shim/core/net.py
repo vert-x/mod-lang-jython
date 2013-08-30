@@ -23,6 +23,7 @@ import core.ssl_support
 import core.buffer
 import core.streams
 
+from core.javautils import inetsocketaddress_to_tuple
 from core.handlers import CloseHandler, AsyncHandler
 from core.event_bus import EventBus
 
@@ -230,7 +231,7 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         Returns the remote address as tuple in form of ('ipaddress', port)
         """
         if self.remote_addr is None:
-            self.remote_addr =  self.java_obj.remoteAddress().getAddress().getHostAddress() , self.java_obj.remoteAddress().getPort();
+            self.remote_addr =  inetsocketaddress_to_tuple(self.java_obj.remoteAddress())
         return self.remote_addr
 
     @property
@@ -239,7 +240,7 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         Returns the local address as tuple in form of ('ipaddress', port)
         """
         if self.local_addr is None:
-            self.local_addr =  self.java_obj.localAddress().getAddress().getHostAddress() , self.java_obj.localAddress().getPort();
+            self.local_addr =  inetsocketaddress_to_tuple(self.java_obj.localAddress())
         return self.local_addr
 
     def close(self):

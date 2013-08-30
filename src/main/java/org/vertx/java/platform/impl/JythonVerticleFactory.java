@@ -21,12 +21,15 @@ import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxException;
+import org.vertx.java.core.dns.DnsClient;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
 import org.vertx.java.platform.Verticle;
 import org.vertx.java.platform.VerticleFactory;
 
 import java.io.*;
+import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -44,6 +47,14 @@ public class JythonVerticleFactory implements VerticleFactory {
 
   public JythonVerticleFactory() {
   }
+
+
+  // This is kind of a hack but Jython seems to not be able to handle varargs at all.
+  // So provide a method here which takes a List
+  public static DnsClient createDnsClient(List<InetSocketAddress> list) {
+    return vertx.createDnsClient(list.toArray(new InetSocketAddress[0]));
+  }
+
 
   @Override
   public void init(Vertx vertx, Container container, ClassLoader cl) {
@@ -168,6 +179,4 @@ public class JythonVerticleFactory implements VerticleFactory {
       }
     }
   }
-
-
 }

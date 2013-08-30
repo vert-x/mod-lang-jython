@@ -98,3 +98,6 @@ def map_to_java (object):
     elif t == DictType:  result = map_dict_to_java(object)
     else:                result = object
     return result
+
+def inetsocketaddress_to_tuple(object):
+    return object.getAddress().getHostAddress() , object.getPort()
