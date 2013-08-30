@@ -32,6 +32,7 @@ class DnsClientTest(object):
     def test_resolve_a(self):
         ip = '10.0.0.1'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(len(result) == 1)
             tu.azzert(ip == result[0])
@@ -43,6 +44,7 @@ class DnsClientTest(object):
     def test_resolve_aaaa(self):
         ip = '::1'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(len(result) == 1)
             tu.azzert('0:0:0:0:0:0:0:1' == result[0])
@@ -55,6 +57,7 @@ class DnsClientTest(object):
         prio = 10
         name = 'mail.vertx.io'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(len(result) == 1)
             tu.azzert(prio == result[0].priority)
@@ -67,6 +70,7 @@ class DnsClientTest(object):
     def test_resolve_txt(self):
         txt = 'Vert.x rocks'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(len(result) == 1)
             tu.azzert(txt == result[0])
@@ -78,6 +82,7 @@ class DnsClientTest(object):
     def test_resolve_ns(self):
         ns = 'ns.vertx.io'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(len(result) == 1)
             tu.azzert(ns == result[0])
@@ -89,6 +94,7 @@ class DnsClientTest(object):
     def test_resolve_cname(self):
         cname = 'cname.vertx.io'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(len(result) == 1)
             tu.azzert(cname == result[0])
@@ -100,6 +106,7 @@ class DnsClientTest(object):
     def test_resolve_ptr(self):
         ptr = 'ptr.vertx.io'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(ptr == result)
             tu.test_complete()
@@ -113,6 +120,7 @@ class DnsClientTest(object):
         port = 80
         target = 'vertx.io'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(len(result) == 1)
             tu.azzert(priority == result[0].priority)
@@ -127,6 +135,7 @@ class DnsClientTest(object):
     def test_lookup_6(self):
         ip = '0:0:0:0:0:0:0:1'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(ip == result)
             tu.test_complete()
@@ -137,6 +146,7 @@ class DnsClientTest(object):
     def test_lookup_4(self):
         ip = '10.0.0.1'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(ip == result)
             tu.test_complete()
@@ -147,6 +157,7 @@ class DnsClientTest(object):
     def test_lookup(self):
         ip = '10.0.0.1'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(ip == result)
             tu.test_complete()
@@ -156,6 +167,7 @@ class DnsClientTest(object):
 
     def test_lookup_non_existing(self):
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(result is None)
             tu.azzert(3 == err.code().code())
             tu.test_complete()
@@ -166,6 +178,7 @@ class DnsClientTest(object):
     def test_reverse_lookup_ipv4(self):
         ptr = 'ptr.vertx.io'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(ptr == result)
             tu.test_complete()
@@ -176,6 +189,7 @@ class DnsClientTest(object):
     def test_reverse_lookup_ipv6(self):
         ptr = 'ptr.vertx.io'
         def handler(err, result):
+            tu.check_thread()
             tu.azzert(err is None)
             tu.azzert(ptr == result)
             tu.test_complete()
