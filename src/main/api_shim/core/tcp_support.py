@@ -16,7 +16,9 @@ __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
 __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
-class TCPSupport(object):
+import core.network_support
+
+class TCPSupport(core.network_support.NetworkSupport, object):
   """ Mixin module that provides all the common TCP params that can be set. """
 
   def set_tcp_no_delay(self, val):
@@ -35,38 +37,6 @@ class TCPSupport(object):
 
   tcp_no_delay = property(get_tcp_no_delay, set_tcp_no_delay)
 
-  def set_send_buffer_size(self, bytes):
-    """Set the TCP send buffer size.
-
-    Keyword arguments:
-    @param bytes: The size in bytes.
-
-    return a reference to self so invocations can be chained
-    """
-    self.java_obj.setSendBufferSize(bytes)
-    return self
-
-  def get_send_buffer_size(self):
-    return self.java_obj.getSendBufferSize()
-
-  send_buffer_size = property(get_send_buffer_size, set_send_buffer_size)
-
-  def set_receive_buffer_size(self, bytes):
-    """Set the TCP receive buffer size.
-    
-    Keyword arguments:
-    @param bytes: The size in bytes.
-  
-    return a reference to self so invocations can be chained
-    """
-    self.java_obj.setReceiveBufferSize(bytes)
-    return self
-
-  def get_receive_buffer_size(self):
-    return self.java_obj.getReceiveBufferSize()
-
-  receive_buffer_size = property(get_receive_buffer_size, set_receive_buffer_size)
-
   def set_tcp_keep_alive(self, val):
     """Set the TCP keep alive setting.
 
@@ -83,21 +53,6 @@ class TCPSupport(object):
 
   tcp_keep_alive = property(get_tcp_keep_alive, set_tcp_keep_alive)
 
-  def set_reuse_address(self, val):
-    """Set the TCP reuse address setting.
-
-    Keyword arguments:
-    @param val: If true, then TCP reuse address will be enabled.
-    @return: a reference to self so invocations can be chained
-    """
-    self.java_obj.setReuseAddress(val)
-    return self
-
-  def get_reuse_address(self):
-    return self.java_obj.getReuseAddress()
-
-  reuse_address = property(get_reuse_address, set_reuse_address)
-
   def set_so_linger(self, val):
     """Set the TCP so linger setting.
 
@@ -113,22 +68,6 @@ class TCPSupport(object):
     return self.java_obj.getSoLinger()
 
   so_linger = property(get_so_linger, set_so_linger)
-
-  def set_traffic_class(self, val):
-    """Set the TCP traffic class setting.
-
-    Keyword arguments:
-    @param val: The TCP traffic class setting.
-    
-    return a reference to self so invocations can be chained
-    """
-    self.java_obj.setTrafficClass(val)
-    return self
-
-  def get_traffic_class(self):
-    return self.java_obj.getTrafficClass()
-
-  traffic_class = property(get_traffic_class, set_traffic_class)
 
   def set_use_pooled_buffers(self, val):
     """Set if vert.x should use pooled buffers for performance reasons.

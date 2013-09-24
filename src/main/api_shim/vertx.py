@@ -21,6 +21,7 @@ import java.lang.System
 import org.vertx.java.core.json.JsonObject
 
 from core.file_system import FileSystem
+from core.datagram import DatagramSocket
 from core.http import HttpServer, HttpClient
 from core.net import NetServer, NetClient
 from core.sock_js import SockJSServer
@@ -170,6 +171,14 @@ def run_on_context(handler):
     @param handler: an handler representing the code that will be run ASAP
     """
     java_vertx().runOnContext(NullDoneHandler(handler))
+
+def create_datagram_socket(ipv4=None):
+    if ipv4 is None:
+        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(None))
+    elif ipv4:
+        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(org.vertx.java.core.datagram.InternetProtocolFamily.Ipv4))
+    else:
+        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(org.vertx.java.core.datagram.InternetProtocolFamily.Ipv6))
 
 def current_context():
     return Context(java_vertx().currentContext())
