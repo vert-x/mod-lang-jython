@@ -65,30 +65,30 @@ class Assert(object):
     def equals(expected, actual, message=None):
         """Asserts that two values are equal."""
         if message is not None:
-            org.vertx.testtools.VertxAssert.assertEquals(message, map_to_java(expected), map_to_java(actual))
+            org.vertx.testtools.VertxAssert.assertTrue(message, map_to_java(expected) == map_to_java(actual))
         else:
-            org.vertx.testtools.VertxAssert.assertEquals(map_to_java(expected), map_to_java(actual))
+            org.vertx.testtools.VertxAssert.assertTrue(map_to_java(expected) == map_to_java(actual))
 
     @staticmethod
     def same(expected, actual, message=None):
         """Asserts that two values are the same."""
         if message is not None:
-          org.vertx.testtools.VertxAssert.assertTrue(message, expected == actual)
+          org.vertx.testtools.VertxAssert.assertTrue(message, expected is actual)
         else:
-          org.vertx.testtools.VertxAssert.assertTrue(expected == actual)
+          org.vertx.testtools.VertxAssert.assertTrue(expected is actual)
 
     @staticmethod
     def none(value, message=None):
         """Asserts that a value is null."""
         if message is not None:
-            org.vertx.testtools.VertxAssert.assertNull(message, value)
+            org.vertx.testtools.VertxAssert.assertTrue(message, value is None)
         else:
-            org.vertx.testtools.VertxAssert.assertNull(value)
+            org.vertx.testtools.VertxAssert.assertTrue(value is None)
 
     @staticmethod
     def not_none(value, message=None):
         """Asserts that a value is not null."""
         if message is not None:
-            org.vertx.testtools.VertxAssert.assertNotNull(message, value)
+            org.vertx.testtools.VertxAssert.assertTrue(message, value is not None)
         else:
-            org.vertx.testtools.VertxAssert.assertNotNull(value)
+            org.vertx.testtools.VertxAssert.assertTrue(value is not None)
