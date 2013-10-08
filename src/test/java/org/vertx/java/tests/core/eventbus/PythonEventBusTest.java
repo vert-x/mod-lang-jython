@@ -30,6 +30,18 @@ public class PythonEventBusTest extends TestBase {
     startTest(getMethodName());
   }
 
+  public void test_reply_with_timeout() {
+    startTest(getMethodName());
+  }
+
+  public void test_reply_timeout() {
+    startTest(getMethodName());
+  }
+
+  public void test_default_reply_timeout() {
+    startTest(getMethodName());
+  }
+
   public void test_empty_reply() {
     startTest(getMethodName());
   }

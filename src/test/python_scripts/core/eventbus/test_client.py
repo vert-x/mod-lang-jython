@@ -60,6 +60,45 @@ class EventBusTest(object):
             tu.test_complete()    
         EventBus.send(address, json, reply_handler)
 
+    def test_reply_with_timeout(self):
+        json = {'message': 'hello world!'}
+        address = 'some-address'
+        reply = {'cheese': 'stilton!'}
+        def handler(msg):
+            tu.azzert(msg.body['message'] == json['message'])
+            msg.reply(reply)
+        id = EventBus.register_handler(address, handler=handler)
+        tu.azzert(id != None)
+
+        def reply_handler(error, msg):
+            tu.azzert(error == None)
+            tu.azzert(msg.body['cheese'] == reply['cheese'])
+            EventBus.unregister_handler(id)
+            tu.test_complete()
+        EventBus.send_with_timeout(address, json, 10000, reply_handler)
+
+    def test_reply_timeout(self):
+        json = {'message': 'hello world!'}
+        address = 'some-address'
+        reply = {'cheese': 'stilton!'}
+        def handler(msg):
+            tu.azzert(msg.body['message'] == json['message'])
+        id = EventBus.register_handler(address, handler=handler)
+        tu.azzert(id != None)
+
+        def reply_handler(error, msg):
+            tu.azzert(error != None)
+            EventBus.unregister_handler(id)
+            tu.test_complete()
+        EventBus.send_with_timeout(address, json, 10, reply_handler)
+
+    def test_default_reply_timeout(self):
+        EventBus.default_reply_timeout = 10000
+        tu.azzert(EventBus.default_reply_timeout == 10000)
+        EventBus.default_reply_timeout = 30000
+        tu.azzert(EventBus.default_reply_timeout == 30000)
+        tu.test_complete()
+
     def test_empty_reply(self):
         json = {'message' : 'hello world!'}
         address = "some-address"

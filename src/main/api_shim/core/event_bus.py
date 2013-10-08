@@ -15,6 +15,7 @@
 import org.vertx.java.platform.impl.JythonVerticleFactory
 import org.vertx.java.core.buffer.Buffer
 import org.vertx.java.core.Handler
+import org.vertx.java.core.AsyncResultHandler
 import org.vertx.java.core.json.JsonObject
 import java.lang
 
@@ -56,7 +57,20 @@ class EventBus(object):
         @param reply_handler: An optional reply handler.
         It will be called when the reply from a receiver is received.
         """
-        EventBus.send_or_pub(True, address, message, reply_handler)
+        EventBus.send_or_pub(True, address, message, None, reply_handler)
+
+    @staticmethod
+    def send_with_timeout(address, message, timeout, reply_handler):
+        """Send a message on the event bus with a reply timeout
+
+        Keyword arguments:
+        @param address: the address to send to
+        @param message: The message to send
+        @param timeout: A reply timeout
+        @param reply_handler: An optional reply handler.
+        It will be called when the reply from a receiver is received.
+        """
+        EventBus.send_or_pub(True, address, message, timeout, reply_handler)
 
     @staticmethod
     def publish(address, message):
@@ -69,7 +83,7 @@ class EventBus(object):
         EventBus.send_or_pub(False, address, message)
 
     @staticmethod
-    def send_or_pub(send, address, message, reply_handler=None):
+    def send_or_pub(send, address, message, timeout=None, reply_handler=None):
         if not address:
             raise RuntimeError("An address must be specified")
         if message is None:
@@ -77,7 +91,10 @@ class EventBus(object):
         message = EventBus.convert_msg(message)
         if send:
             if reply_handler != None:
-                EventBus.java_eventbus().send(address, message, InternalHandler(reply_handler))
+                if timeout is not None:
+                    EventBus.java_eventbus().sendWithTimeout(address, message, timeout, AsyncInternalHandler(reply_handler))
+                else:
+                    EventBus.java_eventbus().send(address, message, InternalHandler(reply_handler))
             else:
                 EventBus.java_eventbus().send(address, message)
         else:
@@ -160,6 +177,9 @@ class EventBus(object):
     def java_eventbus():
         return org.vertx.java.platform.impl.JythonVerticleFactory.vertx.eventBus()
 
+# Allow the event bus reply timeout to be set directly as
+# a property of the event bus.
+EventBus.default_reply_timeout = property(lambda: EventBus.java_eventbus().getDefaultReplyTimeout(), lambda x: EventBus.java_eventbus().setDefaultReplyTimeout(x))
 
 class InternalHandler(org.vertx.java.core.Handler):
     def __init__(self, handler):
@@ -167,6 +187,16 @@ class InternalHandler(org.vertx.java.core.Handler):
 
     def handle(self, message):
         self.handler(Message(message))
+
+class AsyncInternalHandler(org.vertx.java.core.AsyncResultHandler):
+    def __init__(self, handler):
+        self.handler = handler
+
+    def handle(self, result):
+        if result.failed():
+            self.handler(result.cause(), None)
+        else:
+            self.handler(None, Message(result.result()))
   
 class Message(object):
     """Represents a message received from the event bus"""
