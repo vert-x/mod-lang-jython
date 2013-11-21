@@ -82,6 +82,8 @@ class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
     
     def __init__(self, java_sock):
         self.java_obj = java_sock
+        self.remote_addr = None
+        self.local_addr = None
 
         def simple_handler(msg):
             self.write(msg.body)
@@ -100,6 +102,24 @@ class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
         allows you to write data to other SockJSSockets which are owned by different event loops.
         """
         return self.handler_id
+        
+    @property
+    def remote_address(self):
+        """
+        Returns the remote address as tuple in form of ('ipaddress', port)
+        """
+        if self.remote_addr is None:
+            self.remote_addr =  self.java_obj.remoteAddress().getAddress().getHostAddress() , self.java_obj.remoteAddress().getPort();
+        return self.remote_addr
+
+    @property
+    def local_address(self):
+        """
+        Returns the local address as tuple in form of ('ipaddress', port)
+        """
+        if self.local_addr is None:
+            self.local_addr =  self.java_obj.localAddress().getAddress().getHostAddress() , self.java_obj.localAddress().getPort();
+        return self.local_addr
 
     def _to_java_socket(self):
       return self.java_obj
