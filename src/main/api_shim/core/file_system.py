@@ -229,6 +229,23 @@ class FileSystem(object):
         self.java_obj.truncateSync(path, len)
         return self
 
+    def chown(self, path, user, group, handler=None):
+        """Change the ownership on a file, asynchronously.
+
+        Keyword arguments:
+        @param path: path of file to change ownership
+        @param user: the user to which to change
+        @param group: the group to which to change
+        @param handler: the function to call when complete
+        """
+        self.java_obj.chown(path, user, group, AsyncHandler(handler))
+        return self
+
+    def chown_sync(self, path, user, group):
+        """Synchronous version of FileSystem.chown"""
+        self.java_obj.chownSync(path, user, group)
+        return self
+
     def chmod(self, path, perms, dir_perms=None, handler=None):
         """Change the permissions on a file, asynchronously. If the file is directory then all contents will also have their permissions changed recursively.
 
