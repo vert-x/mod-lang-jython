@@ -69,9 +69,12 @@ class SockJSServer(object):
         self.java_obj.installApp(java_config, SockJSSocketHandler(handler))
 
     def bridge(self, config, inbound_permitted, outbound_permitted, auth_timeout=5*60*1000, auth_address=None):
+        self.bridge_with_config(config, inbound_permitted, outbound_permitted, {"auth_timeout": auth_timeout, "auth_address": auth_address})
+        
+    def bridge_with_config(self, config, inbound_permitted, outbound_permitted, bridge_config):
         a_ijson = org.vertx.java.core.json.JsonArray(map_to_java(inbound_permitted))
         a_ojson = org.vertx.java.core.json.JsonArray(map_to_java(outbound_permitted))
-        self.java_obj.bridge(org.vertx.java.core.json.JsonObject(map_to_java(config)), a_ijson, a_ojson, auth_timeout, auth_address)
+        self.java_obj.bridge(org.vertx.java.core.json.JsonObject(map_to_java(config)), a_ijson, a_ojson, org.vertx.java.core.json.JsonObject(map_to_java(bridge_config)))
 
 class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
     """You interact with SockJS clients through instances of SockJS socket.
