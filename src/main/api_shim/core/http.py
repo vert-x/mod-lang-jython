@@ -808,6 +808,8 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
     """
     def __init__(self, websocket):
         self.java_obj = websocket
+        self.remote_addr = None
+        self.local_addr = None
 
     @property
     def binary_handler_id(self):
@@ -853,6 +855,24 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         """
         self.java_obj.writeTextFrame(text)
         return self
+        
+    @property
+    def remote_address(self):
+        """
+        Returns the remote address as tuple in form of ('ipaddress', port)
+        """
+        if self.remote_addr is None:
+            self.remote_addr =  self.java_obj.remoteAddress().getAddress().getHostAddress() , self.java_obj.remoteAddress().getPort();
+        return self.remote_addr
+
+    @property
+    def local_address(self):
+        """
+        Returns the local address as tuple in form of ('ipaddress', port)
+        """
+        if self.local_addr is None:
+            self.local_addr =  self.java_obj.localAddress().getAddress().getHostAddress() , self.java_obj.localAddress().getPort();
+        return self.local_addr
 
     def close(self):
         """ Close the websocket """
@@ -1568,3 +1588,4 @@ class HttpServerFileUpload(core.streams.ReadStream):
         Returns the charset for the upload
         """
         return self.java_obj.size()
+
