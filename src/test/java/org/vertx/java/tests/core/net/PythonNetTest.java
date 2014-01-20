@@ -39,6 +39,11 @@ public class PythonNetTest extends TestBase {
   }
 
   @Test
+  public void test_upgrade_ssl() throws Exception {
+    startTest(getMethodName());
+  }
+
+  @Test
   public void test_methods() throws Exception {
     startTest(getMethodName());
   }

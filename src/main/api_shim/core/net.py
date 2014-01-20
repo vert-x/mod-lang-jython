@@ -225,6 +225,21 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         return self
 
     @property
+    def is_ssl(self):
+        """Indicates whether the socket is an SSL connection."""
+        return self.java_obj.isSsl()
+
+    def ssl(self, handler):
+        """Upgrades the channel to use SSL/TLS. Be aware for this to work SSL must be configured.
+
+        Keyword arguments:
+        @param handler: a function to be called once complete
+        @return: self
+        """
+        self.java_obj.ssl(SslHandler(handler))
+        return self
+
+    @property
     def remote_address(self):
         """
         Returns the remote address as tuple in form of ('ipaddress', port)
@@ -255,3 +270,10 @@ class ConnectHandler(org.vertx.java.core.Handler):
         """ Call the handler after connection is established"""
         self.handler(NetSocket(socket))
 
+class SslHandler(org.vertx.java.core.Handler):
+    """SSL upgrade handler."""
+    def __init__(self, handler):
+        self.handler = handler
+
+    def handle(self):
+        self.handler()

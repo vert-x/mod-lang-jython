@@ -24,6 +24,7 @@ tu.check_thread()
 class NetTest(object):
 
     server = None
+    ssl = False
 
     def test_echo(self):
         global server, client
@@ -143,6 +144,96 @@ class NetTest(object):
                 if received.length == sends * size:
                     tu.azzert(TestUtils.buffers_equal(sent, received))
                     tu.test_complete()
+
+            #Just call the methods. Real testing is done in java tests
+            @socket.drain_handler
+            def drain_handler():
+                tu.check_thread()
+
+            @socket.end_handler
+            def end_handler():
+                tu.check_thread()
+
+            @socket.close_handler
+            def close_handler():
+                tu.check_thread()
+
+            socket.pause()
+            socket.resume()
+            socket.write_queue_full
+            socket.write_queue_max_size = 100000
+
+            for i in range(0, sends):
+                data = TestUtils.gen_buffer(size)
+                sent.append_buffer(data)
+                socket.write(data)
+
+        def listen_handler(err, serv):
+            tu.azzert(err == None)
+            tu.azzert(serv == server)
+            client.connect(8080, "localhost", client_connect_handler)
+
+        server.listen(8080, "0.0.0.0", listen_handler)
+
+
+    def test_upgrade_ssl(self):
+        global server, client
+
+        server = vertx.create_net_server()
+        server.key_store_path = './src/test/keystores/server-keystore.jks'
+        server.key_store_password = 'wibble'
+        server.trust_store_path = './src/test/keystores/server-truststore.jks'
+        server.trust_store_password = 'wibble'
+
+        @server.connect_handler
+        def connect_handler(socket):
+            tu.check_thread()
+            tu.azzert(socket.local_address[0] is not None)
+            tu.azzert(socket.local_address[1] > -1)
+            tu.azzert(socket.remote_address[0] is not None)
+            tu.azzert(socket.remote_address[1] > -1)
+
+            @socket.data_handler
+            def data_handler(data):
+                tu.check_thread()
+                socket.write(data) # Just echo it back
+
+        client = vertx.create_net_client()
+        client.trust_all = True
+        client.key_store_path = './src/test/keystores/client-keystore.jks'
+        client.key_store_password = 'wibble'
+        client.trust_store_path = './src/test/keystores/client-truststore.jks'
+        client.trust_store_password = 'wibble'
+
+        def client_connect_handler(err, socket):
+            tu.azzert(err == None)
+            tu.check_thread()
+            tu.azzert(socket.local_address[0] is not None)
+            tu.azzert(socket.local_address[1] > -1)
+            tu.azzert(socket.remote_address[0] is not None)
+            tu.azzert(socket.remote_address[1] > -1)
+
+            sends = 10
+            size = 100
+
+            sent = Buffer.create()
+            received = Buffer.create()
+
+            @socket.data_handler
+            def data_handler(data):
+                tu.check_thread()
+                received.append_buffer(data)
+
+                if not self.ssl:
+                    self.ssl = True
+                    tu.azzert(socket.is_ssl == False)
+                    def ssl_handler():
+                        socket.write(data)
+                    socket.ssl(ssl_handler)
+                else:
+                    if received.length == sends * size:
+                        tu.azzert(TestUtils.buffers_equal(sent, received))
+                        tu.test_complete()
 
             #Just call the methods. Real testing is done in java tests
             @socket.drain_handler
