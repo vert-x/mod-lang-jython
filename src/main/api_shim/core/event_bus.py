@@ -17,6 +17,7 @@ import org.vertx.java.core.buffer.Buffer
 import org.vertx.java.core.Handler
 import org.vertx.java.core.AsyncResultHandler
 import org.vertx.java.core.json.JsonObject
+import org.vertx.java.core.eventbus.ReplyException
 import java.lang
 
 from core.javautils import map_to_java, map_from_java
@@ -194,7 +195,7 @@ class AsyncInternalHandler(org.vertx.java.core.AsyncResultHandler):
 
     def handle(self, result):
         if result.failed():
-            self.handler(result.cause(), None)
+            self.handler(ReplyError(result.cause()), None)
         else:
             self.handler(None, Message(result.result()))
   
@@ -223,4 +224,16 @@ class Message(object):
             self.java_obj.reply(reply)
         else:
             self.java_obj.reply(reply, InternalHandler(handler))
-      
+
+class ReplyError(Exception):
+    """An event bus reply error."""
+    TIMEOUT = 0
+    NO_HANDLERS = 1
+    RECIPIENT_FAILURE = 2
+
+    def __init__(self, exception):
+        self.exception = exception
+
+    @property
+    def type(self):
+        return self.exception.failureType().toInt()
