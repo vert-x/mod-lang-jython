@@ -50,13 +50,27 @@ class EventBusTest(object):
         reply = {'cheese' : 'stilton!'}
         def handler(msg):
             tu.azzert(msg.body['message'] == json['message'])
-            msg.reply(reply)    
+            msg.reply(reply)
         id = EventBus.register_handler(address, handler=handler)
         tu.azzert(id != None)
 
         def reply_handler(msg):
             tu.azzert(msg.body['cheese'] == reply['cheese'])
             EventBus.unregister_handler(id)
+            tu.test_complete()
+        EventBus.send(address, json, reply_handler)
+
+    def test_handler_decorator(self):
+        json = {'message': 'hello world!'}
+        address = 'some-address'
+        reply = {'cheese': 'stilton!'}
+        @EventBus.handler(address)
+        def handler(msg):
+            tu.azzert(msg.body['message'] == json['message'])
+            msg.reply(reply)
+
+        def reply_handler(msg):
+            tu.azzert(msg.body['cheese'] == reply['cheese'])
             tu.test_complete()    
         EventBus.send(address, json, reply_handler)
 

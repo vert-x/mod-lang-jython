@@ -124,6 +124,18 @@ class EventBus(object):
         return id
 
     @staticmethod
+    def handler(address, local_only=False):
+        """Decorator for registering a handler.
+
+        Keyword arguments:
+        @param address: the address to register for.
+        """
+        def wrap(handler):
+            EventBus.register_handler(address, local_only, handler)
+            return handler
+        return wrap
+
+    @staticmethod
     def register_simple_handler(local_only=False, handler=None):
         """
         Registers a handler against a uniquely generated address, the address is returned as the id
