@@ -14,7 +14,7 @@
 
 import vertx
 from test_utils import TestUtils
-from core.event_bus import EventBus
+from core.event_bus import EventBus, ReplyError
 
 tu = TestUtils()
 
@@ -102,6 +102,8 @@ class EventBusTest(object):
 
         def reply_handler(error, msg):
             tu.azzert(error != None)
+            tu.azzert(isinstance(error, ReplyError))
+            tu.azzert(error.type == ReplyError.TIMEOUT)
             EventBus.unregister_handler(id)
             tu.test_complete()
         EventBus.send_with_timeout(address, json, 10, reply_handler)
