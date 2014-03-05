@@ -50,6 +50,17 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
 
     compression_supported = property(get_compression_supported, set_compression_supported)
 
+    def get_max_web_socket_frame_size(self):
+        """Get the maximum websocket frame size in bytes"""
+        return self.java_obj.getMaxWebSocketFrameSize()
+
+    def set_max_web_socket_frame_size(self, max_frame_size):
+        """Set the maximum websocket frame size in bytes."""
+        self.java_obj.setMaxWebSocketFrameSize(max_frame_size)
+        return self
+
+    max_web_socket_frame_size = property(get_max_web_socket_frame_size, set_max_web_socket_frame_size)
+
     def request_handler(self, handler):
         """Set the HTTP request handler for the server.
         As HTTP requests arrive on the server a new HttpServerRequest instance will be created and passed to the handler.
@@ -218,6 +229,17 @@ class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport,
         return self
 
     try_use_compression = property(get_try_use_compression, set_try_use_compression)
+
+    def get_max_web_socket_frame_size(self):
+        """Get the maximum websocket frame size in bytes"""
+        return self.java_obj.getMaxWebSocketFrameSize()
+
+    def set_max_web_socket_frame_size(self, max_frame_size):
+        """Set the maximum websocket frame size in bytes."""
+        self.java_obj.setMaxWebSocketFrameSize(max_frame_size)
+        return self
+
+    max_web_socket_frame_size = property(get_max_web_socket_frame_size, set_max_web_socket_frame_size)
 
     def connect_web_socket(self, uri, handler):
         """Attempt to connect an HTML5 websocket to the specified URI.
