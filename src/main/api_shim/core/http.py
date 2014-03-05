@@ -941,6 +941,11 @@ class ServerWebSocket(WebSocket):
         """ The path the websocket connect was attempted at. """
         return self.java_obj.path()
 
+    @property
+    def uri(self):
+        """The uri at which the websocket handshake occurred."""
+        return self.java_obj.uri()
+
 class HttpServerRequestHandler(org.vertx.java.core.Handler):
     """ A handler for Http Server Requests"""
     def __init__(self, handler):

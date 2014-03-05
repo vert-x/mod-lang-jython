@@ -15,11 +15,14 @@
 import core.streams
 import core.ssl_support
 import org.vertx.java.core
+import org.vertx.java.core.sockjs.EventBusBridgeHook
+import org.vertx.java.core.impl.DefaultFutureResult
 import org.vertx.java.core.json.JsonObject
 import org.vertx.java.core.json.JsonArray
 import org.vertx.java.platform.impl.JythonVerticleFactory
 
-from core.javautils import map_to_java
+from core.handlers import AsyncHandler
+from core.javautils import map_from_java, map_to_java
 from core.event_bus import EventBus
 
 __author__ = "Scott Horn"
@@ -69,12 +72,15 @@ class SockJSServer(object):
         self.java_obj.installApp(java_config, SockJSSocketHandler(handler))
 
     def bridge(self, config, inbound_permitted, outbound_permitted, auth_timeout=5*60*1000, auth_address=None):
-        self.bridge_with_config(config, inbound_permitted, outbound_permitted, {"auth_timeout": auth_timeout, "auth_address": auth_address})
+        return self.bridge_with_config(config, inbound_permitted, outbound_permitted, {"auth_timeout": auth_timeout, "auth_address": auth_address})
         
     def bridge_with_config(self, config, inbound_permitted, outbound_permitted, bridge_config):
         a_ijson = org.vertx.java.core.json.JsonArray(map_to_java(inbound_permitted))
         a_ojson = org.vertx.java.core.json.JsonArray(map_to_java(outbound_permitted))
         self.java_obj.bridge(org.vertx.java.core.json.JsonObject(map_to_java(config)), a_ijson, a_ojson, org.vertx.java.core.json.JsonObject(map_to_java(bridge_config)))
+        hook = _EventBusBridgeHook()
+        self.java_obj.setHook(hook)
+        return EventBusBridge(hook)
 
 class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
     """You interact with SockJS clients through instances of SockJS socket.
@@ -126,6 +132,121 @@ class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
 
     def _to_java_socket(self):
       return self.java_obj
+
+class EventBusBridge(object):
+    """Event bus bridge."""
+    def __init__(self, j_bridge):
+        self.java_obj = j_bridge
+        self.hook = _EventBusBridgeHook()
+
+    def socket_created_handler(self, func):
+        """Registers a socket created handler."""
+        return self.hook.socket_created_handler(func)
+
+    def socket_closed_handler(self, func):
+        """Registers a socket closed handler."""
+        return self.hook.socket_closed_handler(func)
+
+    def send_or_pub_handler(self, func):
+        """Registers a send or pub handler."""
+        return self.hook.send_or_pub_handler(func)
+
+    def pre_register_handler(self, func):
+        """Registers a pre-register handler."""
+        return self.hook.pre_register_handler(func)
+
+    def post_register_handler(self, func):
+        """Registers a post-register handler."""
+        return self.hook.post_register_handler(func)
+
+    def unregister_handler(self, func):
+        """Registers an unregister handler."""
+        return self.hook.unregister_handler(func)
+
+    def authorise_handler(self, func):
+        """Registers an authorise handler."""
+        return self.hook.authorise_handler(func)
+
+class _EventBusBridgeHook(org.vertx.java.core.sockjs.EventBusBridgeHook):
+    _socket_created_handler = None
+    _socket_closed_handler = None
+    _send_or_pub_handler = None
+    _pre_register_handler = None
+    _post_register_handler = None
+    _unregister_handler = None
+    _authorise_handler = None
+
+    def socket_created_handler(self, func):
+        self._socket_created_handler = func
+        return func
+
+    def handleSocketCreated(self, j_sock):
+        if self._socket_created_handler is not None:
+            result = self._socket_created_handler(SockJSSocket(j_sock))
+            return result if result is not None else True
+        return True
+
+    def socket_closed_handler(self, func):
+        self._socket_closed_handler = func
+        return func
+
+    def handleSocketClosed(self, j_sock):
+        if self._socket_closed_handler is not None:
+            self._socket_closed_handler(SockJSSocket(j_sock))
+
+    def send_or_pub_handler(self, func):
+        self._send_or_pub_handler = func
+        return func
+
+    def handleSendOrPub(self, j_sock, send, message, address):
+        if self._send_or_pub_handler is not None:
+            result = self._send_or_pub_handler(SockJSSocket(j_sock), send, map_from_java(message), address)
+            return result if result is not None else True
+        return True
+
+    def pre_register_handler(self, func):
+        self._pre_register_handler = func
+        return func
+
+    def handlePreRegister(self, j_sock, address):
+        if self._pre_register_handler is not None:
+            result = self._pre_register_handler(SockJSSocket(j_sock), address)
+            return result if result is not None else True
+        return True
+
+    def post_register_handler(self, func):
+        self._post_register_handler = func
+        return func
+
+    def handlePostRegister(self, j_sock, address):
+        if self._post_register_handler is not None:
+            self._post_register_handler(SockJSSocket(j_sock), address)
+
+    def unregister_handler(self, func):
+        self._unregister_handler = func
+        return func
+
+    def handleUnregister(self, j_sock, address):
+        if self._unregister_handler is not None:
+            result = self._unregister_handler(SockJSSocket(j_sock), address)
+            return result if result is not None else True
+        return True
+
+    def authorise_handler(self, func):
+        self._authorise_handler = func
+        return func
+
+    def handleAuthorise(self, message, session_id, handler):
+        if self._authorise_handler is not None:
+            async_handler = AsyncHandler(handler)
+            def func(result):
+                if isinstance(result, Exception):
+                    org.vertx.java.core.impl.DefaultFutureResult().setHandler(handler).setFailure(result)
+                else:
+                    org.vertx.java.core.impl.DefaultFutureResult().setHandler(handler).setResult(bool(result))
+            result = self._authorise_handler(map_from_java(message), session_id, func)
+            return result if result is not None else True
+        return True
 
 class SockJSSocketHandler(org.vertx.java.core.Handler):
     """ SockJS Socket handler """
