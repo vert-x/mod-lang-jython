@@ -20,23 +20,17 @@ __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
 __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
-class WriteStream(object):
-    """
-     A mixin module which represents a stream of data that can be written to.
+class ExceptionSupport(object):
+    def exception_handler(self, handler):
+        """Set an execption handler on the stream.
 
-     Any class that mixes in this module can be used by a  to pump data from a  to it.
-
-    """
-
-    def write(self, buff):
-        """Write some data to the stream. The data is put on an internal write queue, and the write actually happens
-        asynchronously. To avoid running out of memory by putting too much on the write queue,
-        check the  method before writing. This is done automatically if using a .
-        param [Buffer]. The buffer to write.
+        Keyword arguments:
+        @param handler: The exception handler
         """
-        self.java_obj.write(buff._to_java_buffer())
+        self.java_obj.exceptionHandler(ExceptionHandler(handler))
         return self
-    
+
+class DrainSupport(object):
     def set_write_queue_max_size(self, size):
         """Set the maximum size of the write queue. You will still be able to write to the stream even
         if there is more data than this in the write queue. This is used as an indicator by classes such as
@@ -52,7 +46,7 @@ class WriteStream(object):
         return self.java_obj.getWriteQueueMaxSize()
 
     write_queue_max_size = property(get_write_queue_max_size, set_write_queue_max_size)
-    
+
     @property
     def write_queue_full(self):
         """Is the write queue full?
@@ -60,7 +54,7 @@ class WriteStream(object):
         return True if there are more bytes in the write queue than the max write queue size.
         """
         return self.java_obj.writeQueueFull()
-    
+
     def drain_handler(self, handler):
         """Set a drain handler on the stream. If the write queue is full, then the handler will be called when the write
         queue has been reduced to maxSize / 2. See  for an example of this being used.
@@ -70,20 +64,49 @@ class WriteStream(object):
         """
         self.java_obj.drainHandler(NullDoneHandler(handler))
         return self
-    
-    def exception_handler(self, handler):
-        """Set an execption handler on the stream.
 
-        Keyword arguments:
-        @param handler: The exception handler
-        """  
-        self.java_obj.exceptionHandler(ExceptionHandler(handler))
+class WriteStream(DrainSupport, ExceptionSupport, object):
+    """
+     A mixin module which represents a stream of data that can be written to.
+
+     Any class that mixes in this module can be used by a  to pump data from a  to it.
+
+    """
+
+    def write(self, buff):
+        """Write some data to the stream. The data is put on an internal write queue, and the write actually happens
+        asynchronously. To avoid running out of memory by putting too much on the write queue,
+        check the  method before writing. This is done automatically if using a .
+        param [Buffer]. The buffer to write.
+        """
+        self.java_obj.write(buff._to_java_buffer())
         return self
-    
+
     def _to_write_stream(self):
         return self.java_obj
 
-class ReadStream(object):
+class ReadSupport(ExceptionHandler, object):
+
+    def data_handler(self, handler):
+        """Set a data handler. As data is read, the handler will be called with the data.
+
+        Keyword arguments:
+        @param handler: The data handler
+        """
+        self.java_obj.dataHandler(handler)
+        return self
+
+    def pause(self):
+        """Pause the ReadStream. After calling this, the ReadStream will aim to send no more data to the """
+        self.java_obj.pause()
+        return self
+
+    def resume(self):
+        """Resume reading. If the ReadStream has been paused, reading will recommence on it."""
+        self.java_obj.resume()
+        return self
+
+class ReadStream(ExceptionSupport, ReadSupport, object):
     """A mixin module which represents a stream of data that can be read from.
 
     Any class that mixes in this module can be used by a  to pump data from a  to it.
@@ -96,23 +119,6 @@ class ReadStream(object):
         @param handler: The data handler
         """
         self.java_obj.dataHandler(BufferHandler(handler))
-        return self
-    
-    def pause(self):
-        """Pause the ReadStream. After calling this, the ReadStream will aim to send no more data to the """
-        self.java_obj.pause()
-        return self
-        
-    def resume(self):
-        """Resume reading. If the ReadStream has been paused, reading will recommence on it."""
-        self.java_obj.resume()
-        return self
-        
-    def exception_handler(self, handler):
-        """Set an execption handler on the stream.
-        param [Block] hndlr. The exception handler
-        """
-        self.java_obj.exceptionHandler(ExceptionHandler(handler))
         return self
 
     def end_handler(self, handler):
