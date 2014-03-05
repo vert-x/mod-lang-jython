@@ -24,7 +24,7 @@ import core.buffer
 import core.streams
 
 from core.javautils import inetsocketaddress_to_tuple
-from core.handlers import CloseHandler, AsyncHandler
+from core.handlers import CloseHandler, NullDoneHandler, AsyncHandler
 from core.event_bus import EventBus
 
 __author__ = "Scott Horn"
@@ -195,6 +195,21 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
             if hasattr(self, "_close_handler"):
                 self._close_handler()
         self.java_obj.closeHandler(CloseHandler(wrapped_close_handler))
+
+    @property
+    def is_ssl(self):
+        """Indicates whether the socket is an SSL connection."""
+        return self.java_obj.isSsl()
+
+    def ssl(self, handler):
+        """Upgrades the channel to use SSL/TLS. Be aware for this to work SSL must be configured.
+
+        Keyword arguments:
+        @param handler: a function to be called once complete
+        @return: self
+        """
+        self.java_obj.ssl(NullDoneHandler(handler))
+        return self
 
     def write_str(self, str, enc="UTF-8"):
         """Write a String to the socket. The handler will be called when the string has actually been written to the wire.
