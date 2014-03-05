@@ -224,6 +224,9 @@ def http_method(ssl, method, chunked):
 
     logger.info("in http method %s"% method)
 
+    server.compression_supported = True
+    tu.azzert(server.compression_supported)
+
     if ssl:
         server.ssl = True
         server.key_store_path = './src/test/keystores/server-keystore.jks'
@@ -283,6 +286,8 @@ def http_method(ssl, method, chunked):
                     req.response.put_trailer('trailer2', 'vtrailer2')
             req.response.end()
 
+    client.try_use_compression = False
+    tu.azzert(client.try_use_compression == False)
 
     if ssl:
         client.ssl = True

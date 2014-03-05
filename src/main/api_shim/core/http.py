@@ -39,6 +39,17 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
         for item in kwargs.keys():
            setattr(self, item, kwargs[item])
 
+    def get_compression_supported(self):
+        """true if the server should compress http response if the connected client supports it."""
+        return self.java_obj.isCompressionSupported()
+
+    def set_compression_supported(self, supported):
+        """Set if the server should compress the http response if the connected client supports it."""
+        self.java_obj.setCompressionSupported(supported)
+        return self
+
+    compression_supported = property(get_compression_supported, set_compression_supported)
+
     def request_handler(self, handler):
         """Set the HTTP request handler for the server.
         As HTTP requests arrive on the server a new HttpServerRequest instance will be created and passed to the handler.
@@ -196,6 +207,17 @@ class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport,
         return self
 
     verify_host = property(get_verify_host, set_verify_host)
+
+    def get_try_use_compression(self):
+        """true if the client should try to use compression."""
+        return self.java_obj.getTryUseCompression()
+
+    def set_try_use_compression(self, use_compression):
+        """Set if the client should try to use compression."""
+        self.java_obj.setTryUseCompression(use_compression)
+        return self
+
+    try_use_compression = property(get_try_use_compression, set_try_use_compression)
 
     def connect_web_socket(self, uri, handler):
         """Attempt to connect an HTML5 websocket to the specified URI.
