@@ -103,9 +103,12 @@ class Buffer(object):
         """ Return bytes in the buffer as a Buffer """
         return Buffer(self.buffer.getBuffer(pos, end_pos))
 
-    def append_buffer(self, buff):
+    def append_buffer(self, buff, offset=None, length=None):
         """ Appends a buffer to the end of this buffer. The buffer will expand as necessary to accomodate any bytes written. """
-        self.buffer.appendBuffer(buff._to_java_buffer())        
+        if offset is not None and length is not None:
+            self.buffer.appendBuffer(buff._to_java_buffer(), offset, length)
+        else:
+            self.buffer.appendBuffer(buff._to_java_buffer())
         return self
 
     def append_int(self, num):
@@ -176,9 +179,12 @@ class Buffer(object):
             raise Exception("bytes must be 4 or 8")
         return self
 
-    def set_buffer(self, pos, buff):
+    def set_buffer(self, pos, buff, offset=None, length=None):
         """ Sets bytes in this buffer to the bytes of the specified buffer. The buffer will expand as necessary to accomodate any bytes written. """
-        self.buffer.setBytes(pos, buff._to_java_buffer)
+        if offset is not None and length is not None:
+            self.buffer.setBuffer(pol, buff._to_java_buffer(), offset, length)
+        else:
+            self.buffer.setBuffer(pos, buff._to_java_buffer())
         return self
 
     def set_string(self, pos, str, enc="UTF-8"):
