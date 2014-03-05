@@ -26,22 +26,6 @@ public class PythonBufferTest extends TestBase {
     startTest(getMethodName());
   }
 
-  public void test_append_fixnum_1() {
-    startTest(getMethodName());
-  }
-
-  public void test_append_fixnum_2() {
-    startTest(getMethodName());
-  }
-
-  public void test_append_fixnum_4() {
-    startTest(getMethodName());
-  }
-
-  public void test_append_fixnum_8() {
-    startTest(getMethodName());
-  }
-
   public void test_append_float_4() {
     startTest(getMethodName());
   }
@@ -63,22 +47,6 @@ public class PythonBufferTest extends TestBase {
   }
 
   public void test_set_buff_with_offset() {
-    startTest(getMethodName());
-  }
-
-  public void test_set_fixnum_1() {
-    startTest(getMethodName());
-  }
-
-  public void test_set_fixnum_2() {
-    startTest(getMethodName());
-  }
-
-  public void test_set_fixnum_4() {
-    startTest(getMethodName());
-  }
-
-  public void test_set_fixnum_8() {
     startTest(getMethodName());
   }
 

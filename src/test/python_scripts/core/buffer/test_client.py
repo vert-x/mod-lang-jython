@@ -35,29 +35,6 @@ class BufferTest(object):
         tu.azzert(50 == buff2.length, 'Invalid length')
         tu.test_complete()
 
-    def test_append_fixnum_1(self):
-        self.append_fixnum(1)
-
-    def test_append_fixnum_2(self):
-        self.append_fixnum(2)
-
-    def test_append_fixnum_4(self):
-        self.append_fixnum(4)
-
-    def test_append_fixnum_8(self):
-        self.append_fixnum(8)
-
-    def append_fixnum(self, num_bytes):
-        buff1 = Buffer.create()
-        for i in range(-128,128):
-            buff1.append_fixnum(i << ((num_bytes -1) * 8), num_bytes)
-
-        for i in range(-128,128):
-            val = buff1.get_fixnum((i + 128) * num_bytes, num_bytes)
-            tu.azzert(val == i << ((num_bytes -1)* 8))
-
-        tu.test_complete()
-
     def test_append_int(self):
         buff1 = Buffer.create()
         for i in range(100):
@@ -113,27 +90,6 @@ class BufferTest(object):
         tu.azzert(50 == buff2.length, 'Invalid length')
         tu.test_complete()
 
-    def test_set_fixnum_1(self):
-        self.set_fixnum(1)
-
-    def test_set_fixnum_2(self):
-        self.set_fixnum(2)
-
-    def test_set_fixnum_4(self):
-        self.set_fixnum(4)
-
-    def test_set_fixnum_8(self):
-        self.set_fixnum(8)
-
-    def set_fixnum(self, num_bytes):
-        buff1 = Buffer.create()
-        for i in range(-128,128):
-            buff1.set_fixnum((i + 128) * num_bytes, i << ((num_bytes -1) * 8), num_bytes)
-        for i in range(-128,128):
-            val = buff1.get_fixnum((i + 128) * num_bytes, num_bytes)
-            tu.azzert(val == i << ((num_bytes -1)* 8))
-        tu.test_complete()
-
     def test_set_int(self):
         buff1 = Buffer.create()
         for i in range(100):
@@ -165,7 +121,7 @@ class BufferTest(object):
         tu.azzert(buff1.length == 0)
         num = 50
         for i in range(0,num):
-            buff1.append_fixnum(i, 1)
+            buff1.append_str("1")
         tu.azzert(buff1.length == num, "Received %d expected %d"% (buff1.length, num))
         tu.test_complete()
 
