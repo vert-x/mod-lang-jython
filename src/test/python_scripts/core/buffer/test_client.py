@@ -97,6 +97,22 @@ class BufferTest(object):
         tu.azzert(str == buff1.to_string('UTF-8'))
         tu.test_complete()
 
+    def test_set_buff(self):
+        buff_len = 100
+        buff1 = self.create_buffer(buff_len)
+        buff2 = Buffer.create()
+        buff2.set_buffer(0, buff1)
+        tu.azzert(buff_len == buff2.length, 'Invalid length')
+        tu.test_complete()
+
+    def test_set_buff_with_offset(self):
+        buff_len = 100
+        buff1 = self.create_buffer(buff_len)
+        buff2 = Buffer.create()
+        buff2.set_buffer(0, buff1, 50, 50)
+        tu.azzert(50 == buff2.length, 'Invalid length')
+        tu.test_complete()
+
     def test_set_fixnum_1(self):
         self.set_fixnum(1)
 

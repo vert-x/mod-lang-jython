@@ -58,6 +58,14 @@ public class PythonBufferTest extends TestBase {
     startTest(getMethodName());
   }
 
+  public void test_set_buff() {
+    startTest(getMethodName());
+  }
+
+  public void test_set_buff_with_offset() {
+    startTest(getMethodName());
+  }
+
   public void test_set_fixnum_1() {
     startTest(getMethodName());
   }

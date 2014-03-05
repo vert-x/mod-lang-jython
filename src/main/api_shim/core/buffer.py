@@ -182,7 +182,7 @@ class Buffer(object):
     def set_buffer(self, pos, buff, offset=None, length=None):
         """ Sets bytes in this buffer to the bytes of the specified buffer. The buffer will expand as necessary to accomodate any bytes written. """
         if offset is not None and length is not None:
-            self.buffer.setBuffer(pol, buff._to_java_buffer(), offset, length)
+            self.buffer.setBuffer(pos, buff._to_java_buffer(), offset, length)
         else:
             self.buffer.setBuffer(pos, buff._to_java_buffer())
         return self
