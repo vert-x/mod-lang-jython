@@ -221,7 +221,11 @@ class Message(object):
             self.body = Buffer(message.body())
         else:
             self.body = map_from_java(message.body())
-    
+
+    @property
+    def address(self):
+        return self.java_obj.address()
+
     def reply(self, reply, handler=None):
         """Reply to this message. If the message was sent specifying a receipt handler, that handler will be
         called when it has received a reply. If the message wasn't sent specifying a receipt handler

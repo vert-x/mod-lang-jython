@@ -26,6 +26,7 @@ class EventBusTest(object):
         address = "some-address"
 
         def handler(msg):
+            tu.azzert(msg.address == address)
             tu.azzert(msg.body['message'] == json['message'])
             EventBus.unregister_handler(id)
             tu.test_complete()
@@ -37,6 +38,7 @@ class EventBusTest(object):
         json = {}
         address = "some-address"
         def handler(msg):
+            tu.azzert(msg.address == address)
             tu.azzert(msg.body == {})
             EventBus.unregister_handler(id)
             tu.test_complete()
@@ -49,6 +51,7 @@ class EventBusTest(object):
         address = "some-address"
         reply = {'cheese' : 'stilton!'}
         def handler(msg):
+            tu.azzert(msg.address == address)
             tu.azzert(msg.body['message'] == json['message'])
             msg.reply(reply)
         id = EventBus.register_handler(address, handler=handler)
@@ -66,6 +69,7 @@ class EventBusTest(object):
         reply = {'cheese': 'stilton!'}
         @EventBus.handler(address)
         def handler(msg):
+            tu.azzert(msg.address == address)
             tu.azzert(msg.body['message'] == json['message'])
             msg.reply(reply)
 
@@ -79,6 +83,7 @@ class EventBusTest(object):
         address = 'some-address'
         reply = {'cheese': 'stilton!'}
         def handler(msg):
+            tu.azzert(msg.address == address)
             tu.azzert(msg.body['message'] == json['message'])
             msg.reply(reply)
         id = EventBus.register_handler(address, handler=handler)
@@ -96,6 +101,7 @@ class EventBusTest(object):
         address = 'some-address'
         reply = {'cheese': 'stilton!'}
         def handler(msg):
+            tu.azzert(msg.address == address)
             tu.azzert(msg.body['message'] == json['message'])
         id = EventBus.register_handler(address, handler=handler)
         tu.azzert(id != None)
@@ -120,6 +126,7 @@ class EventBusTest(object):
         address = "some-address"
         reply = {}
         def handler(msg):
+            tu.azzert(msg.address == address)
             tu.azzert(msg.body['message'] == json['message'])
             msg.reply(reply)
 
@@ -141,6 +148,7 @@ class EventBusTest(object):
         def handler(msg):
             if self.received:
                 tu.azzert(False, "handler already called") 
+            tu.azzert(msg.address == address)
             tu.azzert(msg.body['message'] == json['message'])
             EventBus.unregister_handler(id)
             self.received = True
@@ -167,6 +175,7 @@ class EventBusTest(object):
                 def __init__(self, count):
                     self.count = count
                 def handler_func(self, msg):
+                    tu.azzert(msg.address == address)
                     tu.azzert(msg.body['message'] == json['message'])
                     EventBus.unregister_handler(self.id)
                     self.count[0] += 1
@@ -202,6 +211,7 @@ class EventBusTest(object):
             def handler_func(self, received):
                 tu.check_thread()
                 EventBus.unregister_handler(self.id)
+                tu.azzert(received.address == address)
                 received.reply(received.body)
         handler = Handler()
         handler.id = EventBus.register_handler(address, handler=handler.handler_func)
@@ -218,6 +228,7 @@ class EventBusTest(object):
     def test_reply_of_reply_of_reply(self):
         address = "some-address"
         def handler(msg):
+            tu.azzert(msg.address == address)
             tu.azzert("message" == msg.body)
             def reply_handler1(reply):
                 tu.azzert("reply-of-reply" == reply.body)
