@@ -764,19 +764,24 @@ class HttpServerResponse(core.streams.WriteStream):
         self.java_obj.write(str, enc)
         return self
 
-    def send_file(self, path, not_found_file=None):
+    def send_file(self, path, not_found_file=None, handler=None):
         """ Tell the kernel to stream a file directly from disk to the outgoing connection, bypassing userspace altogether
         (where supported by the underlying operating system. This is a very efficient way to serve files.
 
         Keyword arguments:
         @param path: Path to file to send.
+        @param handler: An optional asynchronous handler to be called once complete.
         
         @return: a HttpServerResponse so multiple operations can be chained.
         """
-        if not_found_file is None:
-            self.java_obj.sendFile(path)
-        else:
+        if not_found_file is not None and handler is not None:
+            self.java_obj.sendFile(path, not_found_file, AsyncHandler(handler))
+        elif not_found_file is not None:
             self.java_obj.sendFile(path, not_found_file)
+        elif handler is not None:
+            self.java_obj.sendFile(path, AsyncHandler(handler))
+        else:
+            self.java_obj.sendFile(path)
         return self
 
     def set_chunked(self, val):
