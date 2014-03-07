@@ -102,10 +102,10 @@ class RecordParser(object):
         self.java_parser.fixedSizeMode(size)
 
 class RecordParserHandler(org.vertx.java.core.Handler):
-    """ Record Parser handler """
+    """Record Parser handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, buffer):
-        """ Call the handler after buffer parsed"""
+        """Call the handler after buffer parsed"""
         self.handler(Buffer(buffer))

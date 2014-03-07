@@ -44,7 +44,6 @@ class EventBus(object):
 
     When sending a message, a reply handler can be provided. If so, it will be called when the reply from the receiver
     has been received.
-
     """
     handler_dict = {}
 
@@ -104,7 +103,7 @@ class EventBus(object):
 
     @staticmethod
     def register_handler(address, local_only=False, handler=None):
-        """ Register a handler.
+        """Register a handler.
 
         Keyword arguments:
         @param address: the address to register for. A single handler can be registered against many addresses.
@@ -117,9 +116,9 @@ class EventBus(object):
             raise RuntimeError("handler is required")
         internal = InternalHandler(handler)
         if local_only:
-          EventBus.java_eventbus().registerLocalHandler(address, internal)
+            EventBus.java_eventbus().registerLocalHandler(address, internal)
         else:
-          EventBus.java_eventbus().registerHandler(address, internal)
+            EventBus.java_eventbus().registerHandler(address, internal)
         id = java.util.UUID.randomUUID().toString()
         EventBus.handler_dict[id] = address, internal
         return id
@@ -167,7 +166,6 @@ class EventBus(object):
         @param handler_id: the id of the handler to unregister. Returned from EventBus.register_handler
         """
         [address, handler] = EventBus.handler_dict.pop(handler_id)
-
         EventBus.java_eventbus().unregisterHandler(address, handler)
 
     @staticmethod

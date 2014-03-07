@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" 
+"""
 Net support to the python vert.x platform 
 """
 
@@ -85,17 +85,14 @@ class NetServer(core.ssl_support.ServerSSLSupport, core.tcp_support.ServerTCPSup
 
     @property
     def port(self):
-        """
-        The actual port the server is listening on. This is useful if you bound the server specifying 0 as port number
+        """The actual port the server is listening on. This is useful if you bound the server specifying 0 as port number
         signifying an ephemeral port
         """
         return self.java_obj.port()
 
     @property
     def host(self):
-        """
-        The host to which the server is bound.
-        """
+        """The host to which the server is bound."""
         return self.java_obj.host()
 
 
@@ -127,47 +124,36 @@ class NetClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport):
         return self
 
     def set_reconnect_attempts(self, val):
-        """
-        Set the number of reconnection attempts. In the event a connection attempt fails, the client will attempt
+        """Set the number of reconnection attempts. In the event a connection attempt fails, the client will attempt
         to connect a further number of times, before it fails. Default value is zero.
         """
         self.java_obj.setReconnectAttempts(val)
         return self
 
     def get_reconnect_attempts(self):
-        """
-        Get the number of reconnect attempts
-        """
+        """Get the number of reconnect attempts"""
         return self.java_obj.getReconnectAttempts()
 
     property(get_reconnect_attempts, set_reconnect_attempts)
 
     def set_reconnect_interval(self, val):
-        """
-        Set the reconnect interval, in milliseconds
-        """
+        """Set the reconnect interval, in milliseconds"""
         self.java_obj.setReconnectInterval(val)
         return self
 
     def get_reconnect_interval(self):
-        """
-        Get the reconnect interval, in milliseconds.
-        """
+        """Get the reconnect interval, in milliseconds."""
         return self.java_obj.getReconnectInterval()
 
     property(get_reconnect_interval, set_reconnect_interval)
 
     def set_connect_timeout(self, val):
-        """
-        Set the connect timeout in milliseconds.
-        """
+        """Set the connect timeout in milliseconds."""
         self.java_obj.setConnectTimeout(val)
         return self
 
     def get_connect_timeout(self):
-        """
-        Returns the connect timeout in milliseconds
-        """
+        """Returns the connect timeout in milliseconds"""
         return self.java_obj.getConnectTimeout()
 
     property(get_connect_timeout, set_connect_timeout)
@@ -179,7 +165,7 @@ class NetClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport):
 class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
     """NetSocket is a socket-like abstraction used for reading from or writing
     to TCP connections.
-    """      
+    """     
     def __init__(self, j_socket):
         self.java_obj = j_socket
         self.remote_addr = None
@@ -242,18 +228,14 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
 
     @property
     def remote_address(self):
-        """
-        Returns the remote address as tuple in form of ('ipaddress', port)
-        """
+        """Returns the remote address as tuple in form of ('ipaddress', port)"""
         if self.remote_addr is None:
             self.remote_addr =  inetsocketaddress_to_tuple(self.java_obj.remoteAddress())
         return self.remote_addr
 
     @property
     def local_address(self):
-        """
-        Returns the local address as tuple in form of ('ipaddress', port)
-        """
+        """Returns the local address as tuple in form of ('ipaddress', port)"""
         if self.local_addr is None:
             self.local_addr =  inetsocketaddress_to_tuple(self.java_obj.localAddress())
         return self.local_addr
@@ -263,11 +245,11 @@ class NetSocket(core.streams.ReadStream, core.streams.WriteStream):
         self.java_obj.close()
 
 class ConnectHandler(org.vertx.java.core.Handler):
-    """ Connection handler """
+    """Connection handler """
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, socket):
-        """ Call the handler after connection is established"""
+        """Call the handler after connection is established"""
         self.handler(NetSocket(socket))
 

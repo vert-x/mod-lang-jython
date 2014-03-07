@@ -53,6 +53,15 @@ def create_sockjs_server(http_server):
     """ Return a SockJSServer """
     return SockJSServer(http_server)
 
+def create_datagram_socket(ipv4=None):
+    """ Return a datagram socket """
+    if ipv4 is None:
+        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(None))
+    elif ipv4:
+        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(org.vertx.java.core.datagram.InternetProtocolFamily.Ipv4))
+    else:
+        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(org.vertx.java.core.datagram.InternetProtocolFamily.Ipv6))
+
 def file_system():
     """ Return the filesystem """
     return FileSystem()
@@ -172,14 +181,6 @@ def run_on_context(handler):
     @param handler: an handler representing the code that will be run ASAP
     """
     java_vertx().runOnContext(NullDoneHandler(handler))
-
-def create_datagram_socket(ipv4=None):
-    if ipv4 is None:
-        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(None))
-    elif ipv4:
-        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(org.vertx.java.core.datagram.InternetProtocolFamily.Ipv4))
-    else:
-        return DatagramSocket(org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createDatagramSocket(org.vertx.java.core.datagram.InternetProtocolFamily.Ipv6))
 
 def current_context():
     return Context(java_vertx().currentContext())

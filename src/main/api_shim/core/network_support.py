@@ -16,7 +16,7 @@ __author__ = 'Norman Maurer'
 __email__ = 'nmaurer@redhat.com'
 
 class NetworkSupport(object):
-    """ Mixin module that provides all the common network params that can be set. """
+    """Mixin module that provides all the common network params that can be set."""
 
     def set_send_buffer_size(self, bytes):
         """Set the TCP send buffer size.

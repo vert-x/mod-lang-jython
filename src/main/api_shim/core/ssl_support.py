@@ -17,7 +17,7 @@ __email__ = "scott@hornmicro.com"
 __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
 class SSLSupport(object):
-  """ A mixin module allowing SSL attributes to be set on classes """
+  """A mixin class allowing SSL attributes to be set on classes"""
   
   def set_ssl(self, val):
     """ Set whether the server or client will use SSL.

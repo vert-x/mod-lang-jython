@@ -19,7 +19,7 @@ __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 import core.network_support
 
 class TCPSupport(core.network_support.NetworkSupport, object):
-  """ Mixin module that provides all the common TCP params that can be set. """
+  """Mixin class that provides all the common TCP params that can be set."""
 
   def set_tcp_no_delay(self, val):
       """Enable TCP_NO_DELAY

@@ -20,8 +20,7 @@ from java import net, util
 __author__ = "Norman Maurer"
 __email__ = "nmaurer@redhat.com"
 class DnsClient():
-    """Provides a way to asynchronous lookup informations from DNS-Servers.
-    """
+    """Provides a way to asynchronous lookup informations from DNS-Servers."""
     def __init__(self, *args):
         addresses = util.ArrayList(len(args))
         for item in args:

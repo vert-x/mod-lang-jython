@@ -67,10 +67,9 @@ class DrainSupport(object):
 
 class WriteStream(DrainSupport, ExceptionSupport, object):
     """
-     A mixin module which represents a stream of data that can be written to.
+    A mixin class which represents a stream of data that can be written to.
 
-     Any class that mixes in this module can be used by a  to pump data from a  to it.
-
+    Any class that mixes in this class can be used by a  to pump data from a  to it.
     """
 
     def write(self, buff):
@@ -107,9 +106,9 @@ class ReadSupport(ExceptionHandler, object):
         return self
 
 class ReadStream(ExceptionSupport, ReadSupport, object):
-    """A mixin module which represents a stream of data that can be read from.
+    """A mixin class which represents a stream of data that can be read from.
 
-    Any class that mixes in this module can be used by a  to pump data from a  to it.
+    Any class that mixes in this class can be used by a  to pump data from a  to it.
     """
 
     def data_handler(self, handler):

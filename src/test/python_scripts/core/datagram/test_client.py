@@ -211,14 +211,6 @@ class DatagramTest(object):
         #print iface.getName()
         #tu.azzert(peer1.multicast_network_interface == iface.getName())
 
-        tu.azzert(peer1.receive_buffer_size != 1024)
-        peer1.receive_buffer_size = 1024
-        tu.azzert(peer1.receive_buffer_size == 1024)
-
-        tu.azzert(peer1.send_buffer_size != 1024)
-        peer1.send_buffer_size = 1024
-        tu.azzert(peer1.send_buffer_size == 1024)
-
         tu.azzert(peer1.reuse_address == False)
         peer1.reuse_address = True
         tu.azzert(peer1.reuse_address)

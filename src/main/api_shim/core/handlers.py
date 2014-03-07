@@ -21,7 +21,7 @@ __email__ = "scott@hornmicro.com"
 __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
 class DoneHandler(org.vertx.java.core.Handler):
-    """ Done handler """
+    """Done handler"""
     def __init__(self, handler):
         self.handler = handler
 
@@ -31,22 +31,22 @@ class DoneHandler(org.vertx.java.core.Handler):
             self.handler(arg)
 
 class NullDoneHandler(org.vertx.java.core.Handler):
-    """ Null Done handler """
+    """Null Done handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, arg=None):
-        """ Call the handler when done """
+        """Call the handler when done"""
         if self.handler is not None:
             self.handler()
 
 class ContinueHandler(org.vertx.java.core.Handler):
-    """ Continue handler """
+    """Continue handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, nothing=None):
-        """ Call the handler to continue """
+        """Call the handler to continue"""
         self.handler()        
 
 class BufferHandler(org.vertx.java.core.Handler):
@@ -57,49 +57,49 @@ class BufferHandler(org.vertx.java.core.Handler):
         self.handler(Buffer(buffer))
 
 class CloseHandler(org.vertx.java.core.Handler):
-    """ Close connection handler """
+    """Close connection handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, nothing=None):
-        """ Call the handler when a connection is closed """
+        """Call the handler when a connection is closed"""
         if self.handler != None:
             self.handler()        
 
 class ExceptionHandler(org.vertx.java.core.Handler):
-    """ Exception handler """
+    """Exception handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, exception):
-        """ Call the handler when there is an exception """
+        """Call the handler when there is an exception"""
         self.handler(exception)        
 
 class DrainHandler(org.vertx.java.core.Handler):
-    """ Drain handler """
+    """Drain handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, nothing=None):
-        """ Call the handler after stream has been drained"""
+        """Call the handler after stream has been drained"""
         self.handler()                
 
 class StreamEndHandler(org.vertx.java.core.Handler):
-    """ Stream End handler """
+    """Stream End handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, stream):
-        """ Call the handler after stream has been ended"""
+        """Call the handler after stream has been ended"""
         self.handler(stream)                
 
 class TimerHandler(org.vertx.java.core.Handler):
-    """ Timer handler """
+    """Timer handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, timer_id):
-        """ Call the handler """
+        """Call the handler"""
         if self.handler != None:
             self.handler(timer_id)
 

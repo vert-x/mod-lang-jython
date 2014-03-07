@@ -114,18 +114,14 @@ class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
         
     @property
     def remote_address(self):
-        """
-        Returns the remote address as tuple in form of ('ipaddress', port)
-        """
+        """Returns the remote address as tuple in form of ('ipaddress', port)"""
         if self.remote_addr is None:
             self.remote_addr =  self.java_obj.remoteAddress().getAddress().getHostAddress() , self.java_obj.remoteAddress().getPort();
         return self.remote_addr
 
     @property
     def local_address(self):
-        """
-        Returns the local address as tuple in form of ('ipaddress', port)
-        """
+        """Returns the local address as tuple in form of ('ipaddress', port)"""
         if self.local_addr is None:
             self.local_addr =  self.java_obj.localAddress().getAddress().getHostAddress() , self.java_obj.localAddress().getPort();
         return self.local_addr
@@ -249,10 +245,10 @@ class _EventBusBridgeHook(org.vertx.java.core.sockjs.EventBusBridgeHook):
         return True
 
 class SockJSSocketHandler(org.vertx.java.core.Handler):
-    """ SockJS Socket handler """
+    """SockJS Socket handler"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, sock):
-        """ Call the handler after SockJS Socket is ready"""
+        """Call the handler after SockJS Socket is ready"""
         self.handler(SockJSSocket(sock))

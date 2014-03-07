@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" 
+"""
 This module adds the http support to the python vert.x platform 
 """
 
@@ -33,7 +33,7 @@ __email__ = "scott@hornmicro.com"
 __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
 class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSupport, object):
-    """ An HTTP and websockets server """
+    """An HTTP and websockets server"""
     def __init__(self, server, **kwargs):
         self.java_obj = server
         for item in kwargs.keys():
@@ -80,6 +80,7 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
         Keyword arguments:
         @param handler: the function used to handle the request. 
 
+        @return self
         """
         self.java_obj.websocketHandler(ServerWebSocketHandler(handler))
         return self
@@ -92,6 +93,7 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
         @param host:    The host name or ip address to listen on. (default 0.0.0.0)
         @param handler: The handler to notify once the listen operation completes. (default None)
     
+        @return self
         """
         if handler is None:
             self.java_obj.listen(port, host)
@@ -102,11 +104,10 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
         return self
 
     def close(self, handler=None):
-        """ Close the server. Any open HTTP connections will be closed. This can be used as a decorator.
+        """Close the server. Any open HTTP connections will be closed. This can be used as a decorator.
 
         Keyword arguments:
         @param handler: a handler that is called when the connection is closed. The handler is wrapped in a CloseHandler.
-
         """
         if handler is None:
             self.java_obj.close()
@@ -114,15 +115,16 @@ class HttpServer(core.tcp_support.ServerTCPSupport, core.ssl_support.ServerSSLSu
             self.java_obj.close(AsyncHandler(handler))
 
     def _to_java_server(self):
-        """ private """
+        """private """
         return self.java_obj
 
 class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport, object):
-    """ An HTTP client.
-     A client maintains a pool of connections to a specific host, at a specific port. The HTTP connections can act
-     as pipelines for HTTP requests.
-     It is used as a factory for HttpClientRequest instances which encapsulate the actual HTTP requests. It is also
-     used as a factory for HTML5 WebSocket websockets.
+    """An HTTP client.
+
+    A client maintains a pool of connections to a specific host, at a specific port. The HTTP connections can act
+    as pipelines for HTTP requests.
+    It is used as a factory for HttpClientRequest instances which encapsulate the actual HTTP requests. It is also
+    used as a factory for HTML5 WebSocket websockets.
     """
     def __init__(self, **kwargs):
         self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.vertx.createHttpClient()
@@ -130,7 +132,7 @@ class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport,
            setattr(self, item, kwargs[item])
 
     def exception_handler(self, handler):
-        """ Set the exception handler.
+        """Set the exception handler.
 
         Keyword arguments:
         @param handler: function to be used as the handler
@@ -143,7 +145,7 @@ class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport,
         return self.java_obj.getMaxPoolSize()
 
     def set_max_pool_size(self, val):
-        """ Set the maximum pool size.
+        """Set the maximum pool size.
         The client will maintain up to this number of HTTP connections in an internal pool
 
         Keyword arguments:
@@ -207,7 +209,7 @@ class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport,
         return self.java_obj.getVerifyHost()
 
     def set_verify_host(self, val):
-        """ If set then the client will try to validate the remote server's certificate
+        """If set then the client will try to validate the remote server's certificate
          hostname against the requested host. Should default to 'true'.
          This method should only be used in SSL mode.
 
@@ -333,7 +335,7 @@ class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport,
         return HttpClientRequest(self.java_obj.delete(uri, HttpClientResponseHandler(handler)))
 
     def trace(self, uri, handler):
-        """ This method returns an HttpClientRequest instance which represents an HTTP TRACE request with the specified uri.
+        """This method returns an HttpClientRequest instance which represents an HTTP TRACE request with the specified uri.
         When an HTTP response is received from the server the handler is called passing in the response.
 
         Keyword arguments:
@@ -343,7 +345,7 @@ class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport,
         return HttpClientRequest(self.java_obj.trace(uri, HttpClientResponseHandler(handler)))
 
     def connect(self, uri, handler):
-        """ This method returns an HttpClientRequest instance which represents an HTTP CONNECT request with the specified uri.
+        """This method returns an HttpClientRequest instance which represents an HTTP CONNECT request with the specified uri.
         When an HTTP response is received from the server the handler is called passing in the response.
         
         Keyword arguments:
@@ -353,7 +355,7 @@ class HttpClient(core.ssl_support.ClientSSLSupport, core.tcp_support.TCPSupport,
         return HttpClientRequest(self.java_obj.connect(uri, HttpClientResponseHandler(handler)))
 
     def patch(self, uri, handler):
-        """ This method returns an HttpClientRequest instance which represents an HTTP PATCH request with the specified uri.
+        """This method returns an HttpClientRequest instance which represents an HTTP PATCH request with the specified uri.
         When an HTTP response is received from the server the handler is called passing in the response.
 
         Keyword arguments:
@@ -400,7 +402,7 @@ class HttpClientRequest(core.streams.WriteStream):
 
     @property
     def headers(self):
-        """ Headers for the request"""
+        """Headers for the request"""
         if self.hdrs is None:
             self.hdrs = MultiMap(self.java_obj.headers())
         return self.hdrs
@@ -574,7 +576,7 @@ class HttpClientResponse(core.streams.ReadStream):
         return self
   
 class HttpServerRequest(core.streams.ReadStream):
-    """ Encapsulates a server-side HTTP request.
+    """Encapsulates a server-side HTTP request.
   
     An instance of this class is created for each request that is handled by the server and is passed to the user via the
     handler specified using HttpServer.request_handler.
@@ -592,52 +594,52 @@ class HttpServerRequest(core.streams.ReadStream):
 
     @property
     def version(self):
-        """ The HTTP version - either HTTP_1_0 or HTTP_1_1 """
+        """The HTTP version - either HTTP_1_0 or HTTP_1_1"""
         if self.vrsn is None:
             self.vrsn = self.java_obj.version().toString()
         return self.vrsn
     
     @property
     def method(self):
-        """ The HTTP method, one of HEAD, OPTIONS, GET, POST, PUT, DELETE, CONNECT, TRACE """
+        """The HTTP method, one of HEAD, OPTIONS, GET, POST, PUT, DELETE, CONNECT, TRACE"""
         return self.java_obj.method()
 
     @property
     def uri(self):
-        """ The uri of the request. For example 'http://www.somedomain.com/somepath/somemorepath/somresource.foo?someparam=32&someotherparam=x """
+        """The uri of the request. For example 'http://www.somedomain.com/somepath/somemorepath/somresource.foo?someparam=32&someotherparam=x """
         return self.java_obj.uri()
 
     @property
     def path(self):
-        """ The path part of the uri. For example /somepath/somemorepath/somresource.foo """
+        """The path part of the uri. For example /somepath/somemorepath/somresource.foo """
         return self.java_obj.path()
 
     @property
     def query(self):
-        """ The query part of the uri. For example someparam=32&someotherparam=x """
+        """The query part of the uri. For example someparam=32&someotherparam=x """
         return self.java_obj.query()
 
     @property
     def params(self):
-        """ The request parameters """
+        """The request parameters """
         if self.prms is None:
             self.prms = MultiMap(self.java_obj.params())
         return self.prms
 
     @property
     def response(self):
-        """ The response HttpServerResponse object."""
+        """The response HttpServerResponse object."""
         return self.http_server_response
 
     @property
     def headers(self):
-        """ The request headers """
+        """The request headers """
         if self.hdrs is None:
             self.hdrs = MultiMap(self.java_obj.headers())
         return self.hdrs
 
     def body_handler(self, handler):
-        """ Set the body handler for this request, the handler receives a single Buffer object as a parameter. 
+        """Set the body handler for this request, the handler receives a single Buffer object as a parameter. 
         This can be used as a decorator. 
 
         Keyword arguments:
@@ -649,12 +651,12 @@ class HttpServerRequest(core.streams.ReadStream):
 
     @property
     def remote_address(self):
-        """ Return the remote (client side) address of the request"""
+        """Return the remote (client side) address of the request"""
         return self.java_obj.remoteAddress()
 
     @property
     def absolute_uri(self):
-        """ Return the absolute URI corresponding to the the HTTP request"""
+        """Return the absolute URI corresponding to the the HTTP request"""
         return self.java_obj.absoluteURI()
 
     @property
@@ -662,7 +664,7 @@ class HttpServerRequest(core.streams.ReadStream):
         return self.java_obj.peerCertificateChain()
 
     def set_expect_multipart(self, expect):
-        """ You must call this function with true before receiving the request body if you expect it to
+        """You must call this function with true before receiving the request body if you expect it to
         contain a multi-part form.
 
         Keyword arguments:
@@ -713,22 +715,22 @@ class HttpServerResponse(core.streams.WriteStream):
         self.trls = None
 
     def get_status_code(self):
-        """ Get the status code of the response. """
+        """Get the status code of the response. """
         return self.java_obj.getStatusCode()
 
     def set_status_code(self, code):
-        """ Set the status code of the response. Default is 200 """
+        """Set the status code of the response. Default is 200 """
         self.java_obj.setStatusCode(code)
         return self
 
     status_code = property(get_status_code, set_status_code)
 
     def get_status_message(self):
-        """ Get the status message the goes with status code """
+        """Get the status message the goes with status code """
         return self.java_obj.getStatusMessage()
 
     def set_status_message(self, message):
-        """ Set the status message for a response """
+        """Set the status message for a response """
         self.java_obj.setStatusMessage(message)
         return self
 
@@ -736,13 +738,13 @@ class HttpServerResponse(core.streams.WriteStream):
 
     @property
     def headers(self):
-        """ Get reponse headers """
+        """Get reponse headers """
         if (self.hdrs is None):
             self.hdrs = MultiMap(self.java_obj.headers());
         return self.hdrs
 
     def put_header(self, key, value):
-        """ Inserts a header into the response.
+        """Inserts a header into the response.
 
         Keyword arguments:
         @param key: The header key
@@ -755,13 +757,13 @@ class HttpServerResponse(core.streams.WriteStream):
 
     @property
     def trailers(self):
-        """ Get a copy of the trailers as a dictionary """
+        """Get a copy of the trailers as a dictionary """
         if (self.trls is None):
             self.trls = MultiMap(self.java_obj.trailers())
         return self.trls
 
     def put_trailer(self, key, value):
-        """ Inserts a trailer into the response. 
+        """Inserts a trailer into the response. 
 
         Keyword arguments:
         @param key: The header key
@@ -773,7 +775,7 @@ class HttpServerResponse(core.streams.WriteStream):
         return self
 
     def write_str(self, str, enc="UTF-8"):
-        """ Write a String to the response. The handler will be called when the String has actually been written to the wire.
+        """Write a String to the response. The handler will be called when the String has actually been written to the wire.
 
         Keyword arguments:
         @param str: The string to write
@@ -787,7 +789,7 @@ class HttpServerResponse(core.streams.WriteStream):
         return self
 
     def send_file(self, path, not_found_file=None, handler=None):
-        """ Tell the kernel to stream a file directly from disk to the outgoing connection, bypassing userspace altogether
+        """Tell the kernel to stream a file directly from disk to the outgoing connection, bypassing userspace altogether
         (where supported by the underlying operating system. This is a very efficient way to serve files.
 
         Keyword arguments:
@@ -807,7 +809,7 @@ class HttpServerResponse(core.streams.WriteStream):
         return self
 
     def set_chunked(self, val):
-        """ Sets whether this response uses HTTP chunked encoding or not.
+        """Sets whether this response uses HTTP chunked encoding or not.
 
         Keyword arguments:
         @param val: If val is true, this response will use HTTP chunked encoding, and each call to write to the body
@@ -825,13 +827,13 @@ class HttpServerResponse(core.streams.WriteStream):
         return self
 
     def is_chunked(self):
-        """ Get whether this response uses HTTP chunked encoding or not. """
+        """Get whether this response uses HTTP chunked encoding or not. """
         return self.java_obj.isChunked()
 
     chunked = property(is_chunked, set_chunked)
 
     def end(self, data=None):
-        """ Ends the response. If no data has been written to the response body, the actual response won't get written until this method gets called.
+        """Ends the response. If no data has been written to the response body, the actual response won't get written until this method gets called.
         Once the response has ended, it cannot be used any more, and if keep alive is true the underlying connection will
         be closed.
 
@@ -845,11 +847,11 @@ class HttpServerResponse(core.streams.WriteStream):
             self.java_obj.end(data)
 
     def close(self):
-        """ Close the underlying TCP connection """
+        """Close the underlying TCP connection """
         self.java_obj.close()
 
 class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
-    """ Encapsulates an HTML 5 Websocket.
+    """Encapsulates an HTML 5 Websocket.
 
     Instances of this class are created by an HttpClient instance when a client succeeds in a websocket handshake with a server.
     Once an instance has been obtained it can be used to s or receive buffers of data from the connection,
@@ -885,7 +887,7 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         return self.java_obj.textHandlerID()
 
     def write_binary_frame(self, buf):
-        """ 
+        """
         Write data to the websocket as a binary frame 
 
         Keyword arguments:
@@ -896,7 +898,7 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         return self
 
     def write_text_frame(self, text):
-        """ 
+        """
         Write data to the websocket as a text frame 
 
         Keyword arguments:
@@ -924,11 +926,11 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         return self.local_addr
 
     def close(self):
-        """ Close the websocket """
+        """Close the websocket """
         self.java_obj.close()
 
     def close_handler(self, handler):
-        """ Set a closed handler on the connection, the handler receives a no parameters. 
+        """Set a closed handler on the connection, the handler receives a no parameters. 
         This can be used as a decorator. 
 
         Keyword arguments:
@@ -938,7 +940,7 @@ class WebSocket(core.streams.ReadStream, core.streams.WriteStream):
         return self
 
 class ServerWebSocket(WebSocket):
-    """ Instances of this class are created when a WebSocket is accepted on the server.
+    """Instances of this class are created when a WebSocket is accepted on the server.
     It extends WebSocket and adds methods to reject the WebSocket and an
     attribute for the path.
 
@@ -948,7 +950,7 @@ class ServerWebSocket(WebSocket):
         self.hdrs = None
 
     def reject(self):
-        """ Reject the WebSocket. Sends 404 to client """
+        """Reject the WebSocket. Sends 404 to client """
         self.java_obj.reject()
         return self
 
@@ -960,7 +962,7 @@ class ServerWebSocket(WebSocket):
 
     @property
     def path(self):
-        """ The path the websocket connect was attempted at. """
+        """The path the websocket connect was attempted at. """
         return self.java_obj.path()
 
     @property
@@ -969,43 +971,43 @@ class ServerWebSocket(WebSocket):
         return self.java_obj.uri()
 
 class HttpServerRequestHandler(org.vertx.java.core.Handler):
-    """ A handler for Http Server Requests"""
+    """A handler for Http Server Requests"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, req):
-        """ Called when a request is being handled. Argument is a HttpServerRequest object """
+        """Called when a request is being handled. Argument is a HttpServerRequest object """
         self.handler(HttpServerRequest(req))
 
 class HttpClientResponseHandler(org.vertx.java.core.Handler):
-    """ A handler for Http Client Responses"""
+    """A handler for Http Client Responses"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, res):
-        """ Called when a response is being handled. Argument is a HttpClientResponse object """
+        """Called when a response is being handled. Argument is a HttpClientResponse object """
         self.handler(HttpClientResponse(res))
 
 class ServerWebSocketHandler(org.vertx.java.core.Handler):
-    """ A handler for WebSocket Server Requests"""
+    """A handler for WebSocket Server Requests"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, req):
-        """ Calls the Handler with the ServerWebSocket when connected """
+        """Calls the Handler with the ServerWebSocket when connected """
         self.handler(ServerWebSocket(req))
 
 class WebSocketHandler(org.vertx.java.core.Handler):
-    """ A handler for WebSocket  Requests"""
+    """A handler for WebSocket  Requests"""
     def __init__(self, handler):
         self.handler = handler
 
     def handle(self, req):
-        """ Calls the Handler with the WebSocket when connected """
+        """Calls the Handler with the WebSocket when connected """
         self.handler(WebSocket(req))
 
 class HttpServerFileUploadHandler(org.vertx.java.core.Handler):
-    """ A handler for Http Server File Uploads"""
+    """A handler for Http Server File Uploads"""
     def __init__(self, handler):
         self.handler = handler
 
@@ -1175,7 +1177,7 @@ class RouteMatcher(object):
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
-        """  
+        """ 
         if len(args) > 0:
             self.java_obj.trace(pattern, HttpServerRequestHandler(args[0]))
             return self
@@ -1334,7 +1336,7 @@ class RouteMatcher(object):
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
-        """  
+        """ 
         if len(args) > 0:
             self.java_obj.optionsWithRegEx(pattern, HttpServerRequestHandler(args[0]))
             return self
@@ -1374,7 +1376,7 @@ class RouteMatcher(object):
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
-        """  
+        """ 
         if len(args) > 0:
             self.java_obj.traceWithRegEx(pattern, HttpServerRequestHandler(args[0]))
             return self
@@ -1434,7 +1436,7 @@ class RouteMatcher(object):
         Keyword arguments:
         @param pattern: pattern to match
         @param handler: http server request handler
-        """  
+        """ 
         if len(args) > 0:
             self.java_obj.allWithRegEx(pattern, HttpServerRequestHandler(args[0]))
             return self
@@ -1459,22 +1461,17 @@ class RouteMatcher(object):
 
 
 class MultiMap(DictMixin, object):
-    """
-     A map which can hold multiple values for one name / key
-    """
+    """A map which can hold multiple values for one name / key"""
     def __init__(self, map):
         self.map = map
 
     @property
     def size(self):
-        """
-        Return the number of names in this instance
-        """
+        """Return the number of names in this instance"""
         return self.map.size()
 
     def __getitem__(self, key):
-        """
-        Returns the value of with the specified name.  If there are
+        """Returns the value of with the specified name.  If there are
         more than one values for the specified name, the first value is returned.
 
         @param name The name of the header to search
@@ -1487,8 +1484,7 @@ class MultiMap(DictMixin, object):
 
 
     def get_all(self, key):
-        """
-        Returns the values with the specified name
+        """Returns the values with the specified name
 
         @param name The name to search
         @return A immutable list of values which or KeyError if no entries for the key exist
@@ -1499,8 +1495,7 @@ class MultiMap(DictMixin, object):
         return map_from_java(values)
 
     def add(self, key, value):
-        """
-        Adds a new value with the specified name and value.
+        """Adds a new value with the specified name and value.
 
         @param name The name
         @param value The value being added
@@ -1513,8 +1508,7 @@ class MultiMap(DictMixin, object):
         self.map.set(key, value)
 
     def set(self, key, value):
-        """
-        Set a value with the specified name and value.
+        """Set a value with the specified name and value.
 
         @param name The name
         @param value The value being added
@@ -1524,8 +1518,8 @@ class MultiMap(DictMixin, object):
         return self
 
     def set_all(self, other):
-        """
-        Sets all the entries from another MultiMap
+        """Sets all the entries from another MultiMap
+
         @param other The other MultiMap
         @return self
         """
@@ -1533,8 +1527,7 @@ class MultiMap(DictMixin, object):
         return self
 
     def __delitem__(self, key):
-        """
-        Remove the values with the given name
+        """Remove the values with the given name
 
         @param name The name
         @return self
@@ -1545,8 +1538,7 @@ class MultiMap(DictMixin, object):
             raise KeyError
 
     def remove(self, key):
-        """
-        Remove the values with the given name
+        """Remove the values with the given name
 
         @param name The name
         @return self
@@ -1558,14 +1550,11 @@ class MultiMap(DictMixin, object):
         return self.names()
 
     def contains(self, key):
-        """
-        Returns true if an entry with the given name was found
-        """
+        """Returns true if an entry with the given name was found"""
         return self.map.contains(key)
 
     def names(self):
-        """
-        Return a Set which holds all names of the entries
+        """Return a Set which holds all names of the entries
 
         @return The set which holds all names or an empty set if it is empty
         """
@@ -1573,14 +1562,11 @@ class MultiMap(DictMixin, object):
 
     @property
     def is_empty(self):
-        """
-        Returns true if the map is empty
-        """
+        """Returns true if the map is empty"""
         return self.map.isEmpty()
 
     def clear(self):
-        """
-        Remove all entries
+        """Remove all entries
 
         @return self
         """
@@ -1588,58 +1574,42 @@ class MultiMap(DictMixin, object):
         return self
 
 class HttpServerFileUpload(core.streams.ReadStream):
-    """
-    An Upload which was found in the HttpServerMultipartRequest while handling it.
-    """
+    """An Upload which was found in the HttpServerMultipartRequest while handling it."""
     def __init__(self, upload):
         self.java_obj = upload
 
     def stream_to_file_system(self, filename):
-        """
-        Stream the content of this upload to the given filename.
-        """
+        """Stream the content of this upload to the given filename."""
         self.java_obj.streamToFileSystem(filename)
         return self
 
     @property
     def filename(self):
-        """
-        Returns the filename of the attribute
-        """
+        """Returns the filename of the attribute"""
         return self.java_obj.filename()
 
     @property
     def name(self):
-        """
-        Returns the filename of the attribute
-        """
+        """Returns the filename of the attribute"""
         return self.java_obj.name()
 
     @property
     def content_type(self):
-        """
-        Returns the contentType for the upload
-        """
+        """Returns the contentType for the upload"""
         return self.java_obj.contentType()
 
     @property
     def content_transfer_encoding(self):
-        """
-        Returns the contentTransferEncoding for the upload
-        """
+        """Returns the contentTransferEncoding for the upload"""
         return self.java_obj.contentTransferEncoding()
 
     @property
     def charset(self):
-        """
-        Returns the charset for the upload
-        """
+        """Returns the charset for the upload"""
         return self.java_obj.charset()
 
     @property
     def size(self):
-        """
-        Returns the charset for the upload
-        """
+        """Returns the charset for the upload"""
         return self.java_obj.size()
 

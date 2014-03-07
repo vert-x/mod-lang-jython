@@ -32,42 +32,42 @@ class FileProps(object):
 
     @property
     def creation_time(self):
-        """return [Time] The creation time of the file."""
+        """Return [Time] The creation time of the file."""
         return datetime.datetime.fromtimestamp(self.java_obj.creationTime.getTime() / 1000)
 
     @property
     def last_access_time(self):
-        """return [Time] The last access time of the file."""
+        """Return [Time] The last access time of the file."""
         return datetime.datetime.fromtimestamp(self.java_obj.lastAccessTime.getTime() / 1000)        
 
     @property
     def last_modified_time(self):
-        """return The last modified time of the file."""
+        """Return The last modified time of the file."""
         return datetime.datetime.fromtimestamp(self.java_obj.lastModifiedTime.getTime() / 1000)        
     
     @property 
     def directory(self):
-        """return is the file a directory"""
+        """Return is the file a directory"""
         return self.java_obj.isDirectory()
 
     @property
     def other(self):
-        """return Is the file some other file type?"""
+        """Return Is the file some other file type?"""
         return self.java_obj.isOther()
 
     @property
     def regular_file(self):
-        """returns   Is it a regular file?"""
+        """Returns   Is it a regular file?"""
         return self.java_obj.isRegularFile()
 
     @property
     def symbolic_link(self): 
-        """returns is it a symbolic link?"""
+        """Returns is it a symbolic link?"""
         return self.java_obj.isSymbolicLink()
 
     @property
     def size(self):
-        """returnsthe size of the file, in bytes."""
+        """Returns the size of the file, in bytes."""
         return self.java_obj.size()
 
 class FSProps(object):
@@ -78,17 +78,17 @@ class FSProps(object):
 
     @property
     def total_space(self):
-        """returns  the total space on the file system, in bytes."""
+        """Returns  the total space on the file system, in bytes."""
         return self.java_obj.totalSpace()
 
     @property
     def unallocated_space(self): 
-        """returns unallocated space on the file system, in bytes."""
+        """Returns unallocated space on the file system, in bytes."""
         return self.java_obj.unallocatedSpace()
 
     @property
     def usable_space(self): 
-        """returns usable space on the file system, in bytes."""
+        """Returns usable space on the file system, in bytes."""
         return self.java_obj.usableSpace()
 
 class AsyncFile(core.streams.ReadStream, core.streams.WriteStream):
@@ -283,8 +283,8 @@ class FileSystem(object):
         return FileProps(java_obj)
 
     def lprops(self, path, handler):
-        """ Obtain properties for the link represented by {@code path}, asynchronously.
-         The link will not be followed..
+        """Obtain properties for the link represented by {@code path}, asynchronously.
+        The link will not be followed..
 
         Keyword arguments:
         @param path: path to file
@@ -296,9 +296,8 @@ class FileSystem(object):
         self.java_obj.lprops(path, AsyncHandler(handler, converter))
         return self
 
-        """Synchronous version of FileSystem.lprops"""
     def lprops_sync(self, path):
-        """Synchronous version of FileSystem.props"""
+        """Synchronous version of FileSystem.lprops"""
         java_obj = self.java_obj.lpropsSync(path)
         return FileProps(java_obj)
 
