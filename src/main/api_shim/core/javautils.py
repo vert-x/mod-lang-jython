@@ -20,8 +20,15 @@ Initially based on resources in the following article http://www.ibm.com/develop
 """
 
 import sys
-from types import *
-from java import util
+from types import TupleType, ListType, DictType
+from java.util import (
+    Map,
+    HashMap,
+    Set,
+    Collection,
+    ArrayList,
+    Vector
+)
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
@@ -55,36 +62,36 @@ def map_collection_from_java (coll):
 def map_from_java (object):
     """Convert a Java type to a Jython type."""
     if object is None: return object
-    if   isinstance(object, util.Map):        result = map_map_from_java(object)
-    elif isinstance(object, util.Set):        result = map_set_from_java(object)
-    elif isinstance(object, util.Collection): result = map_collection_from_java(object)
+    if   isinstance(object, Map):        result = map_map_from_java(object)
+    elif isinstance(object, Set):        result = map_set_from_java(object)
+    elif isinstance(object, Collection): result = map_collection_from_java(object)
     else:                                     result = object
     return result
 
 def map_seq_to_java (seq):
     """Convert a seqence to a Java ArrayList."""
-    result = util.ArrayList(len(seq))
+    result = ArrayList(len(seq))
     for e in seq:
         result.add(map_to_java(e));
     return result
 
 def map_list_to_java (list):
     """Convert a List to a Java ArrayList."""
-    result = util.ArrayList(len(list))
+    result = ArrayList(len(list))
     for e in list:
         result.add(map_to_java(e));
     return result
 
 def map_list_to_java_vector (list):
     """Convert a List to a Java Vector."""
-    result = util.Vector(len(list))
+    result = Vector(len(list))
     for e in list:
         result.add(map_to_java(e));
     return result
 
 def map_dict_to_java (dict):
     """Convert a Dictionary to a Java HashMap."""
-    result = util.HashMap()
+    result = HashMap()
     for key, value in dict.items():
         result.put(map_to_java(key), map_to_java(value))
     return result

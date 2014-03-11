@@ -15,16 +15,17 @@
 import org.vertx.java.platform.impl.JythonVerticleFactory
 
 from core.handlers import AsyncHandler
-from java import net, util
+from java.net import InetSocketAddress
+from java.util import ArrayList
 
 __author__ = "Norman Maurer"
 __email__ = "nmaurer@redhat.com"
 class DnsClient():
     """Provides a way to asynchronous lookup informations from DNS-Servers."""
     def __init__(self, *args):
-        addresses = util.ArrayList(len(args))
+        addresses = ArrayList(len(args))
         for item in args:
-            addresses.add(net.InetSocketAddress(item[0], item[1]))
+            addresses.add(InetSocketAddress(item[0], item[1]))
 
         self.java_obj = org.vertx.java.platform.impl.JythonVerticleFactory.createDnsClient(addresses)
 
