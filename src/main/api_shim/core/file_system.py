@@ -33,17 +33,17 @@ class FileProps(object):
     @property
     def creation_time(self):
         """Return [Time] The creation time of the file."""
-        return datetime.datetime.fromtimestamp(self.java_obj.creationTime.getTime() / 1000)
+        return datetime.datetime.fromtimestamp(self.java_obj.creationTime().getTime() / 1000)
 
     @property
     def last_access_time(self):
         """Return [Time] The last access time of the file."""
-        return datetime.datetime.fromtimestamp(self.java_obj.lastAccessTime.getTime() / 1000)        
+        return datetime.datetime.fromtimestamp(self.java_obj.lastAccessTime().getTime() / 1000)        
 
     @property
     def last_modified_time(self):
         """Return The last modified time of the file."""
-        return datetime.datetime.fromtimestamp(self.java_obj.lastModifiedTime.getTime() / 1000)        
+        return datetime.datetime.fromtimestamp(self.java_obj.lastModifiedTime().getTime() / 1000)        
     
     @property 
     def directory(self):
