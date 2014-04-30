@@ -205,6 +205,26 @@ class EventBusTest(object):
         json = {"foo" : "bar", "x" : 1234, "y" : 3.45355, "z" : True, "a" : False}
         self.echo(json)
 
+    def test_echo_array(self):
+        json = ['foo', 'bar', 'baz']
+        self.echo(json)
+
+    def test_echo_json_with_array(self):
+        json = {'foo': ['bar', 'baz']}
+        self.echo(json)
+
+    def test_echo_array_with_array(self):
+        json = ['foo', ['bar', 'baz']]
+        self.echo(json)
+
+    def test_echo_json_with_json(self):
+        json = {'foo': 'bar', 'bar': {'foo': 'baz'}}
+        self.echo(json)
+
+    def test_echo_array_with_json(self):
+        json = ['foo', {'bar': 'baz'}]
+        self.echo(json)
+
     def echo(self, msg):
         address = "some-address"
         class Handler(object):

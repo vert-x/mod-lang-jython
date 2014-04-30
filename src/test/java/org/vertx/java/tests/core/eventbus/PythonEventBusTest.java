@@ -82,6 +82,26 @@ public class PythonEventBusTest extends TestBase {
     startTest(getMethodName());
   }
 
+  public void test_echo_array() {
+    startTest(getMethodName());
+  }
+
+  public void test_echo_json_with_array() {
+    startTest(getMethodName());
+  }
+
+  public void test_echo_array_with_array() {
+    startTest(getMethodName());
+  }
+
+  public void test_echo_array_with_json() {
+    startTest(getMethodName());
+  }
+
+  public void test_echo_json_with_json() {
+    startTest(getMethodName());
+  }
+
   public void test_reply_of_reply_of_reply() {
     startTest(getMethodName());
   }

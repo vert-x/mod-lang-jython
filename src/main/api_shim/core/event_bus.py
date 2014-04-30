@@ -13,15 +13,12 @@
 # limitations under the License.
 
 import org.vertx.java.platform.impl.JythonVerticleFactory
-import org.vertx.java.core.buffer.Buffer
 import org.vertx.java.core.Handler
 import org.vertx.java.core.AsyncResultHandler
-import org.vertx.java.core.json.JsonObject
 import org.vertx.java.core.eventbus.ReplyException
-import java.lang
+import java.util.UUID
 
-from core.javautils import map_to_java, map_from_java
-from core.buffer import Buffer
+from core.javautils import map_to_vertx, map_from_vertx
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
@@ -170,19 +167,7 @@ class EventBus(object):
 
     @staticmethod
     def convert_msg(message):
-        if isinstance(message, dict):
-            message = org.vertx.java.core.json.JsonObject(map_to_java(message))
-        elif isinstance(message, Buffer):
-            message = message._to_java_buffer()
-        elif isinstance(message, long):
-            message = java.lang.Long(message)
-        elif isinstance(message, float):
-            message = java.lang.Double(message)
-        elif isinstance(message, int):
-            message = java.lang.Integer(message)
-        else:
-            message = map_to_java(message)
-        return message
+        return map_to_vertx(message)
 
     @staticmethod
     def java_eventbus():
@@ -213,12 +198,7 @@ class Message(object):
     """Represents a message received from the event bus"""
     def __init__(self, message):
         self.java_obj = message
-        if isinstance(message.body(), org.vertx.java.core.json.JsonObject):
-            self.body = map_from_java(message.body().toMap())
-        elif isinstance(message.body(), org.vertx.java.core.buffer.Buffer):
-            self.body = Buffer(message.body())
-        else:
-            self.body = map_from_java(message.body())
+        self.body = map_from_vertx(message.body())
 
     @property
     def address(self):

@@ -29,12 +29,29 @@ from java.util import (
     ArrayList,
     Vector
 )
+from java.lang import (
+    Long,
+    Double,
+    Integer
+)
+from core.buffer import Buffer
+import org.vertx.java.core.json.JsonObject
+import org.vertx.java.core.json.JsonArray
+import org.vertx.java.core.buffer.Buffer
 
 __author__ = "Scott Horn"
 __email__ = "scott@hornmicro.com"
 __credits__ = "Based entirely on work by Tim Fox http://tfox.org"
 
-def map_map_from_java (map):
+def map_array_from_java(array):
+    """Converts a JsonArray to a list."""
+    result = []
+    iter = array.iterator()
+    while iter.hasNext():
+        result.append(map_from_vertx(iter.next()))
+    return result
+
+def map_map_from_java(map):
     """Convert a Map to a Dictionary."""
     result = {}
     iter = map.keySet().iterator()
@@ -43,7 +60,15 @@ def map_map_from_java (map):
         result[map_from_java(key)] = map_from_java(map.get(key))
     return result
 
-def map_set_from_java (set_):
+def map_object_from_java(obj):
+    """Converts a JsonObject to a dictionary."""
+    return map_map_from_java(obj.toMap())
+
+def map_buffer_from_java(obj):
+    """Converts a Buffer to a Python Buffer."""
+    return Buffer(obj)
+
+def map_set_from_java(set_):
     """Convert a Set to a set."""
     result = set()
     iter = set_.iterator()
@@ -51,7 +76,7 @@ def map_set_from_java (set_):
         result.add(map_from_java(iter.next()))
     return result
 
-def map_collection_from_java (coll):
+def map_collection_from_java(coll):
     """Convert a Collection to a List."""
     result = []
     iter = coll.iterator()
@@ -59,52 +84,92 @@ def map_collection_from_java (coll):
         result.append(map_from_java(iter.next()))
     return result
 
-def map_from_java (object):
+def map_from_java(value):
     """Convert a Java type to a Jython type."""
-    if object is None: return object
-    if   isinstance(object, Map):        result = map_map_from_java(object)
-    elif isinstance(object, Set):        result = map_set_from_java(object)
-    elif isinstance(object, Collection): result = map_collection_from_java(object)
-    else:                                     result = object
-    return result
+    if value is None:
+        return value
+    if isinstance(value, Map):
+        return map_map_from_java(value)
+    elif isinstance(value, Set):
+        return map_set_from_java(value)
+    elif isinstance(value, Collection):
+        return map_collection_from_java(value)
+    return value
 
-def map_seq_to_java (seq):
+def map_from_vertx(value):
+    """Converts a Vert.x type to a Jython type."""
+    if value is None:
+        return value
+    if isinstance(value, Map):
+        return map_map_from_java(value)
+    elif isinstance(value, Set):
+        return map_set_from_java(value)
+    elif isinstance(value, Collection):
+        return map_collection_from_java(value)
+    elif isinstance(value, org.vertx.java.core.json.JsonObject):
+        return map_object_from_java(value)
+    elif isinstance(value, org.vertx.java.core.json.JsonArray):
+        return map_array_from_java(value)
+    elif isinstance(value, org.vertx.java.core.buffer.Buffer):
+        return map_buffer_from_java(value)
+    return value
+
+def map_seq_to_java(seq):
     """Convert a seqence to a Java ArrayList."""
     result = ArrayList(len(seq))
     for e in seq:
         result.add(map_to_java(e));
     return result
 
-def map_list_to_java (list):
+def map_list_to_java(list):
     """Convert a List to a Java ArrayList."""
     result = ArrayList(len(list))
     for e in list:
         result.add(map_to_java(e));
     return result
 
-def map_list_to_java_vector (list):
+def map_list_to_java_vector(list):
     """Convert a List to a Java Vector."""
     result = Vector(len(list))
     for e in list:
         result.add(map_to_java(e));
     return result
 
-def map_dict_to_java (dict):
+def map_dict_to_java(dict):
     """Convert a Dictionary to a Java HashMap."""
     result = HashMap()
     for key, value in dict.items():
         result.put(map_to_java(key), map_to_java(value))
     return result
 
-def map_to_java (object):
+def map_to_java(value):
     """Convert a Jython type to a Java type."""
-    if object is None: return object
-    t = type(object)
-    if   t == TupleType: result = map_seq_to_java(object)
-    elif t == ListType:  result = map_seq_to_java(object)
-    elif t == DictType:  result = map_dict_to_java(object)
-    else:                result = object
-    return result
+    if value is None:
+        return value
+    t = type(value)
+    if t in (TupleType, ListType):
+        return map_seq_to_java(value)
+    elif t == DictType:
+        return map_dict_to_java(value)
+    return value
+
+def map_to_vertx(value):
+    """Converts a Jython type to a Vert.x type."""
+    if value is None:
+        return value
+    if isinstance(value, (list, tuple)):
+        return org.vertx.java.core.json.JsonArray(map_seq_to_java(value))
+    elif isinstance(value, dict):
+        return org.vertx.java.core.json.JsonObject(map_dict_to_java(value))
+    elif isinstance(value, Buffer):
+        return value._to_java_buffer()
+    elif isinstance(value, long):
+        return Long(value)
+    elif isinstance(value, float):
+        return Double(value)
+    elif isinstance(value, int):
+        return Integer(value)
+    return map_to_java(value)
 
 def inetsocketaddress_to_tuple(object):
     return object.getAddress().getHostAddress() , object.getPort()
