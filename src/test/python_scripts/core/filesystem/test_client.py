@@ -58,15 +58,14 @@ class FileSystemTest(object):
             def props_handler(err, stats):
                 tu.check_thread()
                 tu.azzert(err == None)
-#                print "creation time %s"% stats.creation_time
-#                print "last access time %s"% stats.last_access_time
-#                print "last modification time %s"% stats.last_modified_time
-#                print "directory? %s"% stats.directory
-#                print "regular file? %s"% stats.regular_file
-#                print "symbolic link? %s"% stats.symbolic_link
-#                print "other? %s"% stats.other
-#                print "size %s"% stats.size
-                tu.azzert(stats.regular_file)
+                tu.azzert(stats.creation_time is not None)
+                tu.azzert(stats.last_access_time is not None)
+                tu.azzert(stats.last_modified_time is not None)
+                tu.azzert(stats.directory is not None)
+                tu.azzert(stats.regular_file is not None)
+                tu.azzert(stats.symbolic_link is not None)
+                tu.azzert(stats.other is not None)
+                tu.azzert(stats.size is not None)
                 tu.test_complete()
             fs.props(filename, props_handler)
         fs.create_file(filename, handler=create_file_handler)
