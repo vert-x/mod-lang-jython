@@ -75,11 +75,14 @@ class SockJSServer(object):
         return self.bridge_with_config(config, inbound_permitted, outbound_permitted, {"auth_timeout": auth_timeout, "auth_address": auth_address})
         
     def bridge_with_config(self, config, inbound_permitted, outbound_permitted, bridge_config):
+
+        # hook must be set before creating bridge
+        hook = _EventBusBridgeHook()
+        self.java_obj.setHook(hook)
+
         a_ijson = org.vertx.java.core.json.JsonArray(map_to_java(inbound_permitted))
         a_ojson = org.vertx.java.core.json.JsonArray(map_to_java(outbound_permitted))
         self.java_obj.bridge(org.vertx.java.core.json.JsonObject(map_to_java(config)), a_ijson, a_ojson, org.vertx.java.core.json.JsonObject(map_to_java(bridge_config)))
-        hook = _EventBusBridgeHook()
-        self.java_obj.setHook(hook)
         return EventBusBridge(hook)
 
 class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
@@ -131,9 +134,8 @@ class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
 
 class EventBusBridge(object):
     """Event bus bridge."""
-    def __init__(self, j_bridge):
-        self.java_obj = j_bridge
-        self.hook = _EventBusBridgeHook()
+    def __init__(self, hook):
+        self.hook = hook
 
     def socket_created_handler(self, func):
         """Registers a socket created handler."""
