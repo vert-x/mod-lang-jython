@@ -1,4 +1,6 @@
-# Jython Vert.x API Implementation Module
+# Vert.x 2.x is **deprecated** - use instead http://vertx.io
+
+## Jython Vert.x API Implementation Module
 
 This project builds a Vert.x module which implements Python Vert.x API support using Jython.
 
