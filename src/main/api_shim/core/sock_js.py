@@ -97,14 +97,8 @@ class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
         self.remote_addr = None
         self.local_addr = None
 
-        def simple_handler(msg):
-            self.write(msg.body)
-
-        self.handler_id = EventBus.register_simple_handler(True, simple_handler)
-
     def close(self):
         """Close the socket"""
-        EventBus.unregister_handler(self.handler_id)
         self.java_obj.close()
 
     def handler_id(self):
@@ -113,7 +107,7 @@ class SockJSSocket(core.streams.ReadStream, core.streams.WriteStream):
         Given this ID, a different event loop can send a buffer to that event handler using the event bus. This
         allows you to write data to other SockJSSockets which are owned by different event loops.
         """
-        return self.handler_id
+        return self.java_obj.writeHandlerID()
         
     @property
     def remote_address(self):
